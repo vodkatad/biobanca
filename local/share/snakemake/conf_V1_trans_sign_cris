@@ -16,4 +16,6 @@ BIN_DIR=PRJ_ROOT+"/local/bin"
 SRC_DIR=PRJ_ROOT+"/local/src"
 DATA=PRJ_ROOT+"/local/share/data"
 
-SIMO=DATA+"/"
+SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
+CRIS=DATA+"/all_prediction_result.xls"
+MEDA=DATA+"/cetuxi/selected_metadata_annot_final.tsv"

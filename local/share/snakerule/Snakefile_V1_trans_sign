@@ -1,2 +1,38 @@
 include: "./conf.sk"
 
+
+### qui mi serve il file di Simonetta, la tabella CRIS e il metadata_annot
+
+### direi primo script che outputta il file per sankey uhm
+### arrivare al un file di input per sankey
+### script con sankey
+
+### Simonetta's file original association PDX-PDO:
+    ### filter out all samples without RNAseq available and human ones
+rule simo:
+    input: SIMO
+    output: "SIMO_v2.tsv"
+    shell:
+        """
+            cat {input} | sed 1d | sed '/LMH/d' | bawk '$5!="NO" {{print $2,$3,$6,substr($6,0,12)}}' > {output}.tmp
+            cat <(echo -e "PDO_lineage\tDNA_GenID\tMATCHED_LMX-LMO\tPDX_lineage") {output}.tmp > {output}
+            rm {output}.tmp*         
+        """
+
+rule metadata:
+    input: cris=CRIS, meda=MEDA, simo="SIMO_v2.tsv"
+    params: tool=BIN_DIR+"/forsankey_PDX-PDO"
+    output: "unique_PDX-PDO_switch.tsv"
+    shell:
+        """
+            {params.tool} -c {input.cris} -m {input.meda} -s {input.simo} -o {output}
+        """
+
+rule sankeynco:
+    input: "unique_PDX-PDO_switch.tsv"
+    params: tool=BIN_DIR+"/PDX-PDO_different_plots"
+    output: sankey="sankey_diagram_PDX-PDO_CRISswitch.html", classes="classes_freq_in_samples.png", switch="switch_numbers.png", switched="switching_CRIS_withBARs.png"
+    shell:
+        """
+            {params.tool} -i {input} -s {output.sankey} -c {output.classes} -w {output.switch} -o {output.switched}
+        """
