@@ -37,7 +37,9 @@ tab <- as.data.frame(apply(merge_pdo[,-1], 2, function(x) {sum(is.na(x))}))
 colnames(tab) <- ('n_NA')
 write.table(data.frame('exp'=rownames(tab), tab), file=paste0('missingdata_', prefix, '.tsv'), sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
 
-png(paste0('highlevelcor_', prefix, '.png'))
+#png(paste0('highlevelcor_', prefix, '.png'), type="cairo-png", res=300, width = 1000, height = 1000)
+# wtf?
+pdf(paste0('highlevelcor_', prefix, '.pdf'))
 plot(merge_pdo[,-1])
 graphics.off()
 

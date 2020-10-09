@@ -1,2 +1,10 @@
 include: "./conf.sk"
 
+rule model:
+    input: x=MODELS_X, y=MODELS_Y
+    output: "models.tsv"
+    params: tool=BIN_DIR+"/many_models", prefix=NAME, xs=lambda w_plh: ','.join(WANTED_X), merge=MERGE, yname=YNAME
+    shell:
+        """
+            {params.tool} {input.x} {input.y} {output} {params.prefix} {params.xs} {params.merge} {params.yname}
+        """

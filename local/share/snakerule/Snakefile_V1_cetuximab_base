@@ -10,3 +10,18 @@ rule polish_merge:
         """
             {params.tool} {input.m1} {input.m2} {output} {params.prefix}
         """
+
+
+# Rule to put together info for all models and select the winner (sort on adjR2)
+rule all_models:
+    input: ATP="atp/models.tsv", imaging="imaging/models.tsv"
+    output: "models.tsv"
+    shell:
+        """
+            head -n1 {input.ATP} > {output}
+            cat <(sed 1d {input.ATP}) <(sed 1d {input.imaging}) | sort -gk4,4 -r >> {output}
+        """
+
+# CTG_5000 is best based on adjR and pvalue, so we are sadisfied. logLikelihoods, mh?
+# TODO PLOT
+# Can we compare with anova for nested models? Too co-linear.
