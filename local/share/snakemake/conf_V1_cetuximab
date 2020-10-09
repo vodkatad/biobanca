@@ -14,6 +14,8 @@ SNAKE_ROOT=os.getenv('SNAKE_ROOT')
 
 BIN_DIR=PRJ_ROOT+"/local/bin"
 SRC_DIR=PRJ_ROOT+"/local/src"
-DATA=PRJ_ROOT+"/local/share/data"
+DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
-SIMO=DATA+"/"
+### end of common part.
+ATP=DATA+"/PDO_CTG.txt"
+IMAGING=DATA+"/PDO_imaging.txt"

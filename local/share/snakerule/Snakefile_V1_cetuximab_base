@@ -1,0 +1,12 @@
+include: "./conf.sk"
+
+# In this "base" directory we just do some initial data trimming, so inner directories code can be more general
+# This script also produces some basic tables about samples numbers and general plot of the data.
+rule polish_merge:
+    input: m1=ATP, m2=IMAGING
+    output: "pdo_cetuxi.tsv"
+    params: tool=BIN_DIR+"/polish_merge_pdocetuxi", prefix="cetuxipdo"
+    shell:
+        """
+            {params.tool} {input.m1} {input.m2} {output} {params.prefix}
+        """

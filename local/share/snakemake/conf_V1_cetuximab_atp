@@ -14,6 +14,9 @@ SNAKE_ROOT=os.getenv('SNAKE_ROOT')
 
 BIN_DIR=PRJ_ROOT+"/local/bin"
 SRC_DIR=PRJ_ROOT+"/local/src"
-DATA=PRJ_ROOT+"/local/share/data"
+DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
-SIMO=DATA+"/"
+### end of common part.
+MODELS_Y=DATA+'/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv'
+MODELS_X='../pdo_cetuxi.tsv'
+WANTED_X=["5000 cells/well","1250 cells/well" ,"10.000 cells/well","20.000 cells/well"]
