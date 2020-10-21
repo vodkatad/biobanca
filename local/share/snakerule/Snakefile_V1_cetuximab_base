@@ -22,6 +22,13 @@ rule all_models:
             cat <(sed 1d {input.ATP}) <(sed 1d {input.imaging}) | sort -gk4,4 -r >> {output}
         """
 
-# CTG_5000 is best based on adjR and pvalue, so we are sadisfied. logLikelihoods, mh?
-# TODO PLOT
-# Can we compare with anova for nested models? Too co-linear.
+# CTG_5000 is best based on adjR and pvalue, so we are sadisfied. logLikelihoods, mh? (will need AIC/BIC)
+# Can we compare with anova for nested models? Too collinear probably.
+rule plot:
+    input: "models.tsv"
+    output: "models.svg"
+    params: tool=BIN_DIR+"/plot_models_metrics"
+    shell:
+        """
+            {params.tool} {input} {output}
+        """

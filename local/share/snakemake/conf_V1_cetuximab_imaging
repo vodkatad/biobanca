@@ -19,7 +19,7 @@ DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 ### end of common part.
 MODELS_Y=DATA+'/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv'
 MODELS_X='../pdo_cetuxi.tsv'
-WANTED_X=["CTG_5000","CTG_1250","CTG_20000"]
+WANTED_X=["imaging_5000","imaging_1250","imaging_20000"]
 MERGE="case"
 YNAME="Cetuximab_dVw3"
-NAME="CTG"
+NAME="Imaging"
