@@ -1,21 +1,22 @@
 import os
 def find_prj_root(path=os.getcwd()):
-    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+    if os.path.isfile(os.path.join(path,'.PRJ_ROOT')):
         return path
     else:
         if path:
             return find_prj_root(os.path.dirname(path))
         else:
-            raise Exception("Can not find the PRJ_ROOT directory")
+            raise Exception('Can not find the PRJ_ROOT directory')
 
 PRJ_ROOT=find_prj_root()
 BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
 SNAKE_ROOT=os.getenv('SNAKE_ROOT')
 
-BIN_DIR=PRJ_ROOT+"/local/bin"
-SRC_DIR=PRJ_ROOT+"/local/src"
+BIN_DIR=PRJ_ROOT+'/local/bin'
+SRC_DIR=PRJ_ROOT+'/local/src'
 DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
+CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv'
 ### end of common part.
-ATP=DATA+"/PDO_CTG.txt"
-IMAGING=DATA+"/PDO_imaging.txt"
+ATP=DATA+'/PDO_CTG.txt'
+IMAGING=DATA+'/PDO_imaging.txt'
