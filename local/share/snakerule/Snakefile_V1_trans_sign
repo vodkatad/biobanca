@@ -28,10 +28,28 @@ rule metadata:
             {params.tool} -c {input.cris} -m {input.meda} -s {input.simo} -o {output}
         """
 
+### Compute Cohen Kappa to know the concordance between two obseravtions, in this case CRIS classes in PDX and PDO
+rule cohen:
+    input: "unique_PDX-PDO_switch.tsv"
+    output: "cohenK_PDX-PDO"
+    script: SRC_DIR+"/cohenK.R"
+
+
+###TODO regoletta che sputa due df: uno media uno correlazioni inter-pdx
+
+# rule correlation:
+#     input: switch="unique_PDX-PDO_switch.tsv", fpkm=FPKM
+#     params: tool=BIN_DIR+"/"
+#     output: "PDX-PDO_correlations.tsv.gz"
+#     shell:
+#         """
+
+#         """
+
 rule sankeynco:
     input: "unique_PDX-PDO_switch.tsv"
     params: tool=BIN_DIR+"/PDX-PDO_different_plots"
-    output: sankey="sankey_diagram_PDX-PDO_CRISswitch.html", classes="classes_freq_in_samples.png", switch="switch_numbers.png", switched="switching_CRIS_withBARs.png"
+    output: sankey="sankey_diagram_PDX-PDO_CRISswitch.html", classes="classes_freq_in_samples.png", switch="switch_numbers.png", switched="switching_CRIS_withBARs.png", kappa="cohen.k_value"
     shell:
         """
             {params.tool} -i {input} -s {output.sankey} -c {output.classes} -w {output.switch} -o {output.switched}

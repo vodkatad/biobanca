@@ -2,6 +2,8 @@
 
 library(getopt)
 library(plotly)
+library(networkD3)
+
 
 set.seed(42)
 
@@ -11,11 +13,12 @@ opts <- matrix(c(
   'sankey_out', 's', 1, 'character',
   'classes_out', 'c', 1, 'character',
   'switch_out', 'w', 1, 'character',
-  'switched_out', 'o', 1, 'character'), ncol=4, byrow=TRUE)
+  'switched_out', 'o', 1, 'character',
+  'kappa_out', 'k', 1, 'character'), ncol=4, byrow=TRUE)
 opt <- getopt(opts)
 
 
-df <- read.table(gzfile(opt$df_in), sep='\t', quote="", header=TRUE)
+df <- read.table(gzfile(opt$df_in), sep='\t', quote="", header=TRUE) # *at the end there is the cohen.kappa()
 
 lmx_freq <- as.data.frame(table(df$prediction_LMX))
 lmo_freq <- as.data.frame(table(df$prediction_LMO))
@@ -41,7 +44,7 @@ switched$perc <- round(switched$perc, 2)
 
 
 ### plot for LMX-LMO frequency
-png(opt$classes_out)
+png(opt$classes_out, width=8, height=5, units="in", type="cairo", res=300)
 ggplot(data=df2, aes(x=CRIS, y=Freq, fill=type)) +
   geom_bar(stat="identity", position=position_dodge()) +
   geom_text(aes(label=`%CRIS`), vjust=-0.3, position = position_dodge(0.9), size=3.5) +
@@ -51,7 +54,7 @@ ggplot(data=df2, aes(x=CRIS, y=Freq, fill=type)) +
 dev.off() 
 
 ### plot for switcher number
-png(opt$switch_out)
+png(opt$switch_out, width=8, height=5, units="in", type="cairo", res=300)
 ggplot(data=switched, aes(x=switch, y=freq, fill=switch)) +
   geom_bar(stat="identity") +
   geom_text(aes(label=perc), vjust=-0.3, size=3.5) +
@@ -66,7 +69,7 @@ colnames(switchtype) <- c("switch_type","freq")
 switchtype$perc <- switchtype$freq/nrow(df)*100
 switchtype$perc <- round(switchtype$perc, 2)
 
-png(opt$switched_out)
+png(opt$switched_out, width=8, height=5, units="in", type="cairo", res=300)
 ggplot(data=switchtype, aes(x=switch_type, y=freq, fill=switch_type)) +
   geom_bar(stat="identity") +
   geom_text(aes(label=freq), vjust=0.3, hjust=-1, size=3.5) +
@@ -93,35 +96,41 @@ nodes$color <- c("darkorange","firebrick","darkblue","forestgreen","cyan","darko
 switchtype$IDsource=match(switchtype$source, nodes$name)-1 
 switchtype$IDtarget=match(switchtype$target, nodes$name)-1
 
-#png(opt$sankey_out)
-fig <- plot_ly(
-  type = "sankey",
-  orientation = "h",
+# png(opt$sankey_out)
+# fig <- plot_ly(
+#   type = "sankey",
+#   orientation = "h",
   
-  node = list(
-    label = nodes$label,
-    color = nodes$color,
-    pad = 15,
-    thickness = 20,
-    line = list(
-      color = "black",
-      width = 0.5
-    )
-  ),
+#   node = list(
+#     label = nodes$label,
+#     color = nodes$color,
+#     pad = 15,
+#     thickness = 20,
+#     line = list(
+#       color = "black",
+#       width = 0.5
+#     )
+#   ),
   
-  link = list(
-    source = switchtype$IDsource,
-    target = switchtype$IDtarget,
-    value =  switchtype$perc
-  )
-)
-fig <- fig %>% layout(
-  title = "<b>CRIS class switch between LMX and LMO</b>",
-  font = list(
-    size = 13
-  )
-)
-#graphics.off()
+#   link = list(
+#     source = switchtype$IDsource,
+#     target = switchtype$IDtarget,
+#     value =  switchtype$perc
+#   )
+# )
+# fig <- fig %>% layout(
+#   title = "<b>CRIS class switch between LMX and LMO</b>",
+#   font = list(
+#     size = 13
+#   )
+# )
+# graphics.off()
 # export(fig, file = opt$sankey_out)
 ###TODO: capire come generare l'immagine senza passare dall'html, o python libreria selenium
-htmlwidgets::saveWidget(fig, file = opt$sankey_out)
+# htmlwidgets::saveWidget(fig, file = opt$sankey_out)
+
+
+### cohen.kappa() computation
+df2 <- data.frame(row.names=df$LMX_lineage, PDX=df$prediction_LMX, PDO=df$prediction_LMO, stringsAsFactors=FALSE)
+df3 <- data.frame(kappa=cohen.kappa(df2)$kappa, stringsAsFactors=FALSE)
+write.table(df3, opt$kappa_out, sep='\t', quote=FALSE, row.names=FALSE, col.names=TRUE)

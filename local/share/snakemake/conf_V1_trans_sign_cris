@@ -19,3 +19,6 @@ DATA=PRJ_ROOT+"/local/share/data"
 SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
 CRIS=DATA+"/all_prediction_result.xls"
 MEDA=DATA+"/cetuxi/selected_metadata_annot_final.tsv"
+
+FPKM="/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5/fpkm.tsv.gz"
+
