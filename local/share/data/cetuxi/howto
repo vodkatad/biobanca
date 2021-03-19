@@ -1,0 +1,46 @@
+I dati sui PDO derivano da un excel di Simonetta, mail dal titolo "organoidi validati" del 13 Marzo 2020.
+Da li` son derivati due file, uno per imaging e uno per CTG/ATP, con dati degli esperimenti per 128 casi.
+In entrambi i casi ci son diverse condizioni di piastratura:
+5000 cells/well	1250 cells/well	10.000 cells/well	20.000 cells/well
+
+Lo scopo e` dimostrare che l'imaging che e` piu` semplice funziona uguale e quale sia la migliore condizione di piastratura.
+Indagini iniziali fatte in Rmd il cui output e` su drive:
+https://drive.google.com/drive/u/1/folders/1WgSPcT75mO6aAWMgdeEVAY6KBewZRj2
+
+For each of the predictors we want to save adjR2, pvalue, loglik of the models and a plot for the correlation.
+
+Cetuximab was "/cetuxi_w3_nov2019.txt", now we get it from the August/Sept data release done by Eugenia for Iorio, checking numbers:
+data@rotpunkt:~/work/biobanca$ wc -l cetuxi_w3_nov2019.txt 
+298 cetuxi_w3_nov2019.txt
+data@rotpunkt:~/Dropbox/work/strata/pdxopedia/localsharedata$ sed 1d ~/work/def_targeted_sanger672_iorio/treat/Treatments_Eugy_Ele_fix0cetuxi_201005.tsv  | bawk '$4!=""{print $1,$4}' > treats/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv
+data@rotpunkt:~/work/biobanca$ wc -l ~/Dropbox/work/strata/pdxopedia/localsharedata/treats/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv
+298 /home/data/Dropbox/work/strata/pdxopedia/localsharedata/treats/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv
+
+...wow! Our cetuximab release is frozen from November?
+November data was in fraction and not percentages, let's stick to percentages... WARNING: preliminary investigations were done with fractions.
+No different data:
+data@rotpunkt:~/work/biobanca$ join -t$'\t' <(sort /home/data/Dropbox/work/strata/pdxopedia/localsharedata/treats/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv) <(sort cetuxi_w3_nov2019.txt | bawk '{print $1,$2*100}') | bawk '{print $1,$3-$2}' | sort -gk2,2 |head
+CRC0314	-3.979039320256561e-13
+CRC0504	-3.979039320256561e-13
+CRC0515	-3.979039320256561e-13
+CRC0277	-3.4106051316484809e-13
+CRC0382	-2.2737367544323206e-13
+CRC0438	-2.2737367544323206e-13
+CRC0348	-1.9895196601282805e-13
+CRC0371	-1.7053025658242404e-13
+CRC0488	-1.7053025658242404e-13
+CRC0537	-4.9737991503207013e-14
+data@rotpunkt:~/work/biobanca$ join -t$'\t' <(sort /home/data/Dropbox/work/strata/pdxopedia/localsharedata/treats/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv) <(sort cetuxi_w3_nov2019.txt | bawk '{print $1,$2*100}') | bawk '{print $1,$3-$2}' | sort -gk2,2 |tail
+CRC0323	4.2632564145606011e-14
+CRC0370	4.2632564145606011e-14
+CRC0456	4.2632564145606011e-14
+CRC0527	1.4210854715202004e-13
+CRC0508	1.7053025658242404e-13
+CRC0480	1.9895196601282805e-13
+CRC0481	3.1263880373444408e-13
+CRC0479	3.2684965844964609e-13
+CRC0505	3.694822225952521e-13
+CRC0416	4.5474735088646412e-13
+
+
+DONE - restore this as a pdxopedia treat release, added a rule to add header in the base cetuximab Snakefile.

@@ -1,10 +1,159 @@
-include: "./conf.sk"
+include: './conf.sk'
 
 rule model:
     input: x=MODELS_X, y=MODELS_Y
-    output: "models.tsv"
-    params: tool=BIN_DIR+"/many_models", prefix=NAME, xs=lambda w_plh: ','.join(WANTED_X), merge=MERGE, yname=YNAME
+    output: 'models.tsv'
+    params: tool=BIN_DIR+'/many_models', prefix=NAME, xs=lambda w_plh: ','.join(WANTED_X), merge=MERGE, yname=YNAME
     shell:
         """
             {params.tool} {input.x} {input.y} {output} {params.prefix} {params.xs} {params.merge} {params.yname}
         """
+
+#https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html
+#  but need newer sklearn to do the plots :/
+rule auc_input:
+    input: x=MODELS_X, y=MODELS_Y
+    output: data='input_auc.tsv', numbers='cetuxi_n.tsv'
+    params: merge=MERGE, yname='perc', x=X_AUC, lower=-50, upper=30
+    run:
+        import numpy as np
+        import pandas as pd
+
+        x = pd.read_table(input.x, sep='\t', index_col=0, header=0)
+        y = pd.read_table(input.y, sep='\t', index_col=0, header=0)
+        # Explicitly set index_col and header as default to try to learn this thing :)
+        n_pdo = x.shape[0]
+        n_cetuxi = y.shape[0]
+        # We keep only the chosen x (in pandas [] would have returned a series, [[]] a df)
+        x = x[[params.x]]
+
+        data = y.merge(x, left_index=True, right_index=True)
+        n_tot = data.shape[0]
+        data = data[(data[params.yname] <= params.lower) | (data[params.yname] >= params.upper)]
+        n_RorS = data.shape[0]
+        data['responder'] = np.where(data[params.yname] <= params.lower, 1, 0)
+        data = data.drop(columns=[params.yname])
+
+        data.to_csv(output.data, sep='\t', header=True, index=True)
+
+        nums = pd.DataFrame({'pdo': n_pdo, 'cetuxi': n_cetuxi, 'common': n_tot , 'n_R_or_S': n_RorS}, index=[1])
+        nums.to_csv(output.numbers, sep='\t', header=True, index=False)
+        
+rule auc:
+    input: data='input_auc.tsv'
+    output: data='{k}fc_auc.tsv'
+    params: y='perc', x=X_AUC
+    run:
+        import numpy as np
+        from sklearn import svm, datasets
+        from sklearn.metrics import auc
+        from sklearn.model_selection import StratifiedKFold
+        
+        data = pd.read_table(input.data, sep='\t', index_col=0, header=0)
+        x = data[params.x]
+        y = data[params.y]
+
+        cv = StratifiedKFold(n_splits=params.k)
+        random_state = np.random.RandomState(0)
+        classifier = svm.SVC(kernel='linear', probability=True, random_state=random_state)
+
+        tprs = []
+        aucs = []
+        mean_fpr = np.linspace(0, 1, 100) # 100 evenly spaced values between 0 and 1
+
+        for i, (train, test) in enumerate(cv.split(X, y)):
+            xtr = np.reshape(x[train], (-1,1))
+            xte = np.reshape(x[test], (-1,1))
+            classifier.fit(xt, y[train])
+            #ValueError: Expected 2D array, got 1D array instead:
+            #array=[0.2 0.5 0.9].
+            #Reshape your data either using array.reshape(-1, 1) if your data has a single feature or array.reshape(1, -1) if it contains a single sample.
+            predict_test = classifier.predict_proba(xte) # or decision_function? Do not like the inner k fold... how do I pass the pos_label?
+            #In [19]: classifier.predict_proba(np.reshape([0.2,0.5,0.9],(-1,1)))
+            #Out[19]: 
+            #array([[0.59322528, 0.40677472],
+            #[0.63194273, 0.36805727],
+            #[0.68385384, 0.31614616]])
+            # pos label is ok: TODO understand better
+            #In [18]: classifier.classes_[1]
+            #Out[18]: 1
+            fpr, tpr, thresholds = roc_curve(y[test], predict_test, pos_label=1)
+            auc = roc_auc_score(y[test], predict_test, pos_label=1)
+            tprs.append(tpr)
+            fprs.append(fpr)
+            aucs.append()
+
+
+            mean_tpr = np.mean(tprs, axis=0)
+            mean_tpr[-1] = 1.0
+            mean_auc = auc(mean_fpr, mean_tpr)
+            std_auc = np.std(aucs)
+            
+            std_tpr = np.std(tprs, axis=0)
+            tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+            tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+
+rule naive_roc:
+    input: data='input_auc.tsv'
+    output: res='roc.tsv' #, plot='roc.png'
+    params: y='responder', x=X_AUC
+    log: auc='auc.tsv'
+    run:
+        import numpy as np
+        import pandas as pd
+        from sklearn.metrics import auc, roc_curve#, RocCurveDisplay
+        import matplotlib.pyplot as plt  
+
+        data = pd.read_table(input.data, sep='\t', index_col=0, header=0)
+        x = data[params.x]
+        y = data[params.y]
+
+        fpr, tpr, thresholds = roc_curve(y, -x, pos_label=1)
+        roc_auc = auc(fpr, tpr)
+        
+        res = pd.DataFrame({'fpr': fpr, 'tpr': tpr, 'thr': thresholds})
+        res.to_csv(output.res, sep='\t', header=True, index=False)
+
+        with open(log.auc, 'w') as out:
+            out.write(str(roc_auc)+'\n')
+
+        #auc = roc_auc_score(y[test], predict_test, pos_label=1)
+        #display = RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=roc_auc, estimator_name='Barebone AUC')   
+        #display.plot()  
+        #plt.savefig(output.plot)
+
+#library(ROCR)
+# > d <- read.table('input_auc.tsv', header=T)
+# > head(d)
+#      case  CTG_5000 responder
+# 1 CRC0022 1.0928478         0
+# 2 CRC0031 0.7298457         0
+# 3 CRC0055 0.8924421         0
+# 4 CRC0059 0.2314466         1
+# 5 CRC0069 0.3874205         1
+# 6 CRC0076 0.3022279         1
+# > d$case <- NULL
+# > d$CTG_5000 <- -d$CTG_5000
+# > pred <- prediction(d$CTG_5000, d$responder)
+# > perf <- performance(pred, 'tpr','fpr')
+# > png('test.png')
+# > plot(perf,colorize=TRUE)
+# > dev.off()
+
+#> p@y.values
+#[[1]]
+#[1] 0.8609375
+
+#> str(p)
+#formal class 'performance' [package "ROCR"] with 6 slots
+#  ..@ x.name      : chr "None"
+#  ..@ y.name      : chr "Area under the ROC curve"
+#  ..@ alpha.name  : chr "none"
+#  ..@ x.values    : list()
+#  ..@ y.values    :List of 1
+#  .. ..$ : num 0.861
+#  ..@ alpha.values: list()
+#> 
+#Save workspace image? [y/n/c]: n
+#egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/cetuximab/atp$ cat auc.tsv 
+#0.8609374999999999

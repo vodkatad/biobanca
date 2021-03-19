@@ -11,11 +11,20 @@ rule polish_merge:
             {params.tool} {input.m1} {input.m2} {output} {params.prefix}
         """
 
+# Adding header to cetuxi data
+rule cetuxi_header:
+    input: CETUXI
+    output: 'cetuxi_perc_w3.tsv'
+    shell:
+        """
+            echo -e "case\\tperc" > {output}
+            cat {input} >> {output}
+        """
 
 # Rule to put together info for all models and select the winner (sort on adjR2)
 rule all_models:
     input: ATP="atp/models.tsv", imaging="imaging/models.tsv"
-    output: "models.tsv"
+    output: 'models.tsv'
     shell:
         """
             head -n1 {input.ATP} > {output}
@@ -25,9 +34,9 @@ rule all_models:
 # CTG_5000 is best based on adjR and pvalue, so we are sadisfied. logLikelihoods, mh? (will need AIC/BIC)
 # Can we compare with anova for nested models? Too collinear probably.
 rule plot:
-    input: "models.tsv"
-    output: "models.svg"
-    params: tool=BIN_DIR+"/plot_models_metrics"
+    input: 'models.tsv'
+    output: 'models.svg'
+    params: tool=BIN_DIR+'/plot_models_metrics'
     shell:
         """
             {params.tool} {input} {output}
