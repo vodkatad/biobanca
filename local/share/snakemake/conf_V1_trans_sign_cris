@@ -17,8 +17,10 @@ SRC_DIR=PRJ_ROOT+"/local/src"
 DATA=PRJ_ROOT+"/local/share/data"
 
 SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
-CRIS=DATA+"/all_prediction_result.xls"
-MEDA=DATA+"/cetuxi/selected_metadata_annot_final.tsv"
+#CRIS=DATA+"/all_prediction_result.xls" # old
+CRIS=SNAKE_ROOT+'/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_tmm_prediction_result.tsv'
+#MEDA=DATA+"/cetuxi/selected_metadata_annot_final.tsv"
+MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
 
 FPKM="/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5/fpkm.tsv.gz"
 

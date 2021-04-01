@@ -52,5 +52,5 @@ rule sankeynco:
     output: sankey="sankey_diagram_PDX-PDO_CRISswitch.html", classes="classes_freq_in_samples.png", switch="switch_numbers.png", switched="switching_CRIS_withBARs.png", kappa="cohen.k_value"
     shell:
         """
-            {params.tool} -i {input} -s {output.sankey} -c {output.classes} -w {output.switch} -o {output.switched}
+            {params.tool} -i {input} -s {output.sankey} -c {output.classes} -w {output.switch} -o {output.switched} -k {output.kappa}
         """

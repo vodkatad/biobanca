@@ -3,6 +3,7 @@
 library(getopt)
 library(plotly)
 library(networkD3)
+library(psych)
 
 
 set.seed(42)
@@ -90,44 +91,49 @@ nodes <- data.frame(name=c(as.character(switchtype$source), as.character(switcht
 nodes$label <- nodes$name
 nodes$label <- sub(".", "-", nodes$label, fixed=TRUE)
 nodes$label <- factor(nodes$label, levels=c("CRIS-A","CRIS-B","CRIS-C","CRIS-D","CRIS-E"))
-nodes$color <- c("darkorange","firebrick","darkblue","forestgreen","cyan","darkorange","firebrick","darkblue","forestgreen","cyan")
+nodes <- nodes[order(nodes$label),]
+nodes$color <- c("darkorange","darkorange","firebrick","firebrick","darkblue","darkblue","forestgreen","forestgreen","cyan","cyan")
+nodes <- nodes[order(nodes$name),]
+# we order them to have source then target to have consistent colors (before used labels to have easy way do define colors
 
 ### With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
 switchtype$IDsource=match(switchtype$source, nodes$name)-1 
 switchtype$IDtarget=match(switchtype$target, nodes$name)-1
 
 # png(opt$sankey_out)
-# fig <- plot_ly(
-#   type = "sankey",
-#   orientation = "h",
+ fig <- plot_ly(
+   type = "sankey",
+   orientation = "h",
   
-#   node = list(
-#     label = nodes$label,
-#     color = nodes$color,
-#     pad = 15,
-#     thickness = 20,
-#     line = list(
-#       color = "black",
-#       width = 0.5
-#     )
-#   ),
+   node = list(
+     label = nodes$label,
+     color = nodes$color,
+     pad = 15,
+     thickness = 20,
+     line = list(
+       color = "black",
+       width = 0.5
+     ),
+     x = c(rep(1,5), rep(0,5)),
+     y = c(rep(0,5), rep(1,5))
+   ),
   
-#   link = list(
-#     source = switchtype$IDsource,
-#     target = switchtype$IDtarget,
-#     value =  switchtype$perc
-#   )
-# )
-# fig <- fig %>% layout(
-#   title = "<b>CRIS class switch between LMX and LMO</b>",
-#   font = list(
-#     size = 13
-#   )
-# )
+   link = list(
+     source = switchtype$IDsource,
+     target = switchtype$IDtarget,
+     value =  switchtype$perc
+   )
+ )
+ fig <- fig %>% layout(
+   title = "<b>CRIS class switch between LMX and LMO</b>",
+   font = list(
+     size = 13
+   )
+ )
 # graphics.off()
 # export(fig, file = opt$sankey_out)
 ###TODO: capire come generare l'immagine senza passare dall'html, o python libreria selenium
-# htmlwidgets::saveWidget(fig, file = opt$sankey_out)
+htmlwidgets::saveWidget(fig, file = opt$sankey_out)
 
 
 ### cohen.kappa() computation

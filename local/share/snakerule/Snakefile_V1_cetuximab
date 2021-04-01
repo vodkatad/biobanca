@@ -9,6 +9,34 @@ rule model:
             {params.tool} {input.x} {input.y} {output} {params.prefix} {params.xs} {params.merge} {params.yname}
         """
 
+rule wf_input:
+    input: x=MODELS_X, y=MODELS_Y
+    output: merge="merge.tsv"
+    params: merge=MERGE, yname='perc', x=X_AUC
+    run:
+        import numpy as np
+        import pandas as pd
+
+        x = pd.read_table(input.x, sep='\t', index_col=0, header=0)
+        y = pd.read_table(input.y, sep='\t', index_col=0, header=0)
+        # Explicitly set index_col and header as default to try to learn this thing :)
+        n_pdo = x.shape[0]
+        n_cetuxi = y.shape[0]
+        # We keep only the chosen x (in pandas [] would have returned a series, [[]] a df)
+        x = x[[params.x]]
+
+        data = y.merge(x, left_index=True, right_index=True)
+        data.to_csv(output.merge, sep='\t', header=True, index=True)
+
+rule waterfall:
+    input: "merge.tsv"
+    output: "waterfall.svg"
+    params: tool=BIN_DIR+"/waterfall"
+    shell:
+        """
+            {params.tool} {input} {output}
+        """
+
 #https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc_crossval.html
 #  but need newer sklearn to do the plots :/
 rule auc_input:
