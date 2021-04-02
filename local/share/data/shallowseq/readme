@@ -1,0 +1,3 @@
+https://drive.google.com/drive/u/1/folders/1ezXrA7NMC5gz0PPSZO6JlDlKwp3WpnE2 (Dotto mail Fri, 26 Mar, 11:50 low-pass WGS)
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ grep LMO SampleKey-1740-174Q2.txt > map_lmo
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ grep LMX SampleKey-1740-174Q2.txt > map_lmx
