@@ -1,3 +1,34 @@
 https://drive.google.com/drive/u/1/folders/1ezXrA7NMC5gz0PPSZO6JlDlKwp3WpnE2 (Dotto mail Fri, 26 Mar, 11:50 low-pass WGS)
 egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ grep LMO SampleKey-1740-174Q2.txt > map_lmo
 egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ grep LMX SampleKey-1740-174Q2.txt > map_lmx
+# recupero tre campioni Vale:
+tail -n 3 SampleKey-1740-174Q2.txt >> map_lmo
+# recupero umani
+grep LMH SampleKey-1740-174Q2.txt >> map_lmo
+
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ ls fastq/*fastq.gz > fastqs_list
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ translate -a <(tr '/' "\t" < fastqs_list | cut -f 2 |  sed 's/_L001/\t/1' | cut -f 1 | tr "_" "\t" |sort | uniq) 1 < map_lmo  |bawk '{print $1"_"$2,$3}' > map_lmo_withS.tsv
+
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ translate -a <(tr '/' "\t" < fastqs_list | cut -f 2 |  sed 's/_L001/\t/1' | cut -f 1 | tr "_" "\t" |sort | uniq) 1 < map_lmx  |bawk '{print $1"_"$2,$3}' > map_lmx_withS.tsv
+
+egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq$ wc -l map_lm*
+  153 map_lmo
+  153 map_lmo_withS.tsv
+  149 map_lmx
+  149 map_lmx_withS.tsv
+
+Fix Vale's names by hand:   
+egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep 327 /mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/map_lmo_withS.tsv
+1740D-174Q2-49_S54      CRC0327LMO0B04008001D02000
+1740D-174Q2-300_S262    CRC0327-04-0
+egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep 1078 /mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/map_lmo_withS.tsv
+1740D-174Q2-67_S67      CRC1078LMO0A02009002D03000
+1740D-174Q2-301_S263    CRC1078-02-0
+1740D-174Q2-302_S264    CRC1078-02-1-C
+egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep 1078 /mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/map_lmo
+1740D-174Q2-67  CRC1078LMO0A02009002D03000
+1740D-174Q2-301 CRC1078LM CLONE 2 BULK
+1740D-174Q2-302 CRC1078 CLONE 2C BULK
+egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep 327 /mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/map_lmo
+1740D-174Q2-49  CRC0327LMO0B04008001D02000
+1740D-174Q2-300 CRC0327 CLONE 4 BULK
