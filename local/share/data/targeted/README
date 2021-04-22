@@ -1,0 +1,14 @@
+# Manual steps cause ls from data directories in pipelines are dangerous.
+egrassi@ulisse:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/targeted$ ls fastq/*fastq.gz | tr "_" "\t" | tr '\/' "\t" | cut -f 2 |grep LMX |sort | uniq > map_lmx.tsv 
+egrassi@ulisse:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/targeted$ ls fastq/*fastq.gz | tr "_" "\t" | tr '\/' "\t" | cut -f 2 |grep LMO |sort | uniq > map_lmo.tsv
+
+# warning CRC1090LMX0A01001TUMD07000 still missing!
+
+302 / 2 = 151
+should have 148 PDO, 149 PDX, + 4 LMH + 1 control
+
+egrassi@ulisse:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/targeted$ ls fastq/*fastq.gz | tr "_" "\t" | tr '\/' "\t" | cut -f 2 | grep CRC0282 | sort | uniq >> map_lmo.tsv
+egrassi@ulisse:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/targeted$ ls fastq/*fastq.gz | tr "_" "\t" | tr '\/' "\t" | cut -f 2 | grep LMH| sort | uniq >> map_lmo.tsv
+
+bawk '{print $1,$1}' map_lmo.tsv > map_lmo_double.tsv
+bawk '{print $1,$1}' map_lmx.tsv > map_lmx_double.tsv
