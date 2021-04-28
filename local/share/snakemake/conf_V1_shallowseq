@@ -1,0 +1,52 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,'.PRJ_ROOT')):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception('Can not find the PRJ_ROOT directory')
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+'/local/bin'
+SRC_DIR=PRJ_ROOT+'/local/src'
+
+
+QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
+QC_O=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
+X_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/align/markedDup_'
+O_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/align/markedDup_'
+
+def define_bam(qc_x, qc_o):
+    import os
+    def read(file):
+        res = []
+        with open(file) as qc:
+            for line in qc.readlines():
+                fields = line.split('\t')
+                res.append(fields[0])
+        return(res)
+    x = read(QC_X)
+    o = read(QC_O)
+    def checkife(samples,prefix):
+        res = []
+        for s in samples:
+            w = prefix+s+".sorted.bam"
+            if os.path.exists(w):
+                res.append(w)
+        return(res)
+    res = checkife(x, X_BAM) + checkife(o, O_BAM)
+    return(res)
+
+# a rule to avoid lengthy re- listing everytime 
+rule bamfiles:
+    params: bams=define_bam(QC_X, QC_O)
+    output: "bamfiles_path.tsv"
+    run:
+        with open(output[0], 'w') as o:
+            for b in params.bams:
+                print(b, file=o)

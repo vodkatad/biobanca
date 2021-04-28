@@ -1,0 +1,6 @@
+include: './conf.sk'
+
+# remember pairedEnds=NULL,
+# future::plan("multiprocess", workers=4)
+rule qdnaseq:
+    input: "bamfiles_path.tsv"
