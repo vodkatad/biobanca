@@ -12,3 +12,5 @@ egrassi@ulisse:/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/targeted$ l
 
 bawk '{print $1,$1}' map_lmo.tsv > map_lmo_double.tsv
 bawk '{print $1,$1}' map_lmx.tsv > map_lmx_double.tsv
+
+added CRC1090LMX0A01001TUMD07000 back in manually

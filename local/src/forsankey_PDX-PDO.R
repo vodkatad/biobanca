@@ -37,6 +37,7 @@ PDO_cris_diff <- 0
 PDX_cris_diff <- 0
 added <- 0
 
+# DUBBIO era una specificita` del caso che non ci fossero mai due xeno e un solo organoide, vero?
 for ( i in 1:nrow(simo) ) {
   tmp_pdx <- df[df[,'lineage']==simo[i,'PDX_lineage'],] 
   tmp_pdo <- df[df[,'lineage']==simo[i,'PDO_lineage'],]
