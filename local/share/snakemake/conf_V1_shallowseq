@@ -17,8 +17,8 @@ SRC_DIR=PRJ_ROOT+'/local/src'
 
 #egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep "-" all_aligned_dedup.tsv > passed_qc.tsv_test 
 #xeno is empty
-QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/passed_qc.tsv_test'
-QC_O=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
+QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/passed_qc.tsv'
+QC_O=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv'
 X_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/align/markedDup_'
 O_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/align/markedDup_'
 
