@@ -17,12 +17,12 @@ SRC_DIR=PRJ_ROOT+'/local/src'
 
 #egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep "-" all_aligned_dedup.tsv > passed_qc.tsv_test 
 #xeno is empty
-QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
+QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/passed_qc.tsv_test'
 QC_O=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
-X_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/align/markedDup_'
-O_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/align/markedDup_'
+X_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdx/align/markedDup_'
+O_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/align/markedDup_'
 
-def define_bam(qc_x, qc_o):
+def define_bam(qc, prefix):
     import os
     def read(file):
         res = []
@@ -31,8 +31,7 @@ def define_bam(qc_x, qc_o):
                 fields = line.split('\t')
                 res.append(fields[0])
         return(res)
-    x = read(QC_X)
-    o = read(QC_O)
+    f = read(qc)
     def checkife(samples,prefix):
         res = []
         for s in samples:
@@ -40,16 +39,20 @@ def define_bam(qc_x, qc_o):
             if os.path.exists(w):
                 res.append(w)
         return(res)
-    res = checkife(x, X_BAM) + checkife(o, O_BAM)
+    res = checkife(f, prefix)
     return(res)
 
 # a rule to avoid lengthy re- listing everytime 
+# TODO do separately xeno and organoids
 rule bamfiles:
-    params: bams=define_bam(QC_X, QC_O)
-    output: "bamfiles_path.tsv"
+    params: x_bams=define_bam(QC_X, X_BAM), o_bams=define_bam(QC_O, O_BAM)
+    output: xeno="xeno_bamfiles_path.tsv", pdo="pdo_bamfiles_path.tsv"
     run:
-        with open(output[0], 'w') as o:
-            for b in params.bams:
+        with open(output.xeno, 'w') as o:
+            for b in params.x_bams:
+                print(b, file=o)
+        with open(output.pdo, 'w') as o:
+            for b in params.o_bams:
                 print(b, file=o)
 
 # for qdnaseq
