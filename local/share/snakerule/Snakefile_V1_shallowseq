@@ -4,3 +4,10 @@ include: './conf.sk'
 # future::plan("multiprocess", workers=4)
 rule qdnaseq:
     input: "bamfiles_path.tsv"
+    output: cn="qdnaseq/cn_log2.tsv", plot="qdnaseq/noise_filtered.png", image="qdnaseq/qdnaseq.RData"
+    params: tool=BIN_DIR+"/qdnaseq", bin_size=BIN_SIZE, cores=CORES, dir="qdnaseq"
+    shell:
+        """
+            mkdir -p {params.dir}
+            cd {params.dir} && {params.tool} -f ../{input} -b {params.bin_size} -c {params.cores}
+        """

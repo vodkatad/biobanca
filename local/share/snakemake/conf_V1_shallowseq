@@ -15,7 +15,8 @@ SNAKE_ROOT=os.getenv('SNAKE_ROOT')
 BIN_DIR=PRJ_ROOT+'/local/bin'
 SRC_DIR=PRJ_ROOT+'/local/src'
 
-
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_shallowseq_pdo$ grep "-" all_aligned_dedup.tsv > passed_qc.tsv_test 
+#xeno is empty
 QC_X=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
 QC_O=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/passed_qc.tsv_test'
 X_BAM=SNAKE_ROOT+'/prj/snakegatk/dataset/biobanca_shallowseq_pdo/align/markedDup_'
@@ -50,3 +51,7 @@ rule bamfiles:
         with open(output[0], 'w') as o:
             for b in params.bams:
                 print(b, file=o)
+
+# for qdnaseq
+BIN_SIZE=15
+CORES=8
