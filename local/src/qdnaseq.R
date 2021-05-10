@@ -63,7 +63,7 @@ readCountsFiltered <- applyFilters(readCounts, residual=TRUE, blacklist=TRUE)
 readCountsFiltered <- estimateCorrection(readCountsFiltered)
 
 #plot
-png("noise_filtered.png")
+pdf("noise_filtered.png")
 noisePlot(readCountsFiltered)
 graphics.off()
 

@@ -2,7 +2,7 @@ include: './conf.sk'
 
 rule qdnaseq_test:
     input: "bamfiles_path.tsv"
-    output: cn="qdnaseq/cn_log2.tsv", plot="qdnaseq/noise_filtered.png", image="qdnaseq/qdnaseq.RData"
+    output: cn="qdnaseq/cn_log2.tsv", plot="qdnaseq/noise_filtered.pdf", image="qdnaseq/qdnaseq.RData"
     params: tool=BIN_DIR+"/qdnaseq", bin_size=BIN_SIZE, cores=CORES, dir="qdnaseq"
     shell:
         """
@@ -18,4 +18,20 @@ rule qdnaseq:
         """
             mkdir -p {params.dir}
             cd {params.dir} && {params.tool} -f ../{input} -b {params.bin_size} -c {params.cores}
+        """
+
+
+
+tests = {
+    'CRC0327-04-0': 5,
+    'CRC1078-02-0': 6,
+    'CRC1078-02-1-C': 7
+}
+rule seqtobin:
+    input: cn="qdnaseq_multi/cn_log2.tsv"
+    output: "qdnaseq_multi/{s}.tsv.gz"
+    params: tool=BIN_DIR+"/project_bin", s= lambda wildcards: tests[wildcards.s]
+    shell: 
+        """    
+            {params.tool} -c <(sed 1d {input.cn} |  cut -f 2,3,4,{params.s} | sort -k1,1n -k2,2n | bawk '{{print "chr"$1,$2-1,$3,2**$4}}') -b 15000| gzip > {output}
         """
