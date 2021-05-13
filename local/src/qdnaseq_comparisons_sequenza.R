@@ -14,6 +14,7 @@ load_sh <- function(x, pre, su) {
   d <- read.table(gzfile(paste0(pre, x, su)), sep="\t", header=F)
   colnames(d) <- c('chr','b','e','cn')
   d$n <- paste0(d$chr,"_", d$b)
+  #d$cn <- log2(d$cn+1) # almost the same
   return(d[d$cn != 0,])
 }
 
@@ -49,7 +50,25 @@ colnames(res) <- names(all)
 rownames(res) <- names(all)
 
 corrplot.mixed(res)
-corrplot.mixed(res,  lower.col = "black", upper.col= brewer.pal(n = 8, name = "RdBu"), tl.pos="d", tl.cex=1.2, number.cex=1.8, cl.cex=1.8)
+corrplot.mixed(res,  lower.col = "black", upper.col= rev(brewer.pal(n = 8, name = "RdBu")), tl.pos="d", tl.cex=1.2, number.cex=1.8, cl.cex=1.8)
+
+get_corr <- function(pair, all) {
+  pair <- unlist(pair)
+  n1 <- as.character(pair[[1]])
+  n2 <- as.character(pair[[2]])
+  m <- merge(all[[n1]], all[[n2]], by="n")
+  cc <- cor.test(m$cn.x, m$cn.y)
+  return(cc$p.value)
+}
+
+
+pairs <- expand.grid(names(all), names(all))
+
+pears <- apply(pairs, 1, get_corr, all)
+pres <- matrix(pears, nrow=6)
+colnames(pres) <- names(all)
+rownames(pres) <- names(all)
+
 
 ##########
 
