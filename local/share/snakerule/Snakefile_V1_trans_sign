@@ -54,3 +54,12 @@ rule sankeynco:
         """
             {params.tool} -i {input} -s {output.sankey} -c {output.classes} -w {output.switch} -o {output.switched} -k {output.kappa}
         """
+
+rule corr:
+    input: switch="unique_PDX-PDO_switch.tsv", meda=MEDA_BASALI, vsd=VSD
+    params: tool=BIN_DIR+"/PDO-PDX_correlations"
+    output: "PDX-PDO_basali_genes-expression_correlations.tsv.gz"
+    shell:
+        """
+            {params.tool} -s {input.switch} -m {input.meda} -v {input.vsd} -o {output}
+        """

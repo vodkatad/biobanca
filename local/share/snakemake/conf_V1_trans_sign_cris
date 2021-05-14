@@ -24,3 +24,5 @@ MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_meta
 
 FPKM="/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5/fpkm.tsv.gz"
 
+MEDA_BASALI=SNAKE_ROOT+"/prj/RNASeq_biod_metadata/dataset/july2020_starOK/filtered_metadata_ctx_basali_human-org-xeno"
+VSD=SNAKE_ROOT+"/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
