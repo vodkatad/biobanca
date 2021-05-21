@@ -1,0 +1,27 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+DATA=PRJ_ROOT+"/local/share/data"
+
+SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
+
+# List all the classes names of samples for which we want to study replicates and compute correlations
+#CLASSES=["LMO_BASALE","LMX_BASALE","LMH"] # LMH class does not have replicates
+CLASSES=["LMO_BASALE","LMX_BASALE"] 
+
+# Expression data: metadata and vsd
+MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
+VSD=SNAKE_ROOT+"/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
