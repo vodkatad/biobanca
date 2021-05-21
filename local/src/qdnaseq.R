@@ -44,6 +44,8 @@ sample_names <- basename(bamf)
 sample_names <- gsub("markedDup_","", sample_names, fixed=TRUE)
 sample_names <- gsub(".sorted.bam", "", sample_names, fixed=TRUE)
 
+sample_names <- gsub("-",".", sample_names, fixed=TRUE)
+
 readCounts <- binReadCounts(bins, bamfiles=bamf, pairedEnds=TRUE, bamnames=sample_names)
 
 #plot
@@ -51,7 +53,8 @@ readCounts <- binReadCounts(bins, bamfiles=bamf, pairedEnds=TRUE, bamnames=sampl
 #par(mfrow=c(1,2))
 #plot(readCounts, logTransform=FALSE, ylim=c(-50, 200))
 # default is not filtering bins on mappability and g/c, but then correction is done.
-highlightFilters(readCounts, logTransform=FALSE,residual=TRUE, blacklist=TRUE)
+#highlightFilters(readCounts, logTransform=FALSE,residual=TRUE, blacklist=TRUE)
+
 readCountsFiltered <- applyFilters(readCounts, residual=TRUE, blacklist=TRUE)
 
 #plot
@@ -63,7 +66,7 @@ readCountsFiltered <- applyFilters(readCounts, residual=TRUE, blacklist=TRUE)
 readCountsFiltered <- estimateCorrection(readCountsFiltered)
 
 #plot
-pdf("noise_filtered.png")
+pdf("noise_filtered.pdf")
 noisePlot(readCountsFiltered)
 graphics.off()
 

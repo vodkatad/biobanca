@@ -40,8 +40,8 @@ if (length(intersect(models_xeno, models_pdo)) != expected_n) {
 xeno_df <- xeno_df[, order(models_xeno)]
 pdo_df <- pdo_df[, order(models_xeno)]
 
-xeno_df <- 2**xeno_df
 pdo_df <- 2**pdo_df
+xeno_df <- 2**xeno_df
 pearson <- cor(xeno_df, pdo_df)
 #corrplot(pearson)
 
