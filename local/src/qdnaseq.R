@@ -44,6 +44,7 @@ sample_names <- basename(bamf)
 sample_names <- gsub("markedDup_","", sample_names, fixed=TRUE)
 sample_names <- gsub(".sorted.bam", "", sample_names, fixed=TRUE)
 
+# To avoid NA NA NA (batman!) when doing segmentation.
 sample_names <- gsub("-",".", sample_names, fixed=TRUE)
 
 readCounts <- binReadCounts(bins, bamfiles=bamf, pairedEnds=TRUE, bamnames=sample_names)

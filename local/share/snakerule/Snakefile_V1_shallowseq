@@ -10,6 +10,16 @@ rule qdnaseq_test:
             cd {params.dir} && {params.tool} -f ../{input} -b {params.bin_size} -c {params.cores}
         """
 
+rule qdnaseq_segment_test:
+    input: rdata="qdnaseq/qdnaseq.RData"
+    output: segm="qdnaseq/cn_segm.tsv", calls="qdnaseq/cn_calls.tsv"
+    params: tool=BIN_DIR+"/qdnaseq_segmentation", cores=CORES
+    log: "qdnaseq/segm_call.log"
+    shell:
+        """
+            {params.tool} -r {input.rdata} -s {output.segm} -a {output.calls} -c {params.cores} &> {log}
+        """
+
 rule qdnaseq:
     input: "{kind}_bamfiles_path.tsv"
     output: cn="{kind}_qdnaseq/cn_log2.tsv", plot="{kind}_qdnaseq/noise_filtered.png", image="{kind}_qdnaseq/qdnaseq.RData"
@@ -20,6 +30,15 @@ rule qdnaseq:
             cd {params.dir} && {params.tool} -f ../{input} -b {params.bin_size} -c {params.cores}
         """
 
+rule qdnaseq_segment:
+    input: rdata="{kind}_qdnaseq/qdnaseq.RData"
+    output: segm="{kind}_qdnaseq/cn_segm.tsv", calls="{kind}_qdnaseq/cn_calls.tsv"
+    params: tool=BIN_DIR+"/qdnaseq_segmentation", cores=CORES
+    log: "{kind}_qdnaseq/segm_call.log"
+    shell:
+        """
+            {params.tool} -r {input.rdata} -s {output.segm} -a {output.calls} -c {params.cores} &> {log}
+        """
 
 
 tests = {
@@ -35,3 +54,4 @@ rule seqtobin:
         """    
             {params.tool} -c <(sed 1d {input.cn} |  cut -f 2,3,4,{params.s} | sort -k1,1n -k2,2n | bawk '{{print "chr"$1,$2-1,$3,2**$4}}') -b 15000| gzip > {output}
         """
+
