@@ -18,21 +18,25 @@ opts <- matrix(c(
   'help', 'h', 0, 'logical',
   'rdata', 'r', 1, 'character',
   'outsegm', 's', 1, 'character',
+  'outseg', 'g', 1, 'character',
   'outcalls', 'a', 2, 'character',
+  'ordata', 'o', 2, 'character',
   'cores', 'c', 2, 'integer'), ncol=4, byrow=TRUE)
 opt <- getopt(opts)
 
-if (is.null(opt$rdata) | !is.null(opt$help) | is.null(opt$outsegm)) {
+if (is.null(opt$rdata) | !is.null(opt$help) | is.null(opt$outsegm) | is.null(opt$outseg) | is.null(opt$ordata)) {
   cat(getopt(opts, usage=TRUE))
   stop('-r is mandatory')
 }
 
 rdataf <- opt$rdata
+ordataf <- opt$ordata
 outsegmf <- opt$outsegm
+outssegmf <- opt$outseg
 outcallsf <- opt$outcalls
 
 # Do we go multicore?
-if (!is.null(opt$cores)) {
+if (!is.null(opt$cores)) { # does not seem to work??
   future::plan("multiprocess", workers=opt$cores)
 }
 
@@ -48,7 +52,9 @@ copyNumbersSegmented <- segmentBins(copyNumbersSmooth, transformFun="sqrt")
 copyNumbersSegmented <- normalizeSegmentedBins(copyNumbersSegmented)
 #plot(copyNumbersSegmented)
 
+save.image(ordataf)
 exportBins(copyNumbersSegmented, file=outsegmf, type="segments", format="tsv", logTransform=FALSE, digits="no") # filter bins on what?
+#exportBins(copyNumbersSegmented, file=outssegmf, type="segments", format="seg", logTransform=TRUE, digits="no") 
 
 if (!is.null(outcallsf)) {
   copyNumbersCalled <- callBins(copyNumbersSegmented)
@@ -67,3 +73,4 @@ if (!is.null(outcallsf)) {
 #FALSE   TRUE 
 #37422 168475 
 # reproject to bins...how/when does it do it?
+save.image(ordataf)

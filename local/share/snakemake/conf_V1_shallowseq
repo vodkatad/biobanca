@@ -58,3 +58,7 @@ rule bamfiles:
 # for qdnaseq
 BIN_SIZE=15
 CORES=8
+
+# The expected number of matching pairs x-o
+PAIRS=142
+PAIRS_H=4

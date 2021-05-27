@@ -20,6 +20,7 @@ rule qdnaseq_segment_test:
             {params.tool} -r {input.rdata} -s {output.segm} -a {output.calls} -c {params.cores} &> {log}
         """
 
+###################### "real" biobanca files block
 rule qdnaseq:
     input: "{kind}_bamfiles_path.tsv"
     output: cn="{kind}_qdnaseq/cn_log2.tsv", plot="{kind}_qdnaseq/noise_filtered.png", image="{kind}_qdnaseq/qdnaseq.RData"
@@ -30,16 +31,33 @@ rule qdnaseq:
             cd {params.dir} && {params.tool} -f ../{input} -b {params.bin_size} -c {params.cores}
         """
 
+#output: segm="{kind}_qdnaseq/cn_segm.tsv", calls="{kind}_qdnaseq/cn_calls.tsv", seg="{kind}_qdnaseq/cn_seg.seg", rdata="{kind}_qdnaseq/cn_seg.Rdata"
+# -g  {output.seg}
 rule qdnaseq_segment:
     input: rdata="{kind}_qdnaseq/qdnaseq.RData"
-    output: segm="{kind}_qdnaseq/cn_segm.tsv", calls="{kind}_qdnaseq/cn_calls.tsv"
+    output: segm="{kind}_qdnaseq/cn_segm.tsv", calls="{kind}_qdnaseq/cn_calls.tsv", rdata="{kind}_qdnaseq/cn_seg.Rdata"
     params: tool=BIN_DIR+"/qdnaseq_segmentation", cores=CORES
     log: "{kind}_qdnaseq/segm_call.log"
     shell:
         """
-            {params.tool} -r {input.rdata} -s {output.segm} -a {output.calls} -c {params.cores} &> {log}
+            {params.tool} -r {input.rdata} -s {output.segm} -a {output.calls} -c {params.cores} -o {output.rdata} &> {log}
         """
 
+def get_exp_pairs(wildcards):
+    if wildcards.which == "xo":
+        return PAIRS
+    else:
+        return PAIRS_H
+
+rule qdnaseq_segment_correlate:
+    input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv"
+    output: heatmap="heatmap_cors_{which}.pdf", pearson="pearson_{which}.tsv", rdata="pearson_{which}.Rdata", density="density_cors_{which}.pdf"
+    params: expected_pairs=get_exp_pairs
+    script: SRC_DIR+"/comparisons_bin_qdnaseq_snake.R"
+
+## gistic online https://cloud.genepattern.org/gp/pages/index.jsf?lsid=urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00125:6.15.28#
+
+####################
 
 tests = {
     'CRC0327-04-0': 5,
