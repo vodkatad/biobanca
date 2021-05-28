@@ -22,3 +22,8 @@ rule list_of_replicated_samples:
         """
             sed 1d {input} | cut -f 4 | tr "," "\\n" > {output}
         """
+
+rule mean_btw_genealogy:
+    input: metadata=MEDA, replicates='{sclass}_replicates_pruned.tsv', expr=VSD
+    output: mean_btw_genealogy = '{sclass}_mean_gene_genealogy.tsv'
+    script: SRC_DIR+'/mean_gene_genealogy.R' 
