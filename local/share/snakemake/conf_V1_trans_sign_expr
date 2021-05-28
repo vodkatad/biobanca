@@ -25,3 +25,34 @@ CLASSES=["LMO_BASALE","LMX_BASALE"]
 # Expression data: metadata and vsd
 MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
 VSD=SNAKE_ROOT+"/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
+
+
+# CRC0177 has three RNAseq samples for LMO_BASALE, the only exception to the 'two' rule.
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ sed 1d LMX_BASALE_replicates.tsv | bawk '$3!=2' 
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ sed 1d LMO_BASALE_replicates.tsv | bawk '$3!=2' 
+#23      CRC0177 3       CRC0177LMO0A04008002R01000,CRC0177LMO0D04017001R01000,CRC0177LMO0D04021002R01000
+# The rule has the sclass wildcard in order to have homogeneous read names for the rules that follow.
+#CRC0177LMO0D04017001D01000 EGFR mut
+#CRC0177LMO0A04008002D01000 EGFR wt
+
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ grep CRC0177 /mnt/trcanmed/snaketree/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier
+#CRC0177LMO0A04008002R01000      pass    pass    NA      NA      4       LMO_BASALE      1.665   NA
+#CRC0177LMO0D04017001R01000      pass    pass    NA      NA      4       LMO_BASALE.2    1.665   NA
+#CRC0177LMO0D04021002R01000      pass    pass    NA      NA      4       LMO_BASALE.1    1.665   NA
+#CRC0177LMX0A02201TUMR05000      pass    pass    NA      pass    4       LMX_BASALE      1.665   NA
+
+# For xenos in RNAseq we have the 'A' branch,  the ones from which the PDO derived are:
+#EGFR mut	CRC0177LMX0B07002TUMD01000
+#EGFR wt	CRC0177LMX0B05001TUMD01000
+
+# I assume that the mut arose after generation n.5 for branch B, A then should be WT - therefore we keep the wt organoid which has no replicates with RNAseq!
+# So we can simply get rid of any 'triplicate'
+rule remove_triplicates_CRC0177:
+    input: replicates="{sclass}_replicates.tsv"
+    output: "{sclass}_replicates_pruned.tsv"
+    shell:
+        """
+            bawk '$3==2 || NR==1' {input} > {output}
+            echo "WARNING! This is a data-specific rule, you should check comments to see if criteria still applies for RNAseq releases != from july2020_starOK"
+        """
+

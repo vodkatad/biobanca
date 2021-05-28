@@ -2,9 +2,23 @@ include: 'conf.sk'
 
 #input: "LMO_BASALE_replicates.tsv", "LMX_BASALE_replicates.tsv", "LMH_replicates.tsv"
 rule all_get_replicates:
-    input: expand('{sclass}_replicates.tsv', sclass=CLASSES)
+    input: expand('{sclass}_replicates_pruned.tsv', sclass=CLASSES)
 
 rule get_replicates:
     input: metadata=MEDA
     output: replicates='{sclass}_replicates.tsv'
     script: SRC_DIR+'/Genealogy_Replicates.R'
+
+rule replicates_correlation:
+    input: metadata=MEDA, replicates='{sclass}_replicates.tsv', expr=VSD
+    output: replicates_correlation='{sclass}_replicates_correlation.tsv', 
+            summary='{sclass}_replicates_summary.txt'
+    script: SRC_DIR+'/Genealogy_VSD_correlation.R'
+
+rule list_of_replicated_samples:
+    input: '{sclass}_replicates_pruned.tsv'
+    output: '{sclass}_replicates_samples.tsv'
+    shell:
+        """
+            sed 1d {input} | cut -f 4 | tr "," "\\n" > {output}
+        """
