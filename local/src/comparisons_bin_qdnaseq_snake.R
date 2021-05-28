@@ -22,8 +22,6 @@ pdo_df[,c("chromosome","start","end")] <- NULL
 colnames(pdo_df)[colnames(pdo_df)=="CRC0177LMO0A04008002D02000"] <- 'CRCE177LMO0A04008002D02000'
 colnames(xeno_df)[colnames(xeno_df)=="CRC0177LMX0B05001TUMD06000"] <- 'CRCE177LMX0B05001TUMD06000'
 
-save.image('pippo.Rdata')
-
 # TODO? make modular: first step to prepare matrix then general script for correlations
 list_remove_xeno <- c("CRC1870", "CRC1875","CRC2041")
 list_lmh <- colnames(pdo_df)[grepl('LMH', colnames(pdo_df))]

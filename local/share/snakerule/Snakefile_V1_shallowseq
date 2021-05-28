@@ -56,8 +56,16 @@ rule qdnaseq_segment_correlate:
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake.R"
 
 ## gistic online https://cloud.genepattern.org/gp/pages/index.jsf?lsid=urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00125:6.15.28#
+rule segmentation_for_gistic:
+    input: rdata="{kind}_qdnaseq/cn_seg.Rdata"
+    output: seg="{kind}.seg"
+    params: tool=BIN_DIR+"/qdnaseq_my_segm"
+    shell:
+        """
+            {params.tool} -r {input.rdata} -s {output.seg}
+        """
 
-####################
+    ####################
 
 tests = {
     'CRC0327-04-0': 5,
