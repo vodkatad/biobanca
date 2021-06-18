@@ -57,3 +57,18 @@ rule remove_triplicates_CRC0177:
             echo "WARNING! This is a data-specific rule, you should check comments to see if criteria still applies for RNAseq releases != from july2020_starOK"
         """
 
+rule add_no_replicates_LMO:
+    input: metadata=MEDA, expr=VSD, mean_expr='LMO_BASALE_mean_gene_genealogy.tsv', repli='LMO_BASALE_replicates_samples.tsv'
+    output: 'LMO_BASALE_mean_gene_genealogyall.tsv.gz'
+    params: sclass="LMO_BASALE"
+    shell:
+        """
+            echo -e 'CRC0177LMO0D04017001R01000\\nCRC0177LMO0D04021002R01000' > {output}.tmp3
+            sed 1d {input.metadata} | grep -w {params.sclass} | cut -f 1 | filter_1col -v 1 {input.repli} |
+            filter_1col -v 1 {output}.tmp3 > {output}.tmp
+            cat {input.mean_expr} > {output}.tmp2
+            zcat {input.expr} | bawk 'NR==1{{print 'Gene',$0}} NR!=1{{print $0}}' | transpose | sed 1d | \
+            filter_1col 1 {output}.tmp | bawk '{{M=substr($1,0,7);$1="";print M,$0}}' | cut -f 2 --complement >> {output}.tmp2
+            gzip -c {output}.tmp2 > {output}
+            rm {output}.tmp*
+        """

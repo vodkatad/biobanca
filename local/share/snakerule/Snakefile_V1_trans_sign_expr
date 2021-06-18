@@ -27,3 +27,29 @@ rule mean_btw_genealogy:
     input: metadata=MEDA, replicates='{sclass}_replicates_pruned.tsv', expr=VSD
     output: mean_btw_genealogy = '{sclass}_mean_gene_genealogy.tsv'
     script: SRC_DIR+'/mean_gene_genealogy.R' 
+
+
+# We need to add back the expression of samples without replicates
+# We know that genes are in the same order so we can simply cat the two files
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ head -n1  LMX_BASALE_mean_gene_genealogy.tsv | tr "\t" "\n" > genes_r
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ zcat  /mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz | cut -f 1 | sed 1d > genes_h
+#wc -l genesegrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ wc -l genes_?
+# 33667 genes_h
+# 33667 genes_r
+# 67334 total
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/expr$ diff -q genes_h  genes_r ; echo $?
+#0
+# TODO add rule that does this check to sleep without issues in the future.
+rule add_no_replicates:
+    input: metadata=MEDA, expr=VSD, mean_expr='LMX_BASALE_mean_gene_genealogy.tsv', repli='LMX_BASALE_replicates_samples.tsv'
+    output: 'LMX_BASALE_mean_gene_genealogyall.tsv.gz'
+    params: sclass="LMX_BASALE"
+    shell:
+        """
+            sed 1d {input.metadata} | grep -w {params.sclass} | cut -f 1 | filter_1col -v 1 {input.repli} > {output}.tmp
+            cat {input.mean_expr} > {output}.tmp2
+            zcat {input.expr} | bawk 'NR==1{{print 'Gene',$0}} NR!=1{{print $0}}' | transpose | sed 1d | \
+            filter_1col 1 {output}.tmp | bawk '{{M=substr($1,0,7);$1="";print M,$0}}' | cut -f 2 --complement >> {output}.tmp2
+            gzip -c {output}.tmp2 > {output}
+            rm {output}.tmp*
+        """
