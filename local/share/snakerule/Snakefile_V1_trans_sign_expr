@@ -53,3 +53,19 @@ rule add_no_replicates:
             gzip -c {output}.tmp2 > {output}
             rm {output}.tmp*
         """
+
+# thr3_correlations_rsquared.tsv
+# thr4 ...
+# add wildcard to outfile and out_dir
+# add parameter to Correlations_LMO_LMX-v2 to get the threshold ({wildcards.thr})
+rule correlation_LMO_LMX:
+    input: lmx='LMX_BASALE_mean_gene_genealogyall.tsv.gz',
+           lmo='LMO_BASALE_mean_gene_genealogyall.tsv.gz'
+    output: outfile = "thr{n}_correlations_rsquared.tsv", out_dir=directory('thr{n}_plot_residuals')
+    params: tool=BIN_DIR+"/Correlation_LMO_LMX-v2"
+    shell:
+        """
+            rm -rf {output.out_dir}
+            mkdir {output.out_dir}
+            {params.tool} -x {input.lmx} -o {input.lmo} -r {output.outfile} -d {output.out_dir}
+        """
