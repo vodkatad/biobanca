@@ -18,7 +18,7 @@ pdo_df <- read.table(pdo_f, quote="", sep="\t", header=TRUE, row.names = 1)
 xeno_df[,c("chromosome","start","end")] <- NULL
 pdo_df[,c("chromosome","start","end")] <- NULL
 
-# We mark the EGFR mutant with a different 'model'/short genealogy
+# We mark the EGFR wt (the other one is mutant) with a different 'model'/short genealogy
 colnames(pdo_df)[colnames(pdo_df)=="CRC0177LMO0A04008002D02000"] <- 'CRCE177LMO0A04008002D02000'
 colnames(xeno_df)[colnames(xeno_df)=="CRC0177LMX0B05001TUMD06000"] <- 'CRCE177LMX0B05001TUMD06000'
 
@@ -52,6 +52,7 @@ models_pdo <- substr(colnames(pdo_df), 0, 7)
 if (length(intersect(models_xeno, models_pdo)) != expected_n) {
     stop('Wrong number of corresponding models!')
 }
+
 xeno_df <- xeno_df[, order(models_xeno)]
 pdo_df <- pdo_df[, order(models_xeno)]
 
