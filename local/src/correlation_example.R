@@ -1,5 +1,3 @@
-
-
 # We build ourselves two dataframes with some existing pairs (rownames here represents 'CRCxyz', our smodel).
 # This is the same format that Martina starts from with Correlation_LMO_LMX-v2.R
 # {We assume that we want to compute the correlation for all pairs for which it could be computed - we could add an option for
@@ -56,7 +54,7 @@ all(res1==res2)
 # Now if we want some 'wrong' pairs we have two ways, let's follow the loop one.
 # We need to extract for each has_pair a 'wrong' match...
 res3 <- data.frame(row.names=has_pair, pearson=rep(NA,length(has_pair)))
-
+indexes <- seq(1, length(has_pair))
 for (i in indexes) {
   x <- paste0(has_pair[i],'.x')
   # we get a random number that is included in seq(1, length(has_pair)) and is not == to i ...
@@ -74,10 +72,27 @@ for (i in indexes) {
 # all the possible random pairs?
 # We can use cor if we are only interested in the pearson estimate (not pvalue or other things)
 # We need to remove the not 'matched' pairs before and be sure that the columns are ordered in the same way
-cpdo <- pdo[, colnames(pdo) %in% has_pair]
-cpdx <- pdx[, colnames(pdx) %in% has_pair]
-cpdo <- cpdo[, match(has_pair, colnames(cpdo))]
-cpdx <- cpdx[, match(has_pair, colnames(cpdx))]
+
+# check that the ordering works
+pdo <- pdo[ ,rev(seq(1, ncol(pdo)))]
+
+cpdo <- pdo[, has_pair]
+cpdx <- pdx[, has_pair]
+#cpdo <- cpdo[, match(has_pair, colnames(cpdo))]
+#cpdx <- cpdx[, match(has_pair, colnames(cpdx))]
+
+### check also for genes
+all_genes <- intersect(rownames(pdo), rownames(pdx))
+cpdo <- cpdo[all_genes,]
+cpdx <- cpdx[all_genes,]
+# Using all genes in this way we can skip the match
+#cpdo <- cpdo[match(all_genes, rownames(cpdo)),]
+#cpdx <- cpdx[match(all_genes, rownames(cpdx)),]
+
+if (all(colnames(cpdo)!=colnames(cpdx)) & all(rownames(cpdo)==rownames(pdx))) {
+  stop('Brutto llama!')
+}
+
 res4 <- cor(cpdo, cpdx)
 pheatmap(res4)
 res5 <- data.frame(pearson=diag(res4), row.names=rownames(res4))

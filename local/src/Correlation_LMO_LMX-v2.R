@@ -5,6 +5,8 @@ library(tidyverse)
 library(ggplot2)
 library(tibble)
 library(getopt)
+library(pheatmap)
+
 options(warn=1) # to print warnings as they occurr
 #  'thr', 't', 1, 'numeric'
 opts <- matrix(c(
@@ -12,12 +14,14 @@ opts <- matrix(c(
   'xeno', 'x', 1, 'character',
   'pdo', 'o', 1, 'character',
   'outrsq', 'r', 1, 'character',
-  'outdir', 'd', 1, 'character'), ncol=4, byrow=TRUE)
+  'outdir', 'd', 1, 'character',
+  'matrix', 'm', 1, 'character'), ncol=4, byrow=TRUE)
 opt <- getopt(opts)
 
-if (!is.null(opt$help) | is.null(opt$xeno) | is.null(opt$pdo) | is.null(opt$outrsq) | is.null(opt$outdir)) {
+if (!is.null(opt$help) | is.null(opt$xeno) | is.null(opt$pdo) | is.null(opt$outrsq) | is.null(opt$outdir)
+| is.null(opt$matrix)) {
   cat(getopt(opts, usage=TRUE))
-  stop('-x -o -r -d are all mandatory arguments!')
+  stop('-x -o -r -d -m are all mandatory arguments!')
 }
 
 ### load file
@@ -115,4 +119,26 @@ write.table(results_correlations, file=opt$outrsq,
 
 
 
-save.image('pippo.Rdata')
+# We can use cor if we are only interested in the pearson estimate (not pvalue or other things)
+# We need to remove the not 'matched' pairs before and be sure that the columns are ordered in the same way
+# check that the ordering works
+
+colnames(desd_lmo) <- substr(colnames(desd_lmo),0,7)
+colnames(desd_lmx) <- substr(colnames(desd_lmx),0,7)
+clmo <- desd_lmo[, paired]
+clmx <- desd_lmx[, paired]
+
+### check also for genes
+all_genes <- intersect(rownames(clmo), rownames(clmx))
+clmo <- clmo[all_genes,]
+clmx <- clmx[all_genes,]
+
+
+if (all(colnames(clmo)!=colnames(clmx)) & all(rownames(clmo)!=rownames(clmx))) {
+  stop('Brutto llama!')
+}
+
+res1 <- cor(clmo, clmx)
+#res <- data.frame(pearson=diag(res1), row.names=rownames(res1))
+write.table(res1, file=opt$matrix, 
+            sep='\t', col.names = TRUE, row.names= TRUE, quote = FALSE)
