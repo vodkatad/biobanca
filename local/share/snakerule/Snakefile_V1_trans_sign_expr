@@ -69,3 +69,7 @@ rule correlation_LMO_LMX:
             mkdir {output.out_dir}
             {params.tool} -x {input.lmx} -o {input.lmo} -r {output.outfile} -d {output.out_dir} -m {output.outfile2}
         """
+rule obtain_density_plot_wilcox:
+    input: res="res.tsv"
+    output: density_plot = "density_f.pdf", wilcox_result ="wilcox"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
