@@ -1,7 +1,9 @@
 ### Draw densit plot
 library(ggplot2)
 library(pheatmap)
-res_f<- "/Users/Tina/Desktop/Lavoro/bioinfo/ProgettiR/correlation_LMO_LMX/res.tsv"
+res_f<- snakemake@input[["res"]]
+density_f <- snakemake@output[["density_plot"]]
+wilcox_f <- snakemake@output[["wilcox_result"]]
 res_df <- read.table(res_f, quote = "", sep = "\t", header = TRUE)
 
 ### prendo la diagonale, quindi i campioni matched con la funzione diag mentre gli unmatched li prendo con upper.tri per la
@@ -23,6 +25,6 @@ y <- unmatched
 w <- wilcox.test(x, y)
 
 wilcox <- data.frame(row.names = "wilcox.test", pvalue=w$p.value)
-wilcox <- write.table(wilcox, quote = "", sep = "\t", row.names = TRUE, col.names = TRUE)
+write.table(wilcox, file=wilcox_f, quote = "", sep = "\t", row.names = TRUE, col.names = TRUE)
 
 

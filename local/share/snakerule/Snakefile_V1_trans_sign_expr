@@ -91,5 +91,8 @@ rule universe_residual:
         """
             cat {input}/*tsv | grep -v -w residuals | cut -f1 | sed 's/^H_//1' | sort | uniq > {output}
         """
-
+rule gene_residuals_plots:
+    input: residuals = "genes_occurrence_overthr-{thr}.tsv"
+    output: gene_plot = "gene_res-{thr}.pdf", gene_plot_zoom = "gen_res_zoom-{thr}.pdf"
+    script: SRC_DIR+'/Gene_residual_plots.R'
     
