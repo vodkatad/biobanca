@@ -120,5 +120,5 @@ rule project_gistic_score:
 rule delta_gistic_overall:
     input: pdo="genes_scores_pdo.tsv",
            pdx="genes_scores_xeno.tsv"
-    output: delta='overallgenes_delta_gistic.tsv', delta_plot='overalldelta_gistic_histo.pdf'
+    output: delta='overallgenes_delta_gistic.tsv', delta_plot='overalldelta_gistic_histo.pdf', scores_plot="overall_gistic_cor.pdf"
     script: SRC_DIR+'/genes_delta_gistic_overall.R'
