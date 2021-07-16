@@ -97,5 +97,28 @@ rule diagonal:
 rule delta_gistic:
     input: pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_data_by_genes.txt',
            pdx=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_data_by_genes.txt'
-    output: 'genes_delta_gistic.tsv'
-    script: SCR_DIR+'/genes_delta_gistic.R'
+    output: delta='genes_delta_gistic.tsv', delta_plot='delta_gistic_heatmap.pdf'
+    params: expected_pairs=PAIRS
+    script: SRC_DIR+'/genes_delta_gistic.R'
+
+
+# but we want overall gistic scores, not foreach sample
+#Type    Chromosome      Start   End     -log10(q-value) G-score average amplitude       frequency
+#Amp      1      870001  1635000 0.247925        0.091830        0.531174        0.086667
+#Amp      1      1665001 1845000 0.338308        0.097419        0.520454        0.093333
+#Amp      1      1845001 2655000 0.247925        0.091584        0.495594        0.093333
+rule project_gistic_score:
+    input: gistic=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/scores.gistic', genes=SNAKE_ROOT+'/prj/magnum/dataset/cn2/gencode_type_protein_coding.bed'
+    output: "genes_scores_{kind}.tsv"
+    shell:
+        """
+            sed 1d {input.gistic} | bawk '$1=="Amp"{{print "chr"$2, $3-1,$4,$6}} $1=="Del" {{print "chr"$2, $3-1,$4,-$6}}' | sort -k1,1 -k2,2n > {output}.bed
+            bedtools intersect -wo -a {input.genes} -b {output}.bed  | cut -f 4,8 | sort | uniq > {output}
+            rm {output}.bed
+        """
+
+rule delta_gistic_overall:
+    input: pdo="genes_scores_pdo.tsv",
+           pdx="genes_scores_xeno.tsv"
+    output: delta='overallgenes_delta_gistic.tsv', delta_plot='overalldelta_gistic_histo.pdf'
+    script: SRC_DIR+'/genes_delta_gistic_overall.R'
