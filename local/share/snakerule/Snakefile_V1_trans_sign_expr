@@ -73,3 +73,23 @@ rule obtain_density_plot_wilcox:
     input: res="res.tsv"
     output: density_plot = "density_f.pdf", wilcox_result ="wilcox"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+
+
+### Study genes with high studentized residuals in correlations
+rule threshold_residual:
+    input: "plot_residuals"
+    output: "genes_occurrence_overthr-{thr}.tsv"
+    shell:
+        """
+            cat {input}/*tsv | grep -v -w residuals | bawk '$2 > {wildcards.thr} || $2 < -{wildcards.thr} {{print $1}}' | sed 's/^H_//1' > {output}
+        """
+
+rule universe_residual:
+    input: "plot_residuals"
+    output: "genes_residuals_universe.tsv"
+    shell:
+        """
+            cat {input}/*tsv | grep -v -w residuals | cut -f1 | sed 's/^H_//1' | sort | uniq > {output}
+        """
+
+    
