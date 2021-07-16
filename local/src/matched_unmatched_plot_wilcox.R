@@ -25,6 +25,6 @@ y <- unmatched
 w <- wilcox.test(x, y)
 
 wilcox <- data.frame(row.names = "wilcox.test", pvalue=w$p.value)
-write.table(wilcox, file=wilcox_f, quote = "", sep = "\t", row.names = TRUE, col.names = TRUE)
+write.table(wilcox, file=wilcox_f, quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
 
 

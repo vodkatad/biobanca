@@ -93,6 +93,6 @@ rule universe_residual:
         """
 rule gene_residuals_plots:
     input: residuals = "genes_occurrence_overthr-{thr}.tsv"
-    output: gene_plot = "gene_res-{thr}.pdf", gene_plot_zoom = "gen_res_zoom-{thr}.pdf"
+    output: gene_plot = "gene_res-{thr}.pdf", gene_plot_zoom = "gen_res_zoom-{thr}.pdf", gene_res_freq = "gene_residual_frequency-{thr}.tsv"
     script: SRC_DIR+'/Gene_residual_plots.R'
     
