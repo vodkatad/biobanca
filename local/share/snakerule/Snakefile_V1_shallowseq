@@ -91,3 +91,11 @@ rule diagonal:
         """
             Rscript -e 'd <- read.table("{input[0]}", sep="\\t", header=TRUE); res <- data.frame(smodel=substr(rownames(d), 0,7), pearson=diag(as.matrix(d))); write.table(res, file="{output[0]}", sep="\\t", row.names=F, quote=F);'
         """
+
+## Gistic genes scores
+
+rule delta_gistic:
+    input: pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_data_by_genes.txt',
+           pdx=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_data_by_genes.txt'
+    output: 'genes_delta_gistic.tsv'
+    script: SCR_DIR+'/genes_delta_gistic.R'
