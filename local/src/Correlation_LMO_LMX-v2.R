@@ -108,7 +108,7 @@ for (i in seq(1, length(paired))) {
   merged_lmo_lmx$outliers <- ifelse(abs(residuals)>2, "yes", "no") 
   ggplot(data=merged_lmo_lmx, aes_string(y=wanted_column_o, x=wanted_column_x))+geom_point(aes(color=outliers))+theme_bw()+stat_smooth(method="lm")+scale_color_manual(values = c("black", "red"))
   ggsave(paste0(paired[i], ".pdf"))
-  residual <- as.data.frame(residuals, rownames=merged_lmo_lmx)
+  residual <- as.data.frame(residuals, rownames=merged_lmo_lmx) ### row.names?
   write.table(residual, file = paste0(paired[i],'.tsv'), sep = "\t", col.names = TRUE, row.names = TRUE, quote = FALSE)
 }
 

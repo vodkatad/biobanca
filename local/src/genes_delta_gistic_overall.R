@@ -34,8 +34,8 @@ th <- function() {
   theme
 }
 current_theme <- th()
-#pdo_gistic_f <- '/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/gistic/gistic_pdo/all_data_by_genes.txt'
-#pdx_gistic_f <- '/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/shallowseq/gistic/gistic_xeno/all_data_by_genes.txt'
+#pdo_gistic_f <- 'genes_scores_pdo.tsv'
+#pdx_gistic_f <- 'genes_scores_xeno.tsv'
 pdo_gistic_f <- snakemake@input[['pdo']]
 pdx_gistic_f <- snakemake@input[['pdx']]
 delta_f <- snakemake@output[['delta']]

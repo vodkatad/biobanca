@@ -1,0 +1,6 @@
+pdx <- read.table('./mutect/merged.table_nomultiallele', header=TRUE, sep="\t", row.names=1)
+pdo <- read.table('../biobanca_targeted_pdo/mutect/merged.table_nomultiallele', header=TRUE, sep="\t", row.names=1)
+afx <- unlist(pdx[pdx!=0])
+afo <- unlist(pdo[pdo!=0])
+pd <- data.frame(af=c(afo, afx), class=c(rep('pdo', length(afo)),rep('pdx',length(afx))))
+ggplot(data=pd, aes(x=af, color=class, y=..count..)) + geom_density()+theme_bw()
