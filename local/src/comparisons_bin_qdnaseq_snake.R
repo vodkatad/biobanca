@@ -53,8 +53,20 @@ if (length(intersect(models_xeno, models_pdo)) != expected_n) {
     stop('Wrong number of corresponding models!')
 }
 
-xeno_df <- xeno_df[, order(models_xeno)]
-pdo_df <- pdo_df[, order(models_xeno)]
+#xeno_df <- xeno_df[, order(models_xeno)] # eeeeh
+#pdo_df <- pdo_df[, order(models_xeno)]
+
+colnames(xeno_df) <- substr(colnames(xeno_df), 0, 7)
+colnames(pdo_df) <- substr(colnames(pdo_df), 0, 7)
+
+xeno_df <- xeno_df[, models_xeno[order(models_xeno)]]
+pdo_df <- pdo_df[, models_xeno[order(models_xeno)]]
+
+
+if (!all(substr(colnames(xeno_df),0,7) == substr(colnames(pdo_df), 0,7))) {
+  stop('Piciapirilla!')
+}
+
 
 xeno_df <- log2(xeno_df+1)
 pdo_df <- log2(pdo_df+1)
