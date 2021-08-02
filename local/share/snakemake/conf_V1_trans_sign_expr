@@ -17,6 +17,8 @@ SRC_DIR=PRJ_ROOT+"/local/src"
 DATA=PRJ_ROOT+"/local/share/data"
 
 SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
+SIMOUNIQ="../cris/unique_PDX-PDO_switch.tsv"
+RIGHT=SNAKE_ROOT+"/prj/DE_RNASeq/local/share/data/xo_basali"
 
 # List all the classes names of samples for which we want to study replicates and compute correlations
 #CLASSES=["LMO_BASALE","LMX_BASALE","LMH"] # LMH class does not have replicates

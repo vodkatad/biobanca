@@ -69,6 +69,21 @@ rule correlation_LMO_LMX:
             mkdir {output.out_dir}
             {params.tool} -x {input.lmx} -o {input.lmo} -r {output.outfile} -d {output.out_dir} -m {output.outfile2}
         """
+
+rule correlation_LMX_LMO_simo:
+    input: simo=SIMOUNIQ, expr=VSD, metadata=MEDA, right=RIGHT
+    params: tool=BIN_DIR+"/Correlation_LMX-LMO_SimoCoupled"
+    output: outfile = "LMX-LMO_correlation_simo.tsv.gz"
+    shell:
+        """
+            {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile}
+        """
+
+rule pheatmap:
+    input: correlation_matrix="LMX-LMO_correlation_simo.tsv.gz"
+    output: pheatmap="pheatmap_correlation.png"
+    script: SRC_DIR+'/pheatmap.R'
+
 rule obtain_density_plot_wilcox:
     input: res="res.tsv"
     output: density_plot = "density_f.pdf", wilcox_result ="wilcox"
