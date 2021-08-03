@@ -26,7 +26,7 @@ em <- GSEA(geneList, TERM2GENE = m_t2g, pvalueCutoff = 1)
 
 #GSEA_r <- write.table(em@result, quote = FALSE, row.names = TRUE, col.names = TRUE)
 
-write.table(em@result, file = GSEA_r, quote = TRUE, sep = " ", row.names = TRUE,
+write.table(em@result, file = GSEA_r, quote = FALSE, sep = "\t", row.names = TRUE,
             col.names = TRUE)
 
 ridgeplot(em, showCategory = 20)

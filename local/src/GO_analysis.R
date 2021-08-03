@@ -40,7 +40,7 @@ ego <- enrichGO(gene          = geneList,
                 qvalueCutoff  = 1,
                 readable      = FALSE)
 
-write.table(ego@result, file = GO_r, quote = TRUE, sep = " ", row.names = TRUE,
+write.table(ego@result, file = GO_r, quote = FALSE, sep = "\t", row.names = TRUE,
             col.names = TRUE)
 barplot(ego, showCategory = 20)
 ggsave(GO_barplot)
