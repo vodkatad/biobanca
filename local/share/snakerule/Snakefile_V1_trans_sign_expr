@@ -111,3 +111,14 @@ rule gene_residuals_plots:
     output: gene_plot = "gene_res-{thr}.pdf", gene_plot_zoom = "gen_res_zoom-{thr}.pdf", gene_res_freq = "gene_residual_frequency-{thr}.tsv"
     script: SRC_DIR+'/Gene_residual_plots.R'
     
+### Enrichment analysis
+
+rule gsea_analysis_plot:
+    input: gene_res_freq = "gene_residual_frequency-2.tsv"
+    output: GSEA_r = "GSEA_results.tsv", GSEA_ridgeplot = "gsea_ridgeplot.pdf"
+    script: SRC_DIR+'/GSEA_analysis.R'
+
+rule go_analysis_plot:
+    input: gene_res_freq = "gene_residual_frequency-2.tsv", gene_univ_freq = "genes_residuals_universe.tsv"
+    output: GO_r = "GO_results.tsv", GO_barplot = "go_barplot.pdf"
+    script: SRC_DIR+'/GO_analysis.R'
