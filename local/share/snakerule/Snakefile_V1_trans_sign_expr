@@ -122,3 +122,8 @@ rule go_analysis_plot:
     input: gene_res_freq = "gene_residual_frequency-2.tsv", gene_univ_freq = "genes_residuals_universe.tsv"
     output: GO_r = "GO_results-{thr}.tsv", GO_barplot = "go_barplot-{thr}.pdf"
     script: SRC_DIR+'/GO_analysis.R'
+
+rule anova_drugs:
+    input: drugs_tables = DRUG
+    output: anova = "anova.tsv", out_dir=directory('plot_anova')
+    script: SRC_DIR+'/anova_drugs.R'
