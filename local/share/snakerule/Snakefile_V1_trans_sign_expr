@@ -120,5 +120,5 @@ rule gsea_analysis_plot:
 
 rule go_analysis_plot:
     input: gene_res_freq = "gene_residual_frequency-2.tsv", gene_univ_freq = "genes_residuals_universe.tsv"
-    output: GO_r = "GO_results.tsv", GO_barplot = "go_barplot.pdf"
+    output: GO_r = "GO_results-{thr}.tsv", GO_barplot = "go_barplot-{thr}.pdf"
     script: SRC_DIR+'/GO_analysis.R'

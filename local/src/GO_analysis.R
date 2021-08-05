@@ -12,6 +12,7 @@ gene_res_f <- snakemake@input[["gene_res_freq"]]
 gene_univ_f <- snakemake@input[["gene_univ_freq"]]
 GO_r <- snakemake@output[["GO_r"]]
 GO_barplot <- snakemake@output[["GO_barplot"]]
+threshold <- snakemake@wildcards[['thr']]
 
 gene_res_df <- read.table(gene_res_f, quote = "", sep = "\t", header = TRUE)
 
@@ -19,7 +20,7 @@ gene_res_df <- read.table(gene_res_f, quote = "", sep = "\t", header = TRUE)
 gene_univ_df <- read.table(gene_univ_f, quote = "", sep = "\t", header = FALSE)
 
 ###order ##scegliere un treshold per discriminare quali geni tenere in base alle frequenze
-gene_freq_10 <- subset(gene_res_df, gene_res_df$Freq > 10)
+gene_freq_10 <- subset(gene_res_df, gene_res_df$Freq > threshold)
 geneList <- gene_freq_10$gene
 geneList <- as.character(geneList)
 
