@@ -62,6 +62,18 @@ lmx <- desd1[grepl('LMX', names(desd1),, fixed=TRUE)]
 lmo <- lmo[,names(lmo) %in% simo$LMO_lineage]
 lmx <- lmx[,names(lmx) %in% simo$LMX_lineage]
 
+# TODO check so we do not have replicates or they are sorted 'correctly' here?
+#> length(simo$LMX_lineage)
+#[1] 55
+#> length(simo$LMO_lineage)
+#[1] 55
+#> length(unique(substr(simo$LMO_lineage,0,7)))
+#[1] 55
+#> length(unique(substr(simo$LMX_lineage,0,7)))
+#[1] 55
+# Since we do not have replicates at the smodel level in Simo's right pairs we
+# can safely substr right now and now that we do not have repetitions that will
+# mess things up.
 colnames(lmo) <- substr(colnames(lmo),0,7)
 colnames(lmx) <- substr(colnames(lmx),0,7)
 clmo <- lmo[, names(lmx)]
