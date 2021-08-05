@@ -61,7 +61,7 @@ rule add_no_replicates:
 rule correlation_LMO_LMX:
     input: lmx='LMX_BASALE_mean_gene_genealogyall.tsv.gz',
            lmo='LMO_BASALE_mean_gene_genealogyall.tsv.gz'
-    output: outfile = "correlations_rsquared.tsv", outfile2 = "res.tsv", out_dir=directory('plot_residuals')
+    output: outfile = "correlations_rsquared.tsv", outfile2 = "LMX-LMO_correlation_smodelCoupled.tsv", out_dir=directory('plot_residuals')
     params: tool=BIN_DIR+"/Correlation_LMO_LMX-v2"
     shell:
         """
@@ -84,10 +84,23 @@ rule pheatmap:
     output: pheatmap="pheatmap_correlation.png"
     script: SRC_DIR+'/pheatmap.R'
 
+rule pheatmap_all:
+    input: correlation_matrix="LMX-LMO_correlation_smodelCoupled.tsv"
+    output: pheatmap="pheatmap_correlation_smodel.png"
+    script: SRC_DIR+'/pheatmap.R'
+
+
 rule obtain_density_plot_wilcox:
-    input: res="res.tsv"
+    input: res="LMX-LMO_correlation_smodelCoupled.tsv"
     output: density_plot = "density_f.pdf", wilcox_result ="wilcox"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+
+
+rule obtain_density_plot_wilcox_simo:
+    input: res="LMX-LMO_correlation_simo.tsv.gz"
+    output: density_plot = "density_f_simo.pdf", wilcox_result ="wilcox_simo"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+
 
 
 ### Study genes with high studentized residuals in correlations

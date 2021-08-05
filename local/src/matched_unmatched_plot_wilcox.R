@@ -4,7 +4,7 @@ library(pheatmap)
 res_f<- snakemake@input[["res"]]
 density_f <- snakemake@output[["density_plot"]]
 wilcox_f <- snakemake@output[["wilcox_result"]]
-res_df <- read.table(res_f, quote = "", sep = "\t", header = TRUE)
+res_df <- read.table(gzfile(res_f), quote = "", sep = "\t", header = TRUE)
 
 ### prendo la diagonale, quindi i campioni matched con la funzione diag mentre gli unmatched li prendo con upper.tri per la
 ### parte sopra la diagonale e lower.tri per la parte inferiore alla diagonale
