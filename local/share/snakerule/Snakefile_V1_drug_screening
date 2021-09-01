@@ -1,0 +1,10 @@
+include: 'conf.sk'
+
+#Anova Test
+
+rule anova_drugs:
+    input: drugs_tables = DRUG
+    output: anova = "anova.tsv", out_dir=directory('plot_anova')
+    script: SRC_DIR+'/anova_drugs.R'
+
+    bababab

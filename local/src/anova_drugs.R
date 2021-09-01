@@ -29,6 +29,7 @@ for (i in seq(1, length(models))) {
   Drug_Screening_Tables <- read_excel(drugs_tables, sheet = models[i])
   data <- as.data.frame(Drug_Screening_Tables)
   data$DRUG <- str_trim(data$DRUG, "both") 
+  data$DRUG <- str_replace_all(data$DRUG, " +", "_") 
   
   drugs <- unique(data$DRUG)
   conditions <- unique(data$CONDITION)
