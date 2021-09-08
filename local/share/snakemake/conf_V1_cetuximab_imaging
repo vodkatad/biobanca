@@ -23,3 +23,4 @@ WANTED_X=['imaging_5000','imaging_1250','imaging_20000']
 MERGE='case'
 YNAME='Cetuximab_dVw3'
 NAME='Imaging'
+X_AUC="NA"
