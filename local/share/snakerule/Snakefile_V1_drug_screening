@@ -7,4 +7,12 @@ rule anova_drugs:
     output: anova = "anova.tsv", out_dir=directory('plot_anova')
     script: SRC_DIR+'/anova_drugs.R'
 
-    bababab
+rule get_delta_max:
+    input: anova = "anova.tsv", drugs_tables = DRUG
+    output: res_models_drugs = "res_models_drugs.tsv"
+    script: SRC_DIR+'/DELTAmax.R'
+
+rule get_heatmap:
+    input: res_models_drugs_f = "res_models_drugs.tsv"
+    output: out_dir=directory('plot_heatmap')
+    script: SRC_DIR+'/heatmapscore.R'
