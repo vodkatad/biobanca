@@ -16,3 +16,5 @@ rule get_heatmap:
     input: res_models_drugs_f = "res_models_drugs.tsv"
     output: out_dir=directory('plot_heatmap')
     script: SRC_DIR+'/heatmapscore.R'
+
+
