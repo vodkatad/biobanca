@@ -34,7 +34,7 @@ pdf(plot)
 res <- CMScaller(emat=vsd_f, FDR=0.05)
 dev.off()
 
-write.table(res, file = results, quote = FALSE, sep = "\t", row.names = FALSE,
+write.table(res, file = results, quote = FALSE, sep = "\t", row.names = TRUE,
             col.names = TRUE)
 
 
