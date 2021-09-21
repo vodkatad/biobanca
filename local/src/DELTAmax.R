@@ -12,7 +12,7 @@ res_models_drugs_f <- snakemake@output[["res_models_drugs"]]
 
 anova_d <- anova
 anova_df <- read.table(anova_d, quote = "", sep = "\t", header = TRUE)
-anova_df <- subset(anova_df, anova_df$padj < 0.005)
+anova_df <- subset(anova_df, anova_df$padj < 0.05)
 models <- c("CRC0322", "CRC0059", "CRC1272", "CRC1331", "CRC0327")
 
 # Drug_Screening_Tables <- read_excel(("Drug_Screening_Tables.xlsx"), sheet = models[i])

@@ -162,3 +162,9 @@ rule CMStype:
     output: RES = "{sclass}_CMScaller.tsv", CMS_heatmap = "{sclass}_CMS_heatmap.pdf"
     script: SRC_DIR+ '/CMScallertype.R'
 
+rule get_model_cms:
+    input: simo="../cris/SIMO_v2.tsv", pdo="LMO_BASALE_CMScaller.tsv", pdx="LMX_BASALE_CMScaller.tsv"
+    output: results="model_cms.tsv"
+    log: "model_cms.log"
+    script: SRC_DIR+ '/CMS_simo.R'
+    
