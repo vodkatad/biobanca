@@ -50,6 +50,8 @@ get_genes_binary <- function(sample, AF, genes, thr, all_genes) {
     return(all_genes %in% genes)
 }
 
+gpdo <- gpdo[match(rownames(pdo), rownames(gpdo)),, drop=F] # ASSUMPTIONS ASSUMPTIONS FOTTITI ELENA
+gpdx <- gpdx[match(rownames(pdx), rownames(gpdx)),, drop=F]
 pdobing <- sapply(colnames(pdo), get_genes_binary, pdo, gpdo, AFt, all_genes)
 pdxbing <- sapply(colnames(pdx), get_genes_binary, pdx, gpdx, AFt, all_genes)
 
