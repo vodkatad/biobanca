@@ -59,6 +59,8 @@ for (i in seq(1, length(smodel))) {
 pdo_cms_wrong <- filter(model_cms, model %in% wrong_pdo)
 pdx_cms_wrong <- filter(model_cms, model %in% wrong_pdx)
 
+colnames(res) <- c("model", "CMS_PDO", "CMS_PDX")
+
 save.image("pippo.Rdata")
 
 sink(snakemake@log[[1]])
