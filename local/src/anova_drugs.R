@@ -64,7 +64,7 @@ for (i in seq(1, length(models))) {
       
       
       long$x <- seq(1, nrow(long))
-      ggplot(data=long, aes(y=value, x=x, fill=variable))+geom_col()+theme_bw()
+      ggplot(data=long, aes(y=value, x=x, fill=variable))+geom_col()+theme_bw()+ggtitle(paste0(models[i]," ", drugs[j], " ",conditions[k]))
       ggsave(paste0("barplot_", models[i],"_", drugs[j], "_",conditions[k],'.pdf'))
       
       # Compute the analysis of variance
