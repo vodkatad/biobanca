@@ -17,4 +17,24 @@ rule get_heatmap:
     output: out_dir=directory('plot_heatmap')
     script: SRC_DIR+'/heatmapscore.R'
 
+#Anova test normalized
 
+rule anova_drugs_norm:
+    input: drugs_tables = DRUG_NORM
+    output: anova = "anova_norm.tsv", out_dir=directory('plot_anova_norm')
+    script: SRC_DIR+'/anova_drugs.R'
+
+rule get_delta_max_norm:
+    input: anova = "anova_norm.tsv", drugs_tables = DRUG
+    output: res_models_drugs = "res_models_drugs_norm.tsv"
+    script: SRC_DIR+'/DELTAmax.R'
+
+rule get_heatmap_norm:
+    input: res_models_drugs_f = "res_models_drugs_norm.tsv"
+    output: out_dir=directory('plot_heatmap_norm')
+    script: SRC_DIR+'/heatmapscore.R'
+
+rule anova_two_ways:
+    input: drugs_tables = DRUG_NORM
+    output: anova = "anova_2ways.tsv", out_dir=directory('plot_anova_2ways')
+    script: SRC_DIR+'/Anova2ways.R'

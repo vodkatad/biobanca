@@ -22,6 +22,7 @@ RIGHT=SNAKE_ROOT+"/prj/DE_RNASeq/local/share/data/xo_basali"
 
 
 DRUG="/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/Drug_Screening_Tables_fin.xlsx"
+DRUG_NORM="/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/Drug_Screening_Tables_norm.xlsx"
 
 # List all the classes names of samples for which we want to study replicates and compute correlations
 #CLASSES=["LMO_BASALE","LMX_BASALE","LMH"] # LMH class does not have replicates
