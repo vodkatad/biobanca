@@ -21,7 +21,7 @@ if (dir.exists(out_dir)) {
 setwd(out_dir)
 
 for (i in seq(1, length(model))) {
-  dnorm <- read_excel(drugs_tables)
+  dnorm <- read_excel(drugs_tables, sheet=model[i])
   dnorm <- as.data.frame(dnorm, stringsAsFactors =FALSE)
   dnorm$DRUG_EXP <- paste0(dnorm$DRUG, dnorm$EXP, "@", dnorm$CONDITION)
   h <- reshape::melt(dnorm, id.vars = "DRUG_EXP", measure.vars = c("DOSE_1", "DOSE_2", "DOSE_3",
