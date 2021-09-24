@@ -2,7 +2,7 @@
 
 library(readxl)
 library(reshape)
-library(gplots)
+library(ggpubr)
 
 drugs_tables <- snakemake@input[["drugs_tables"]]
 anova_f <- snakemake@output[["anova"]]
@@ -38,6 +38,11 @@ for (i in seq(1, length(model))) {
       s_fit <- summary(fit)
       sf <- s_fit[[1]][["Pr(>F)"]]
       res <- rbind(res, c(model[i], drug, sf[1:3]), stringsAsFactors = FALSE)
+      
+      ggline(a_f, x = "variable", y = "value", color = "CONDITION",
+             add = c("mean_se", "dotplot"),
+             palette = c("#00AFBB", "#E7B800"), title=paste0(model[i], " ", drug))
+      ggsave(paste0(model[i], " ", drug,".pdf"))
     }
 }
 
