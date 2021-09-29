@@ -119,6 +119,7 @@ rule universe_residual:
         """
             cat {input}/*tsv | grep -v -w residuals | cut -f1 | sed 's/^H_//1' | sort | uniq > {output}
         """
+        
 rule gene_residuals_plots:
     input: residuals = "genes_occurrence_overthr-{thr}.tsv"
     output: gene_plot = "gene_res-{thr}.pdf", gene_plot_zoom = "gen_res_zoom-{thr}.pdf", gene_res_freq = "gene_residual_frequency-{thr}.tsv"
@@ -126,13 +127,23 @@ rule gene_residuals_plots:
     
 ### Enrichment analysis
 
+# -2 is the threshold on the magnitude of studentized residual that are considered as outliers
+# this rules instead selects only the genes that are considered outliers in more than a given fraction of pairs LMO-LMX
 rule gsea_analysis_plot:
     input: gene_res_freq = "gene_residual_frequency-2.tsv"
     output: GSEA_r = "GSEA_results.tsv", GSEA_ridgeplot = "gsea_ridgeplot.pdf"
     script: SRC_DIR+'/GSEA_analysis.R'
 
+rule threshold_residual_freq:
+    input: genes_freq = "gene_residual_frequency-2.tsv"
+    output: gene_list= "gene_outlier_frequency-{thr}.tsv"
+    shell: 
+        """
+         sed 1d {input.genes_freq} | bawk '$2 > {wildcards.thr} {{print $1}}' > {output.gene_list}
+        """
+
 rule go_analysis_plot:
-    input: gene_res_freq = "gene_residual_frequency-2.tsv", gene_univ_freq = "genes_residuals_universe.tsv"
+    input: gene_list= "gene_outlier_frequency-{thr}.tsv", gene_univ = "genes_residuals_universe.tsv"
     output: GO_r = "GO_results-{thr}.tsv", GO_barplot = "go_barplot-{thr}.pdf"
     script: SRC_DIR+'/GO_analysis.R'
 
@@ -167,4 +178,11 @@ rule get_model_cms:
     output: results="model_cms.tsv"
     log: "model_cms.log"
     script: SRC_DIR+ '/CMS_simo.R'
+
+
+###TODO: add flag for NA and file from conf?
+rule sankey:
+    input: "model_cms.tsv"
+    output: "sankey_model_cms.png"
+    script: SRC_DIR+"/sankey_classification.R"
     
