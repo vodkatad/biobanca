@@ -144,7 +144,7 @@ rule threshold_residual_freq:
 
 rule go_analysis_plot:
     input: gene_list= "gene_outlier_frequency-{thr}.tsv", gene_univ = "genes_residuals_universe.tsv"
-    output: GO_r = "GO_results-{thr}.tsv", GO_barplot = "go_barplot-{thr}.pdf"
+    output: GO_r = "GO_results-{thr}.tsv", out_dir = directory("go_barplot-{thr}")
     script: SRC_DIR+'/GO_analysis.R'
 
 ### CMS caller
@@ -179,6 +179,15 @@ rule get_model_cms:
     log: "model_cms.log"
     script: SRC_DIR+ '/CMS_simo.R'
 
+
+rule get_symbols_cms_cris:
+    input: VSD_f = "/home/mferri/gene_expr_cms.tsv"
+    output: "gene_expr_cms_crisl.tsv"
+    params: tool=SRC_DIR+"/add_description.R"
+    shell:
+        """
+            {params.tool} -i {input.VSD_f} -o {output} -n 1  -f SYMBOL -t ENTREZID -d
+        """
 
 ###TODO: add flag for NA and file from conf?
 rule sankey:
