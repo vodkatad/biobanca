@@ -57,6 +57,60 @@ pdxbing <- sapply(colnames(pdx), get_genes_binary, pdx, gpdx, AFt, all_genes)
 
 rownames(pdobing) <- all_genes
 rownames(pdxbing) <- all_genes
+
+pdo_genes <- apply(pdobing, 1, sum)
+pdx_genes <- apply(pdxbing, 1, sum)
+freqs <- data.frame(pdo_freq = pdo_genes/ncol(pdobing), pdx_freq=pdx_genes/ncol(pdxbing))
+freqs$gene <- rownames(freqs)
+tcga <- read.table('/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/tcga_panel_freqs.tsv', sep="\t")
+msk <- read.table('/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv', sep="\t")
+colnames(tcga) <- c('gene', 'freq')
+colnames(msk) <- c('gene', 'freq')
+
+m1 <- merge(tcga, msk, all.x = TRUE, by='gene')
+colnames(m1) <- c('gene','tcga_freq','msk_freq')
+m2 <- merge(m1, freqs, all.x = TRUE, by='gene')
+
+m2[is.na(m2$msk_freq),]$msk_freq <- 0
+m2[is.na(m2$pdx_freq),]$pdx_freq <- 0
+m2[is.na(m2$pdo_freq),]$pdo_freq <- 0
+
+#pd <- melt(m2)
+
+ggplot(data=m2, aes(x=pdx_freq, y=tcga_freq))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+current_theme
+
+cl <- c(rep('tcga',nrow(m2)), rep('msk',nrow(m2)))
+#cl2 <- c(rep('pdo',nrow(m2)), rep('pdx',nrow(m2)), rep('pdo',nrow(m2)), rep('pdx',nrow(m2)))
+
+m3 <- data.frame(x=c(m2$pdo_freq, m2$pdo_freq), 
+                 y=c(m2$tcga_freq, m2$msk_freq), 
+                 class=cl)
+
+lmplot <- function(data, title, xlim=NULL) {
+  fit1 <- data[data$class=='tcga',]
+  fit2 <- data[data$class=='msk',]
+  pi1 <- cor.test(fit1$x, fit1$y)
+  pi2 <- cor.test(fit2$x, fit2$y)
+  
+  cap1 <- round(c(pi1$estimate, pi1$p.value, pi2$estimate, pi2$p.value),2)
+  print(cap1)
+  names(cap1) <- NULL
+  cap <- paste(cap1, collapse= " ")
+  if (is.null(xlim)) {
+    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+current_theme+labs(caption=cap)+ggtitle(title)
+  } else {
+    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+current_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)
+  }
+}
+
+lmplot(m3, 'PDO')
+lmplot(m3, 'PDO', c(0, 0.2))
+
+m3 <- data.frame(x=c(m2$pdx_freq, m2$pdx_freq), 
+                 y=c(m2$tcga_freq, m2$msk_freq), 
+                 class=cl)
+lmplot(m3, 'PDX')
+lmplot(m3, 'PDX', c(0, 0.2))
 ###
 pdo_df <- pdobing
 xeno_df <- pdxbing
@@ -650,9 +704,13 @@ oncoPrint(td4,
 #[1] 4
 
 mat_list2 <- list()
-mat_list2[[1]] <- mat_list[[1]][,seq(1,30)]
-mat_list2[[2]] <- mat_list[[2]][,seq(1,30)]
-mat_list2[[3]] <- mat_list[[3]][,seq(1,30)]
+#mat_list2[[1]] <- mat_list[[1]][,seq(1,30)] # y
+#mat_list2[[2]] <- mat_list[[2]][,seq(1,30)]
+#mat_list2[[3]] <- mat_list[[3]][,seq(1,30)]
+mat_list2[[1]] <- mat_list[[1]]
+mat_list2[[2]] <- mat_list[[2]]
+mat_list2[[3]] <- mat_list[[3]]
+
 names(mat_list2) <- names(mat_list)
 
 m <- mat_list[[1]]
