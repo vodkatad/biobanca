@@ -42,18 +42,19 @@ def define_bam(qc, prefix):
     res = checkife(f, prefix)
     return(res)
 
+# commented out to run on scratch without the alignments etc
 # a rule to avoid lengthy re- listing everytime 
 # TODO do separately xeno and organoids
-rule bamfiles:
-    params: x_bams=define_bam(QC_X, X_BAM), o_bams=define_bam(QC_O, O_BAM)
-    output: xeno="xeno_bamfiles_path.tsv", pdo="pdo_bamfiles_path.tsv"
-    run:
-        with open(output.xeno, 'w') as o:
-            for b in params.x_bams:
-                print(b, file=o)
-        with open(output.pdo, 'w') as o:
-            for b in params.o_bams:
-                print(b, file=o)
+# rule bamfiles:
+#     params: x_bams=define_bam(QC_X, X_BAM), o_bams=define_bam(QC_O, O_BAM)
+#     output: xeno="xeno_bamfiles_path.tsv", pdo="pdo_bamfiles_path.tsv"
+#     run:
+#         with open(output.xeno, 'w') as o:
+#             for b in params.x_bams:
+#                 print(b, file=o)
+#         with open(output.pdo, 'w') as o:
+#             for b in params.o_bams:
+#                 print(b, file=o)
 
 # for qdnaseq
 BIN_SIZE=15

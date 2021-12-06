@@ -55,6 +55,17 @@ rule qdnaseq_segment_correlate:
     params: expected_pairs=get_exp_pairs
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake.R"
 
+rule qdnaseq_segment_correlate_filterTRUE_svg:
+    input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv'
+    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.svg"
+    params: expected_pairs=get_exp_pairs
+    log: "validated_heatmap_cors_{which}.log"
+    script: SRC_DIR+"/comparisons_bin_qdnaseq_snake_filter_true.R"
+
+# add xo cn matrixes validated printing rule!
+
+# rule heatmap
+
 ## gistic online https://cloud.genepattern.org/gp/pages/index.jsf?lsid=urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00125:6.15.28#
 rule segmentation_for_gistic:
     input: rdata="{kind}_qdnaseq/cn_seg.Rdata"
