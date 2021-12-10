@@ -89,6 +89,8 @@ if (!all(substr(colnames(xeno_df),0,7) == substr(colnames(pdo_df), 0,7))) {
 }
 
 
+xeno_df_bck <- xeno_df
+pdo_df_bck <- pdo_df
 xeno_df <- log2(xeno_df+1)
 pdo_df <- log2(pdo_df+1)
 pearson <- cor(xeno_df, pdo_df)

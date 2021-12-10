@@ -62,9 +62,117 @@ rule qdnaseq_segment_correlate_filterTRUE_svg:
     log: "validated_heatmap_cors_{which}.log"
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake_filter_true.R"
 
-# add xo cn matrixes validated printing rule!
+# validated xo cn matrixes 
+rule validated_cn_log2:
+    input: rdata='validated_pearson_xo.Rdata'
+    output: xeno='xeno_segm_l2fc.tsv.gz', pdo='pdo_segm_l2fc.tsv.gz'
+    script: SRC_DIR+'/save_cn.R'
+
+
+# project to bin
+#rule seqtobin:
+#    input: "{kind}_segm_l2fc.tsv.gz"
+#    output: "{kind}.{bin}.tsv.gz"
+#    params: tool=BIN_DIR+"/project_bin"
+#    shell: 
+#        """    
+#            zcat {input} | head -n1 > {output}
+#            {params.tool} -c <(zcat {input} | sed 1d |  tr ":" "\\t" | tr "-" "\\t" | bawk '{{print "chr"$1,$2-1,$3,$0}}' | cut -f 4 --complement) -b {wildcards.bin} | gzip >> {output}
+#        """
+# need to write this multisample!! TODO
 
 # rule heatmap
+rule heatmap:
+    input: "{kind}_segm_l2fc.tsv.gz"
+    output: "{kind}_heatmap.png"
+    run:
+        import numpy as np
+        import pandas as pd
+        import seaborn as sns
+        import matplotlib.colors as colors
+        import matplotlib 
+        import matplotlib.cm as cm
+        import matplotlib.ticker as ticker
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.transforms as transforms
+
+        cnvs = pd.read_csv(input[0], sep="\t") 
+        
+        split1 = [x.split(':') for x in cnvs.index.values]
+        split2 = [x[1].split('-') for x in split1]
+        boundaries = pd.DataFrame(data={'chr':[x[0] for x in split1], 'b': [x[0] for x in split2], 'e': [x[1] for x in split2]})
+
+        cnvs = cnvs.transpose()
+        clusters = False
+        verbose = True
+        metric = 'euclidean'
+        method = 'ward'
+
+        #chr_limits = boundaries.index[boundaries['e'].isin(boundaries.groupby('chr', sort=False)['e'].max().values)].tolist()
+        i = 0
+        chr_limits = []
+        last = ""
+        for index, row in boundaries.iterrows():
+            if last != "" and last != row['chr']:
+                chr_limits.append(i-1)
+            last = row['chr']
+            i = i + 1        
+        chr_limits.append(i-1)
+
+        chr_boundaries = np.append(0, chr_limits)
+        chr_list = boundaries['chr'].unique().tolist()
+        chrN_list = []
+
+        for x in chr_list:
+            #x = x[3:] #remove 'chr' for readability
+            chrN_list.append(x)
+
+        #compute the position where chromosome labels will be placed on the plots
+        start = 0
+        pos_list = []
+        for end in chr_limits:
+            pos_list.append((start+end)/2)
+            start = end+1
+
+        if clusters:
+            yticklabels = True
+        else:
+            yticklabels = False
+
+        #cbar_kws={"ticks": np.arange(0,13,1)}
+        #import sys
+        #sys.setrecursionlimit(10000)
+        #h = sns.clustermap(cnvs, method=method, metric=metric, col_cluster=False, yticklabels = yticklabels,  cmap='RdBu_r', vmin=0, vmax=12,norm=divnorm, cbar_kws=cbar_kws)
+        maxv = cnvs.max().max()
+        minv = cnvs.min().min()
+        h = sns.clustermap(cnvs, col_cluster=False, method=method, metric=metric, row_cluster=clusters, yticklabels = True, cmap='RdBu_r', vmin=minv, vmax=maxv, center=(maxv+minv)/2)#, cbar_kws=cbar_kws)
+        #Z = h.dendrogram_row.linkage
+        ax = h.ax_heatmap
+        #place vertical lines to identify chromosomes
+        for pos in chr_limits:
+            ax.axvline(x=pos, color='black')
+
+        #place chromosome ticks at the right position
+        ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
+        ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        ax.tick_params(axis='x', rotation=0, labelsize=20)
+        ax.tick_params(axis='y', rotation=0, labelsize=20)
+    
+        ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
+        ax.tick_params(axis='x', length=20, which='minor')
+
+        ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
+        if clusters:
+            ax.set_ylabel("Clusters", fontweight='bold', fontsize=25)
+        else:
+            ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
+
+        plt.gcf().set_size_inches(37, 21)
+    
+        plt.gcf().suptitle(wildcards.kind+" heatmap", fontsize=30, fontweight='bold')
+        plt.savefig(output[0])
+        plt.clf()
 
 ## gistic online https://cloud.genepattern.org/gp/pages/index.jsf?lsid=urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00125:6.15.28#
 rule segmentation_for_gistic:
