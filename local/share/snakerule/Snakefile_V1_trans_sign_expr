@@ -206,6 +206,17 @@ rule sankey:
     output: pdf="sankey_model_cms_validated.pdf", html="sankey_model_cms_validated.html"
     script: SRC_DIR+"/sankey_classification.R"
 
+#manualrule html_to_svg:
+# 1- download sankey_model_cms_validated.html 
+# 2- open in browser, reorder CMS as required
+# 3- open developer tool and select the code in the <svg> </svg> tag
+# 4- copy and paste in a text editor
+# 5- add the xml header <?xml version="1.0" encoding="UTF-8" standalone="no"?> at the beginning
+# 6- remove any <br> tag 
+# 7- save and open with inkscape/illustrator to check
+# 8- remove alpha channel, fix font class, font size, etc
+# - example without step n.8 in local/share/data/cms_validated_reordered.svg
+
 ### clustering
 
 rule get_clustering:
