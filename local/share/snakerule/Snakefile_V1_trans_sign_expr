@@ -179,6 +179,17 @@ rule get_model_cms:
     log: "model_cms.log"
     script: SRC_DIR+ '/CMS_simo.R'
 
+rule true:
+    input: cms="model_cms.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "model_cms_validated.tsv"
+    shell:
+        """
+            cat {input.cms} | bawk 'NR == 1' > {output}
+            cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}' > {output}.tmp
+            cat {input.cms} | filter_1col 1 {output}.tmp >> {output}
+        """
+
+## TODO add selection on only TRUE cases in ../../../../local/share/data/biobanca_pdo_buoni.tsv //DONE ^
 
 rule get_symbols_cms_cris:
     input: VSD_f = "/home/mferri/gene_expr_cms.tsv"
@@ -191,23 +202,34 @@ rule get_symbols_cms_cris:
 
 ###TODO: add flag for NA and file from conf?
 rule sankey:
-    input: "model_cms.tsv"
-    output: "sankey_model_cms.png"
+    input: "model_cms_validated.tsv"
+    output: pdf="sankey_model_cms_validated.pdf", html="sankey_model_cms_validated.html"
     script: SRC_DIR+"/sankey_classification.R"
 
 ### clustering
 
 rule get_clustering:
     input: expr = "/scratch/trcanmed/DE_RNASeq/dataset/Class_comparison_biobanca/Cutoff0.05_LFC0.584/vsd_clustering.tsv.gz"
-    output: boot = "clustering_true_boot.png", dendro = "dendrogram_clustering.png", clust_res = "count_clustering_model.tsv", pvals = "pvalue_counts.tsv"
+    output: boot = "clustering_true_boot.png", dendro = "dendrogram_clustering.png", clust_res = "count_clustering_model.tsv", pvals = "pvalue_counts.tsv", circleden = "circular_dendogram.png"
     script: SRC_DIR+"/clustering_fin.R"
 
 rule get_clustering_sds:
     input: expr = "/scratch/trcanmed/DE_RNASeq/dataset/Class_comparison_biobanca/Cutoff0.05_LFC0.584/vsd_clustering_sds.tsv.gz"
-    output: boot = "clustering_true_boot_sds.png", dendro = "dendrogram_clustering_sds.png", clust_res = "count_clustering_model_sds.tsv", pvals = "pvalue_counts_sds.tsv"
+    output: boot = "clustering_true_boot_sds.png", dendro = "dendrogram_clustering_sds.png", clust_res = "count_clustering_model_sds.tsv", pvals = "pvalue_counts_sds.tsv", circleden = "circular_dendogram_sds.png"
     script: SRC_DIR+"/clustering_fin.R"
 
 rule get_clustering_sds_xo:
     input: expr = "/scratch/trcanmed/DE_RNASeq/dataset/Class_comparison_biobanca/Cutoff0.05_LFC0.584/vsd_clustering_sds_xo.tsv.gz"
-    output: boot = "clustering_true_boot_sds_xo.png", dendro = "dendrogram_clustering_sds_xo.png", clust_res = "count_clustering_model_sds_xo.tsv", pvals = "pvalue_counts_sds_xo.tsv"
+    output: boot = "clustering_true_boot_sds_xo.png", dendro = "dendrogram_clustering_sds_xo.png", clust_res = "count_clustering_model_sds_xo.tsv", pvals = "pvalue_counts_sds_xo.tsv", circleden = "circular_dendogram_sds_xo.png"
     script: SRC_DIR+"/clustering_fin.R"
+
+### H <-> M converter:
+
+rule get_conversion:
+    input: gene_list = "Norkin_gene_list.tsv"
+    output: df = "conversion_genes.tsv", txt = "different_genes.tsv"
+    params: tool=SRC_DIR+"/gene_species_converter.R"
+    shell:
+        """
+            {params.tool} -i {input.gene_list} -o {output.df} -x {output.txt} -t human.Rds -f mouse.Rds -T hgnc_symbol -F mgi_symbol -d
+        """
