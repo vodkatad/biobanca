@@ -88,11 +88,13 @@ def heatmap_in(wildcards):
     else:
         return wildcards.kind+'.'+wildcards.bin+'.tsv.gz'
 
+# enormous svg https://stackoverflow.com/questions/51418310/matplotlib-multiple-scatter-subplots-reduce-svg-file-size :(
+# stopped at 900M for orig, 50Mb for 1500000 bins
 rule heatmap:
     #input: "{kind}_segm_l2fc.tsv.gz"
     #input: "{kind}.1500000.tsv.gz"
     input: heatmap_in
-    output: "{kind}_{bin}_heatmap.png"
+    output: "{kind}_{bin}_heatmap_{mute}.svg"
     run:
         import numpy as np
         import pandas as pd
@@ -148,23 +150,26 @@ rule heatmap:
         #cbar_kws={"ticks": np.arange(0,13,1)}
         maxv = cnvs.max().max()
         minv = cnvs.min().min()
-        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='RdBu_r', robust=True, center=0)# cbar_kws=cbar_kws)
+        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='RdBu_r', robust=True, center=0, rasterized=True)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='RdBu_r', robust=True, center=0)# cbar_kws=cbar_kws)
         #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='bwr', vmax=maxv, vmin=minv, center=0)# cbar_kws=cbar_kws)
         #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='coolwarm', robust=True, center=0)# cbar_kws=cbar_kws)
         #Z = h.dendrogram_row.linkage
         ax = h.ax_heatmap
+		#ax.set_rasterization_zordeset_rasterization_zorderr(1)
         #place vertical lines to identify chromosomes
         for pos in chr_limits:
             ax.axvline(x=pos, color='black')
 
         #place chromosome ticks at the right position
         ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
-        #ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        if wildcards.mute != "mute":
+            ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
         ax.tick_params(axis='x', rotation=0, labelsize=20)
         #ax.tick_params(axis='y', rotation=0, labelsize=20)
         ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
         ax.tick_params(axis='x', length=20, which='minor')
-
+        
         #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
         #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
 
