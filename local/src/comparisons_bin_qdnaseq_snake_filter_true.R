@@ -12,8 +12,15 @@ pearson_f <- snakemake@output[['pearson']]
 rdata_f <- snakemake@output[['rdata']]
 which <- snakemake@wildcards[['which']]
 good_f <- snakemake@input[['good']]
-
 save.image(rdata_f)
+
+
+## for ggplot
+osnakemake <- snakemake
+load(snakemake@input[['Rimage']])
+eval(parse(text=myriad))
+snakemake <- osnakemake
+
 xeno_df <- read.table(xeno_f, quote="", sep="\t", header=TRUE, row.names = 1)
 pdo_df <- read.table(pdo_f, quote="", sep="\t", header=TRUE, row.names = 1)
 xeno_df[,c("chromosome","start","end")] <- NULL
@@ -106,8 +113,15 @@ all <- as.numeric(unlist(pearson2))
 all <- all[!is.na(all)]
 #all <- upper.tri(pearson, diag = FALSE) # this is not a simmetric matrix!
 pdata <- data.frame(pearson=c(all, diag), type=c(rep('unmatched', length(all)),rep('matched', length(diag))))
-ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+theme_bw()+theme(text=element_text(size=20))
-ggsave(density_f)
+ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+unmute_theme
+ggsave(density_f, height=31.7, width=31.7, units='cm')
+
+ext <- substr(density_f, nchar(density_f)-3, nchar(density_f)) 
+# this works only with 3 char extensions, TODO FIXME  https://stackoverflow.com/questions/29113973/get-filename-without-extension-in-r
+density_f_mute <- paste0(substr(density_f, 0, nchar(density_f)-3), 'mute', ext)
+print(density_f_mute)
+ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+mute_theme
+ggsave(density_f_mute, height=31.7, width=31.7, units='cm')
 
 write.table(as.data.frame(pearson), file=pearson_f, quote=FALSE, sep="\t")
 save.image(rdata_f)
