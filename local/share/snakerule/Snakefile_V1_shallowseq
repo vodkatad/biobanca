@@ -187,7 +187,19 @@ rule segmentation_for_gistic:
             {params.tool} -r {input.rdata} -s {output.seg}
         """
 
-    ####################
+rule segmentation_for_gistic_filterTRUE:
+    input: rdata="{kind}_qdnaseq/cn_seg.Rdata", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv'
+    output: seg="{kind}_TRUE.seg"
+    params: tool=BIN_DIR+"/qdnaseq_my_segm_filterTRUE"
+    shell:
+        """
+            {params.tool} -r {input.rdata} -s {output.seg} -g {input.good}
+        """
+
+# rule gistic      
+# https://cloud.genepattern.org/gp/pages/index.jsf?lsid=urn:lsid:broad.mit.edu:cancer.software.genepattern.module.analysis:00125:6.15.28
+# module GISTIC_2.0, input those two seg, refseq hg38, no other parameters set, everything kept as default (gene gistic * yes included)
+######################
 
 tests = {
     'CRC0327-04-0': 5,
