@@ -35,6 +35,11 @@ rule cohen:
     script: SRC_DIR+"/cohenK.R"
 
 
+rule sankey:
+    input: "cris_tmm_0.2_classes_lmx-lmo_basali_models_ns_validated.tsv"
+    output: pdf="sankey_model_cris_validated.pdf", html="sankey_model_cris_validated.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
 ###TODO regoletta che sputa due df: uno media uno correlazioni inter-pdx
 
 # rule correlation:

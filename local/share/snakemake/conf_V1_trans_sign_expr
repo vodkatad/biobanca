@@ -28,8 +28,8 @@ DRUG="/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/Drug_Screening_Table
 CLASSES=["LMO_BASALE","LMX_BASALE"] 
 
 # Expression data: metadata and vsd
-MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
-VSD=SNAKE_ROOT+"/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
+MEDA=SNAKE_ROOT+'/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
+VSD=SNAKE_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
 VSD_TEST="/home/mferri/small_vsd.tsv.gz"
 
 

@@ -31,7 +31,7 @@ vsd_f <- merge(vsd_genes, vsd_subset, by = "symbol")
 vsd_f$symbol <- NULL
 vsd_f <- vsd_f %>% remove_rownames %>% column_to_rownames(var="description")
 
-pdf(plot)
+png(plot)
 res <- CMScaller(emat=vsd_f, FDR=0.05, RNAseq=TRUE)
 graphics.off()
 

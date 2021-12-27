@@ -85,6 +85,9 @@ results_rsquared <- data.frame(row.names=paired, rsquared=rep(NA, length(paired)
                                intercept=rep(NA, length(paired)), pvalue=rep(NA, length(paired)))
 
 setwd(opt$outdir)
+
+save.image("residuals.Rdata")
+
 ### for loop
 for (i in seq(1, length(paired))) {
   wanted_column_o <- paste0(paired[i],"_LMO")

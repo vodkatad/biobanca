@@ -170,7 +170,7 @@ rule CMS:
 
 rule CMStype:
     input: expr = VSD, metadata = MEDA, VSD_genes = "VSD_genes.tsv"
-    output: RES = "{sclass}_CMScaller.tsv", CMS_heatmap = "{sclass}_CMS_heatmap.pdf"
+    output: RES = "{sclass}_CMScaller.tsv", CMS_heatmap = "{sclass}_CMS_heatmap.png"
     script: SRC_DIR+ '/CMScallertype.R'
 
 rule get_model_cms:
@@ -188,6 +188,10 @@ rule true:
             cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}' > {output}.tmp
             cat {input.cms} | filter_1col 1 {output}.tmp >> {output}
         """
+rule cohen:
+    input: "model_cms_validated.tsv"
+    output: "cohenK_cms_PDX-PDO"
+    script: SRC_DIR+"/cohenK.R"
 
 ## TODO add selection on only TRUE cases in ../../../../local/share/data/biobanca_pdo_buoni.tsv //DONE ^
 
