@@ -7,9 +7,19 @@ size <- as.numeric(snakemake@wildcards[['size']])
 
 textSize <- size
 largerSize <- textSize + 5
-unmute_theme <- theme_bw() +
+unmute_theme_myriad <- theme_bw() +
 theme(
 	text = element_text(size = textSize, family = "myriad"),
+	axis.title = element_text(size = largerSize),
+	axis.text.x = element_text(size = textSize),#, angle = 90, vjust = 0.5, hjust=1)
+	axis.text.y = element_text(size = textSize),
+	plot.title = element_text(size = largerSize, hjust = 0.5)
+)
+
+#saveRDS(unmute_theme, file=snakemake@output[['unmute']])
+unmute_theme <- theme_bw() +
+theme(
+	text = element_text(size = textSize, family='sans'),
 	axis.title = element_text(size = largerSize),
 	axis.text.x = element_text(size = textSize),#, angle = 90, vjust = 0.5, hjust=1)
 	axis.text.y = element_text(size = textSize),
