@@ -232,7 +232,7 @@ rule delta_gistic:
     input: pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_data_by_genes.txt',
            pdx=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_data_by_genes.txt'
     output: delta='genes_delta_gistic.tsv', delta_plot='delta_gistic_heatmap.pdf'
-    params: expected_pairs=PAIRS
+    params: expected_pairs=125 # from validated_heatmap_cors_xo.log
     script: SRC_DIR+'/genes_delta_gistic.R'
 
 

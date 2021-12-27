@@ -18,7 +18,7 @@ save.image(rdata_f)
 ## for ggplot
 osnakemake <- snakemake
 load(snakemake@input[['Rimage']])
-eval(parse(text=myriad))
+#eval(parse(text=myriad))
 snakemake <- osnakemake
 
 xeno_df <- read.table(xeno_f, quote="", sep="\t", header=TRUE, row.names = 1)

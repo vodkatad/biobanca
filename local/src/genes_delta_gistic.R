@@ -49,8 +49,10 @@ if (nx != nx2 | !all(rownames(pdo)==rownames(pdx))) {
 
 
 # we do only xo comparison now
-colnames(pdo)[colnames(pdo)=="CRC0177LMO0A04008002D02000"] <- 'CRCE177LMO0A04008002D02000'
-colnames(pdx)[colnames(pdx)=="CRC0177LMX0B05001TUMD06000"] <- 'CRCE177LMX0B05001TUMD06000'
+#colnames(pdo)[colnames(pdo)=="CRC0177LMO0A04008002D02000"] <- 'CRCE177LMO0A04008002D02000'
+#colnames(pdx)[colnames(pdx)=="CRC0177LMX0B05001TUMD06000"] <- 'CRCE177LMX0B05001TUMD06000'
+pdo <- pdo[,colnames(pdo) != "CRC0177LMO0D04017001D02000"] # remove the mutated pdo
+pdx <- pdx[,colnames(pdx) != "CRC0177LMX0B05001TUMD06000"] # remove the wt xeno
 
 list_remove_xeno <- c("CRC1870", "CRC1875","CRC2041")
 list_lmh <- colnames(pdo)[grepl('LMH', colnames(pdo))]
@@ -69,6 +71,7 @@ models_pdo <- colnames(pdo)
 models_pdx <- colnames(pdx)  
 
 if (length(intersect(models_pdx, models_pdo)) != expected_n) {
+  print(paste(length(intersect(models_pdx, models_pdo)), expected_n))
   stop('Wrong number of corresponding models!')
 }
 
