@@ -113,6 +113,7 @@ all <- as.numeric(unlist(pearson2))
 all <- all[!is.na(all)]
 #all <- upper.tri(pearson, diag = FALSE) # this is not a simmetric matrix!
 pdata <- data.frame(pearson=c(all, diag), type=c(rep('unmatched', length(all)),rep('matched', length(diag))))
+#ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+unmute_theme_myriad
 ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+unmute_theme
 ggsave(density_f, height=31.7, width=31.7, units='cm')
 
