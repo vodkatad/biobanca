@@ -262,4 +262,18 @@ rule gistic_vs_tcga_thresholded_genes:
     input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', tcga=PRJ_ROOT+'/local/share/data/shallowseq/gistic/crc_gistic.txt',  
            Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
     output: corrplot='{kind}_vs_tcga.svg', corrs='{kind}_vs_tcga.tsv'
+    log: log='{kind}_vs_tcga.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_tcga.R'
+
+# gistic on msk run by hand with hg19 and all other parameters == ours data,
+# downloaded from http://www.cbioportal.org/study/cnSegments?id=crc_msk_2017
+# then removed repeated lines with (discovered thanks to gistic error):
+# data@rotpunkt:~/Dropbox/work/biobanca/msk$ head -n1 crc_msk_2017_segments.seg > crc_msk_2017_segments_uniq.seq
+# data@rotpunkt:~/Dropbox/work/biobanca/msk$ sed 1d crc_msk_2017_segments.seg | sort | uniq | sort -k1,1 -k2,2 >> crc_msk_2017_segments_uniq.seq 
+
+rule gistic_vs_msk_thresholded_genes:
+    input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', msk=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_msk/all_thresholded.by_genes.txt',
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
+    output: corrplot='{kind}_vs_msk.svg', corrs='{kind}_vs_msk.tsv'
+    log: log='{kind}_vs_msk.log'
+    script: SRC_DIR+'/gistic_genes_thr_vs_msk.R'
