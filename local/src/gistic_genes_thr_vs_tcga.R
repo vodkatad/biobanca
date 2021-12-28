@@ -1,5 +1,6 @@
 # Compute delta of gistic scores for genes
 library(ggplot2)
+library(ggrastr)
 
 gistic_us_f <- snakemake@input[['us']]
 gistic_tcga_f <- snakemake@input[['tcga']]
@@ -42,7 +43,7 @@ freqs_amp$event <- 'amp'
 freqs_del$event <- 'del'
 freqs <- rbind(freqs_amp, freqs_del)
 
-plot <- ggplot(data=freqs, aes_string(x=kind, y='TCGA', color='event'))+geom_point(alpha=0.5)+geom_smooth(method='lm')+
+plot <- ggplot(data=freqs, aes_string(x=kind, y='TCGA', color='event'))+rasterise(geom_point(alpha=0.5), dpi=300)+geom_smooth(method='lm')+
         scale_color_manual(values=c('#c84440','#185492'))
 
 plotbis <- function(plot, theme_unmute, theme_mute, name, h=31.7, w=31.7, units='cm') {
