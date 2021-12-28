@@ -114,14 +114,14 @@ all <- all[!is.na(all)]
 #all <- upper.tri(pearson, diag = FALSE) # this is not a simmetric matrix!
 pdata <- data.frame(pearson=c(all, diag), type=c(rep('unmatched', length(all)),rep('matched', length(diag))))
 #ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+unmute_theme_myriad
-ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+unmute_theme
+ggplot(data=pdata, aes(x=pearson, color=type))+geom_density(size=1.5)+unmute_theme
 ggsave(density_f, height=31.7, width=31.7, units='cm')
 
 ext <- substr(density_f, nchar(density_f)-3, nchar(density_f)) 
 # this works only with 3 char extensions, TODO FIXME  https://stackoverflow.com/questions/29113973/get-filename-without-extension-in-r
 density_f_mute <- paste0(substr(density_f, 0, nchar(density_f)-3), 'mute', ext)
 print(density_f_mute)
-ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+mute_theme
+ggplot(data=pdata, aes(x=pearson, color=type))+geom_density(size=1.5)+mute_theme
 ggsave(density_f_mute, height=31.7, width=31.7, units='cm')
 
 write.table(as.data.frame(pearson), file=pearson_f, quote=FALSE, sep="\t")
