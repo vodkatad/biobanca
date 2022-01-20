@@ -22,4 +22,9 @@ PAIRS_H=4
 MUTECT_DIR='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_'
 ALLFIX='/mutect/merged.table_nomultiallele'
 TIERSFIX='/mutect/merged.table_nomultiallele_wtiers'
-GENESFIX='/mutect/merged.table_nomultiallele_genes'
+GENESFIX='/mutect/merged.table_nomultiallele_wtiers_annot'
+
+TREAT='/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
+
+TCGA='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/tcga_panel_freqs.tsv'
+MSK='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv'

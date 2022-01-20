@@ -21,17 +21,30 @@ rule n_muts:
 
 
 #egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/targeted$ diff <(head -n1 pdo_tiers.tsv | tr "\t" "\n")  <(head -n1 xeno_tiers.tsv | tr "\t" "\n")
-# oncoprint
-rule oncoprint:
+rule freqs_tcga_msk:
     input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv",
             xenoGenes=MUTECT_DIR+'pdx'+GENESFIX,
             pdoGenes=MUTECT_DIR+'pdo'+GENESFIX,
-            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
-    output: oncoprint="oncoprint_{AF}.pdf"
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata',
+            msk=MSK,
+            tcga=TCGA
+    output: TCGAMSK_xeno="TCGAMSK_xeno_{AF}.pdf",
+            TCGAMSK_pdo="TCGAMSK_pdo_{AF}.pdf",
+            TCGAMSK_xeno_zoom="TCGAMSK_xenozoom_{AF}.pdf",
+            TCGAMSK_pdo_zoom="TCGAMSK_pdozoom_{AF}.pdf",
+            preprocGeneAF="preprocGeneAF_{AF}.Rdata"
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
-    script: SRC_DIR+"/oncoprint_diff.R"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    script: SRC_DIR+"/targeted_freqs.R"
 
 
 # jaccard matrix/diagonal/density
 
-# vs TCGA/MSK freqs
+rule oncoprint:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: op="oncoprint_{AF}.svg", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff.R"
+
+
+# notes and checks on RData:
