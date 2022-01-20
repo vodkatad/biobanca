@@ -39,12 +39,13 @@ rule freqs_tcga_msk:
     script: SRC_DIR+"/targeted_freqs.R"
 
 
-# jaccard matrix/diagonal/density
-
 rule oncoprint:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: op="oncoprint_{AF}.svg", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
     script: SRC_DIR+"/oncoprint_diff.R"
 
 
-# notes and checks on RData:
+rule jaccard_mut_sim:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf"
+    script: SRC_DIR+"/jaccard_mut_sim.R"
