@@ -6,7 +6,7 @@ size <- as.numeric(snakemake@wildcards[['size']])
 #showtext_auto()
 
 textSize <- size
-largerSize <- textSize + 5
+largerSize <- textSize + 2
 unmute_theme_myriad <- theme_bw() +
 theme(
 	text = element_text(size = textSize, family = "myriad"),

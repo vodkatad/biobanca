@@ -1,0 +1,37 @@
+include: './conf.sk'
+
+# Initial AF plots/N muts both for all muts and filtered via PCGR tiers, producing filtered AF tables and log of n samples.
+rule initial_plots_filter_good:
+    input: xenoAF=MUTECT_DIR+'pdx'+ALLFIX,
+            pdoAF=MUTECT_DIR+'pdo'+ALLFIX,
+            xenoWAF=MUTECT_DIR+'pdx'+TIERSFIX,
+            pdoWAF=MUTECT_DIR+'pdo'+TIERSFIX,
+            good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv',
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+    output: freqAll="freq_all.pdf", freqTiers="freq_tiers.pdf", histTiers="hist_tiers.pdf", histAll="hist_all.pdf", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    log: log="starting_log.txt"
+    script: SRC_DIR+"/targeted_plots_filterGOOD.R"
+
+rule n_muts:
+    input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv", Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+    output: histTiers="hist_tiers_af{AF}.pdf"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    script: SRC_DIR+"/N_muts.R"
+
+
+#egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/targeted$ diff <(head -n1 pdo_tiers.tsv | tr "\t" "\n")  <(head -n1 xeno_tiers.tsv | tr "\t" "\n")
+# oncoprint
+rule oncoprint:
+    input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv",
+            xenoGenes=MUTECT_DIR+'pdx'+GENESFIX,
+            pdoGenes=MUTECT_DIR+'pdo'+GENESFIX,
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+    output: oncoprint="oncoprint_{AF}.pdf"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    script: SRC_DIR+"/oncoprint_diff.R"
+
+
+# jaccard matrix/diagonal/density
+
+# vs TCGA/MSK freqs
