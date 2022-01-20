@@ -5,6 +5,7 @@ library(pheatmap)
 pheat_f <- snakemake@output[['pheat']]
 density_f <- snakemake@output[['density']]
 violin_f <- snakemake@output[['violin']]
+violin2_f <- snakemake@output[['violin2']]
 
 load(snakemake@input[['Rimage']])
 
@@ -43,3 +44,6 @@ ggsave(density_f)
 
 ggplot(data=pdata[pdata$type=="matched",], aes(y=pearson,x=""))+geom_violin()+geom_jitter(height = 0, width = 0.1)+ylim(-0.001,1.0001)+unmute_theme+ylab('Mutational Similarity?')
 ggsave(violin_f)
+
+ggplot(data=pdata, aes(y=pearson,x=type, fill=type))+geom_violin()+geom_jitter(height = 0, width = 0.1)+ylim(-0.001,1.0001)+scale_fill_manual(values=c('#004D40','#FFC107'))+unmute_theme+xlab('jaccard')
+ggsave(violin2_f)

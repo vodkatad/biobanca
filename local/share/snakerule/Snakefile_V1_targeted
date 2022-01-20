@@ -47,5 +47,5 @@ rule oncoprint:
 
 rule jaccard_mut_sim:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
-    output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf"
+    output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf"
     script: SRC_DIR+"/jaccard_mut_sim.R"
