@@ -43,12 +43,13 @@ mergemut <- merge(pdobing, pdxbing, by="row.names") ## TODO CHECK THEY HAVE ALL 
 rownames(mergemut) <- mergemut$Row.names
 mergemut$Row.names <- NULL
 save.image('pippo.Rdata')
-mergemut[mergemut==-1] <- 0
+mergemut[mergemut!=2] <- 0
+mergemut[mergemut==2] <- 1
 nampl <- apply(mergemut, 1, sum)
 nampl <- nampl[order(-nampl)]
 top <- head(nampl, n=thr)
-#mergemut <- mergemut[names(top),]
-mergemut <- mergemut[c('ERBB2','EGFR','MET','MYC', 'IGF2','FGFR1','FGFR2','IRS2','PTEN'),]
+mergemut <- mergemut[names(top),]
+#mergemut <- mergemut[c('ERBB2','EGFR','MET','MYC', 'IGF2','FGFR1','FGFR2','IRS2','PTEN'),]
 #> setdiff(rownames(pdo_df), rownames(xeno_df))
 #character(0)
 

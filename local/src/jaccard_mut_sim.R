@@ -26,7 +26,7 @@ colnames(mo) <- substr(colnames(mo), 0, 7)
 jac <- proxy::simil(mx, mo, by_rows = FALSE, method = "Jaccard")
 
 pdf(pheat_f)
-pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5)
+pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50))
 graphics.off()
 
 pearson <- jac
