@@ -28,9 +28,14 @@ df_tcga$Hugo_Symbol <- NULL
 
 
 get_freq <- function(us, tcga, direction, kind) {
-  freq_us <- as.data.frame(apply(us, 1, function(x) { sum(x == direction)/length(x) }))
+  if (direction == 1) {  # there are also +2 / -2
+    freq_us <- as.data.frame(apply(us, 1, function(x) { sum(x >= direction)/length(x) }))
+    freq_tcga <- as.data.frame(apply(tcga, 1, function(x) { sum(x >= direction)/length(x) }))
+  } else {
+    freq_us <- as.data.frame(apply(us, 1, function(x) { sum(x <=  direction)/length(x) }))
+    freq_tcga <- as.data.frame(apply(tcga, 1, function(x) { sum(x <= direction)/length(x) }))
+  }
   colnames(freq_us) <- kind
-  freq_tcga <- as.data.frame(apply(tcga, 1, function(x) { sum(x == direction)/length(x) }))
   colnames(freq_tcga) <- 'TCGA'
   res <- merge(freq_us, freq_tcga, by='row.names')
   sink(log)

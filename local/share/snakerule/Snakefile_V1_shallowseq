@@ -278,6 +278,13 @@ rule gistic_vs_msk_thresholded_genes:
     log: log='{kind}_vs_msk.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_msk.R'
 
+rule gistic_pdo_vs_pdx:
+    input: pdx=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_thresholded.by_genes.txt', pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_thresholded.by_genes.txt',
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
+    output: corrplot='gistic_pdo_vs_pdx.svg', corrs='gistic_pdo_vs_pdx.tsv'
+    log: log='gistic_x_vs_o.log'
+    script: SRC_DIR+'/gistic_genes_thr_x_vs_o.R'
+
 rule gistic_oncoprint:
     input: xeno=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_thresholded.by_genes.txt',
            pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_thresholded.by_genes.txt',
