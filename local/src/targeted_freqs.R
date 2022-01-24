@@ -86,7 +86,19 @@ lmplot <- function(data, title, xlim=NULL, out) {
   names(cap1) <- NULL
   cap <- paste(cap1, collapse= " ")
   if (is.null(xlim)) {
-    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+unmute_theme+labs(caption=cap)+ggtitle(title)
+    polydata <- data.frame(x = c(0, 0, 0.2, 0.2, 0),
+                           y = c(0, 0.2, 0.2, 0, 0))
+    linedata <- data.frame(x = c(0.2, 0.4, 0.2, 0.4),
+                           y = c(0.2, 0.3, 0, 0),
+                           id = c("a", "a", "b", "b"))
+    gg <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class))+ geom_smooth(method=lm, se=FALSE)+xlim(0, 0.2)+ylim(0,0.2)+unmute_theme+theme(legend.position ="none")
+
+    p <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class))+ geom_smooth(method=lm, se=FALSE)+
+         unmute_theme+labs(caption=cap)+ggtitle(title)+
+         xlab('Frequency TCGA/MSK') + ylab('Frequency models')
+    p + geom_path(data = polydata, aes(x, y), color="darkgrey") +
+      geom_line(data = linedata, color="darkgrey", aes(x, y, group = id),
+                linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.4, xmax=0.8, ymin=0, ymax=0.3)
   } else {
     ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+unmute_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)
   }

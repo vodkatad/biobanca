@@ -38,7 +38,6 @@ rule freqs_tcga_msk:
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
     script: SRC_DIR+"/targeted_freqs.R"
 
-
 rule oncoprint:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: op="oncoprint_{AF}.svg", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
