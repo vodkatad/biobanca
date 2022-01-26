@@ -14,6 +14,7 @@ results <- snakemake@output[["RES"]]
 meda <- meta_f
 meda_f <- read.table(meda, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 meda_f <- filter(meda_f, grepl(classes, type))
+meda_f$sample_id_new <- gsub('-','.', meda_f$sample_id_R, fixed=TRUE)
 
 #fpkm <- "/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/fpkm_H.tsv.gz"
 fpkm <- read.table(fpkm, quote = "", sep = "\t", header = TRUE)
@@ -21,7 +22,7 @@ genes <- rownames(fpkm)
 rownames(fpkm) <- NULL
 fpkm <- cbind(genes,fpkm)
 colnames(fpkm)[colnames(fpkm) == 'genes'] <- 'symbol'
-fpkm_subset <- fpkm[, colnames(fpkm) %in% c(meda_f$sample_id_R, "symbol")]
+fpkm_subset <- fpkm[, colnames(fpkm) %in% c(meda_f$sample_id_new, "symbol")]
 
 #fpkm_genes <- "/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/fpkm_genes.tsv"
 fpkm_genes <- read.table(fpkm_genes, quote = "", sep = "\t", header = TRUE)
