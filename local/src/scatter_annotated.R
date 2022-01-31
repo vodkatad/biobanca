@@ -16,8 +16,8 @@ load(Rimage)
 
 save.image('pippo.Rdata')
 
-setwd('/scratch/trcanmed/biobanca/dataset/V1/cetuximab/atp')
-load('pippo.Rdata')
+#setwd('/scratch/trcanmed/biobanca/dataset/V1/cetuximab/atp')
+#load('pippo.Rdata')
 
 data_x <- read.table(x, sep="\t", header=TRUE)
 # y should be a two column file
