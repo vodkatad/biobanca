@@ -170,12 +170,12 @@ rule CMS:
 
 rule CMStype:
     input: expr = VSD, metadata = MEDA, VSD_genes = "VSD_genes.tsv"
-    output: RES = "{sclass}_CMScaller.tsv", CMS_heatmap = "{sclass}_CMS_heatmap.png"
+    output: RES = "{sclass}_CMScaller.tsv", CMS_heatmap = "{sclass}_CMS_heatmap.png", CMS_svg = "{sclass}_CMS.svg"
     script: SRC_DIR+ '/CMScallertype.R'
 
 rule get_model_cms:
     input: simo="../cris/SIMO_v2.tsv", pdo="LMO_BASALE_CMScaller.tsv", pdx="LMX_BASALE_CMScaller.tsv"
-    output: results="model_cms.tsv"
+    output: results="model_cms.tsv", results_wrong_pdo = "wrong_cms_pdo.tsv"
     log: "model_cms.log"
     script: SRC_DIR+ '/CMS_simo.R'
 
@@ -196,7 +196,7 @@ rule cohen:
 ## TODO add selection on only TRUE cases in ../../../../local/share/data/biobanca_pdo_buoni.tsv //DONE ^
 
 rule get_symbols_cms_cris:
-    input: VSD_f = "/home/mferri/gene_expr_cms.tsv"
+    input: VSD_f = "/home/mferri/gene_expr_cms.tsv" # TODO-MF togliere riferimento a file nella home, o produrlo con regola o metterlo in local/share/data, btw  a chi serve l'output di questa regola?
     output: "gene_expr_cms_crisl.tsv"
     params: tool=SRC_DIR+"/add_description.R"
     shell:
@@ -219,7 +219,6 @@ rule sankey:
 # 6- remove any <br> tag 
 # 7- save and open with inkscape/illustrator to check
 # 8- remove alpha channel, fix font class, font size, etc
-# - example without step n.8 in local/share/data/cms_validated_reordered.svg
 
 ### clustering
 
@@ -248,3 +247,79 @@ rule get_conversion:
         """
             {params.tool} -i {input.gene_list} -o {output.df} -x {output.txt} -t human.Rds -f mouse.Rds -T hgnc_symbol -F mgi_symbol -d
         """
+
+### CMS_fpkm
+
+rule genes_for_cms_fpkm:
+    input: expr=FPKM
+    output: FPKM_f = "FPKM_f.tsv"
+    script: SRC_DIR+'/Prepare_Table_CMScaller_FPKM.R'
+
+rule get_symbols_fpkm:
+    input: fpkm_f = "FPKM_f.tsv"
+    output: "fpkm_genes.tsv"
+    params: tool=SRC_DIR+"/add_description.R"
+    shell:
+        """
+            {params.tool} -i {input.fpkm_f} -o {output} -n 1  -f SYMBOL -t ENTREZID -d
+        """
+
+rule CMStype_fpkm:
+    input: expr = FPKM, metadata = MEDA, FPKM_genes = "fpkm_genes.tsv"
+    output: RES = "{sclass}_CMScaller_fpkm.tsv", CMS_heatmap = "{sclass}_CMS_heatmap_fpkm.png"
+    script: SRC_DIR+ '/CMScallertypefpkm.R'
+
+rule get_model_cms_fpkm:
+    input: simo="../cris/SIMO_v2.tsv", pdo="LMO_BASALE_CMScaller_fpkm.tsv", pdx="LMX_BASALE_CMScaller_fpkm.tsv"
+    output: results="model_cms_fpkm.tsv", results_wrong_pdo = "wrong_cms_pdo_fpkm.tsv"
+    log: "model_cms.log"
+    script: SRC_DIR+ '/CMS_simo.R'
+
+rule true_fpkm:
+    input: cms="model_cms_fpkm.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "model_cms_validated_fpkm.tsv"
+    shell:
+        """
+            cat {input.cms} | bawk 'NR == 1' > {output}
+            cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}' > {output}.tmp
+            cat {input.cms} | filter_1col 1 {output}.tmp >> {output}
+        """
+rule change_order_sankey:
+    input: cms = "model_cms_validated_fpkm.tsv"
+    output: reorder = "reorder_model_cms_validated_fpkm.tsv"
+    script: SRC_DIR+ "/reorder_cms_column.R"
+
+rule sankey_fpkm:
+    input: "model_cms_validated_fpkm.tsv"
+    output: pdf="sankey_model_cms_validated_fpkm.pdf", html="sankey_model_cms_validated_fpkm.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+### CMS_mediated
+
+rule CMS_mediated:
+    input: expr = "{sclass}_t_mean_gene_genealogyall.tsv.gz", VSD_genes = "VSD_genes.tsv"
+    output: RES = "{sclass}_CMScaller_mediated.tsv", CMS_heatmap = "{sclass}_CMS_mediated_heatmap.pdf"
+    script: SRC_DIR+ '/CMScaller.R'
+
+
+### Collapsing single metric CMS for replicates
+rule cms_classes_with_nc:
+    input: tsv="{sclass}_CMScaller_fpkm.tsv"
+    output: tsv="cms_fpkm_{sclass}_nc_{collapselevel}.tsv"
+    run: 
+        import pandas as pd
+        import numpy as np
+        #prediction      d.CMS1  d.CMS2  d.CMS3  d.CMS4  p.value FDR
+        d = pd.read_table(input.tsv, sep="\t", index_col=0)
+        d['genealogy'] = d.index
+        d.loc[ [ type(x) is not str for x in d['prediction'].values ],'prediction'] = "NC"
+        if wildcards.collapselevel == "arm":
+            d['genealogy'] = [x[0:12] for x in d['genealogy'].values]
+        elif wildcards.collapselevel == "smodel":
+            d['genealogy'] = [x[0:7] for x in d['genealogy'].values]
+        else:
+            raise ValueError('Do not know how to collapse at ' + wildcards.collapselevel + ':[arm, smodel] are possible values')
+        dp = pd.pivot_table(d, values='prediction', index=['genealogy'], aggfunc=np.unique)
+        dp.loc[[type(x) is not str for x in dp['prediction'].values],'prediction'] = "HET"
+        res = pd.DataFrame(dp)
+        res.to_csv(output.tsv, sep="\t")
