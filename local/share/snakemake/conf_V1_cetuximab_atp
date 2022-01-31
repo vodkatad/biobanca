@@ -24,3 +24,21 @@ MERGE='case'
 YNAME='Cetuximab_dVw3'
 NAME='CTG'
 X_AUC='CTG_5000'
+
+if SNAKE_ROOT == '/mnt/trcanmed/snaketree':
+    FRA_MUT=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/dtb_mutations_vlookupAndrea_expandedPRLM.tsv'
+    FRA_CN=SNAKE_ROOT+'/prj/pdxopedia/dataset/misc_annots/binarized_cn.tsv'
+else:
+    FRA_MUT=SNAKE_ROOT+'/pdxopedia/local/share/data/dtb_mutations_vlookupAndrea_expandedPRLM.tsv'
+    FRA_CN=SNAKE_ROOT+'/pdxopedia/dataset/misc_annots/binarized_cn.tsv'
+
+rule scatterplot_annot:
+    input: x=MODELS_X, y=MODELS_Y, mut=FRA_MUT, cn=FRA_CN,
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+    output: 'scatter.pdf'
+    log: "scatter.tsv" # will store rare cases when making CN or muts info unique they were not consistent (we randomly kept one)
+    params: tool=BIN_DIR+'/scatter_annotated', prefix=NAME, merge=MERGE, yname=YNAME
+    shell:
+        """
+            {params.tool} {input.x} {input.y} {output} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {log}
+        """
