@@ -2,6 +2,10 @@ include: "./conf.sk"
 
 # In this "base" directory we just do some initial data trimming, so inner directories code can be more general
 # This script also produces some basic tables about samples numbers and general plot of the data.
+
+# TODO forse da togliere
+#egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/cetuximab/atp$ grep -f <(cut -f 1 ../pdo_cetuxi.tsv | sed 1d) < ../../../../local/share/data/biobanca_pdo_buoni.tsv  | grep FALSE
+#CRC1329 FALSE
 rule polish_merge:
     input: m1=ATP, m2=IMAGING
     output: "pdo_cetuxi.tsv"

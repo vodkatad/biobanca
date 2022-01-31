@@ -11,6 +11,7 @@ def find_prj_root(path=os.getcwd()):
 PRJ_ROOT=find_prj_root()
 BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
 SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+SCRATCH_ROOT=os.getenv('SCRATCH_ROOT')
 
 BIN_DIR=PRJ_ROOT+"/local/bin"
 SRC_DIR=PRJ_ROOT+"/local/src"
@@ -24,5 +25,13 @@ MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_meta
 
 FPKM="/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5/fpkm.tsv.gz"
 
-MEDA_BASALI=SNAKE_ROOT+"/prj/RNASeq_biod_metadata/dataset/july2020_starOK/filtered_metadata_ctx_basali_human-org-xeno"
+MEDA_BASALI=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/filtered_metadata_ctx_basali_human-org-xeno'
 VSD=SNAKE_ROOT+"/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
+MEDA= "/scratch/trcanmed/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier"
+
+CRIS_NC=SCRATCH_ROOT+'/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpkm_prediction_result_nc.tsv'
+
+CRIS_NC_LMX=SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpkm_prediction_result_nc_lmx.tsv"
+CRIS_NC_LMO=SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpkm_prediction_result_nc_lmo.tsv"
+
+TRUE=DATA+"/biobanca_pdo_buoni.tsv"

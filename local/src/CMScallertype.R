@@ -8,6 +8,7 @@ vsd <- snakemake@input[["expr"]]
 vsd_genes <- snakemake@input[["VSD_genes"]]
 classes <- snakemake@wildcards[['sclass']]
 plot <- snakemake@output[["CMS_heatmap"]]
+plotsvg <- snakemake@output[["CMS_svg"]]
 results <- snakemake@output[["RES"]]
 
 meda <- meta_f
@@ -32,6 +33,10 @@ vsd_f$symbol <- NULL
 vsd_f <- vsd_f %>% remove_rownames %>% column_to_rownames(var="description")
 
 png(plot)
+res <- CMScaller(emat=vsd_f, FDR=0.05, RNAseq=TRUE)
+graphics.off()
+
+svg(plotsvg)
 res <- CMScaller(emat=vsd_f, FDR=0.05, RNAseq=TRUE)
 graphics.off()
 

@@ -35,10 +35,6 @@ rule cohen:
     script: SRC_DIR+"/cohenK.R"
 
 
-rule sankey:
-    input: "cris_tmm_0.2_classes_lmx-lmo_basali_models_ns_validated.tsv"
-    output: pdf="sankey_model_cris_validated.pdf", html="sankey_model_cris_validated.html"
-    script: SRC_DIR+"/sankey_classification.R"
 
 ###TODO regoletta che sputa due df: uno media uno correlazioni inter-pdx
 
@@ -50,6 +46,28 @@ rule sankey:
 #         """
 
 #         """
+
+rule get_model_cris:
+    input: simo="SIMO_v2.tsv", pdx=CRIS_NC_LMX, pdo =CRIS_NC_LMO
+    output: right="model_cris-right.tsv", wrong="model_cris-wrong.tsv"
+    log: "model_cris.log"
+    script: SRC_DIR+ '/CRIS_simo.R'
+
+
+rule true:
+    input: cris="model_cris-right.tsv", true=TRUE
+    output: "model_cris-right_validated.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+
+rule sankey:
+    input: "model_cris-right_validated.tsv"
+    output: pdf="sankey_model_cris_validated.pdf", html="sankey_model_cris_validated.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
 
 rule sankeynco:
     input: "unique_PDX-PDO_switch.tsv"
@@ -67,4 +85,35 @@ rule corr:
     shell:
         """
             {params.tool} -s {input.switch} -m {input.meda} -v {input.vsd} -o {output}
+        """
+
+rule get_classes:
+    input: metadata=MEDA, expr=VSD
+    output: results = "{sclass}_allgenealogy.tsv"
+    script: SRC_DIR+"/prepare_LMH_cris.R"
+
+rule cris_v2_vsd:
+    input: expr="{metric}_gene_genealogyall.tsv.gz"
+    params: prefix="vsd_cris_{metric}"
+    output: "vsd_cris_{metric}_prediction_result.xls"
+    script: SRC_DIR+"/cris_classify_V2_vsdlmh.R"
+
+rule wipe_up_after_cris_vsd:
+    input: "vsd_cris_{metric}_prediction_result.xls"
+    output: tsv="vsd_cris_{metric}_prediction_result.tsv", png="vsd_cris_{metric}_prediction_result.png"
+    shell:
+        """
+            mv {input} {output.tsv}
+            mv vsd_cris_{wildcards.metric}_heatmp.png {output.png}
+            rm vsd_cris_{wildcards.metric}_sample_info.txt vsd_cris_{wildcards.metric}_sorted.dataset.gct vsd_cris_{wildcards.metric}_predicted*sorted.cls vsd_cris_{wildcards.metric}_FDR*png vsd_cris_{wildcards.metric}_*legend.png  vsd_cris_{wildcards.metric}_features.xls
+            rm vsd_cris_{wildcards.metric}.tmp
+        """
+
+rule highlight_NC_vsd:
+    input: tsv="vsd_cris_{metric}_prediction_result.tsv"
+    output: "vsd_cris_{metric}_prediction_result_nc.tsv"
+    shell:
+        """
+            cat {input.tsv} | bawk 'NR==1' > {output}
+            cat {input.tsv} | sed 1d | bawk '$6>0.2 {{$2="NC"}}1' >> {output}
         """
