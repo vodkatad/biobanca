@@ -1,0 +1,30 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,'.PRJ_ROOT')):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception('Can not find the PRJ_ROOT directory')
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+'/local/bin'
+SRC_DIR=PRJ_ROOT+'/local/src'
+DATA=PRJ_ROOT+'/local/share/data/cetuxi'
+
+rule preprocess_tgi:
+    input: xlsx=DATA+'/aggregati_TGI_fixed0.xlsx', cet="../cetuximab/cetuxi_perc_w3.tsv"
+    output: tgi_nodup="TGI_filled_GenID_removeddup.tsv", scattereci="scatter_tgi_reci.pdf", delta="delta_arms.pdf", tgi_ave="tgi_chosen.tsv"
+    log: log="preprocess_tgi.log"
+    script: SRC_DIR+'/preprocess_tgi.R'
+
+
+CETUXI="tgi_chosen.tsv" # no header, two cols, smodel then response
+# remember to keep the right CRC0177! TODO FIXME additional rule that gets unaveraged data from preprocess_tgi and selects the right models (or change preprocess_tgi.R directly)
+
+ATP=DATA+'/PDO_CTG.txt'
+IMAGING=DATA+'/PDO_imaging.txt'
