@@ -323,3 +323,62 @@ rule cms_classes_with_nc:
         dp.loc[[type(x) is not str for x in dp['prediction'].values],'prediction'] = "HET"
         res = pd.DataFrame(dp)
         res.to_csv(output.tsv, sep="\t")
+
+rule cms_classes_with_vsd:
+    input: tsv="{sclass}_CMScaller.tsv"
+    output: tsv="cms_vsd_{sclass}_nc_{collapselevel}.tsv"
+    run: 
+        import pandas as pd
+        import numpy as np
+        #prediction      d.CMS1  d.CMS2  d.CMS3  d.CMS4  p.value FDR
+        d = pd.read_table(input.tsv, sep="\t", index_col=0)
+        d['genealogy'] = d.index
+        d.loc[ [ type(x) is not str for x in d['prediction'].values ],'prediction'] = "NC"
+        if wildcards.collapselevel == "arm":
+            d['genealogy'] = [x[0:12] for x in d['genealogy'].values]
+        elif wildcards.collapselevel == "smodel":
+            d['genealogy'] = [x[0:7] for x in d['genealogy'].values]
+        else:
+            raise ValueError('Do not know how to collapse at ' + wildcards.collapselevel + ':[arm, smodel] are possible values')
+        dp = pd.pivot_table(d, values='prediction', index=['genealogy'], aggfunc=np.unique)
+        dp.loc[[type(x) is not str for x in dp['prediction'].values],'prediction'] = "HET"
+        res = pd.DataFrame(dp)
+        res.to_csv(output.tsv, sep="\t")
+
+## obtain sankey with smodel collasped couples
+
+rule get_model_cms_smodel:
+    input: pdx_f="cms_vsd_LMX_BASALE_nc_smodel.tsv", pdo_f = "cms_vsd_LMO_BASALE_nc_smodel.tsv"
+    output: "vsd_smodel_cms-merged.tsv"
+    script: SRC_DIR+ '/CRIS_smodel.R'
+
+rule true_smodel:
+    input: cris="vsd_smodel_cms-merged.tsv", true= "../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "vsd_smodel_cms-merged_validated.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+
+rule sankey_smodel:
+    input: "vsd_smodel_cms-merged_validated.tsv"
+    output: html="vsd_sankey_smodel_cms_validated.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+## obtain sankey with x and h 
+
+### prepare_sankeyxh_cms.R does both pdo_buoni_filter and not, comment the .R accordingly
+### model_cms_lmh_validated is with pdo_buoni filter
+
+rule model_cms_lmh:
+    input: lmx = "LMX_BASALE_CMScaller_mediated.tsv", lmh = "LMH_CMScaller.tsv"#, true= "../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: merged = "model_cms_lmh.tsv"
+    script: SRC_DIR+"/prepare_sankeyxh_cms.R"
+
+## model_cms_lmh_validated sankey is the one with pdo_buoni filter, modify the rule accordingly
+
+rule sankey_model_lmh:
+    input: "model_cms_lmh.tsv"
+    output: html="model_cms_lmh.html"
+    script: SRC_DIR+"/sankey_classification.R"

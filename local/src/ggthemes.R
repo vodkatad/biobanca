@@ -7,6 +7,9 @@ size <- as.numeric(snakemake@wildcards[['size']])
 
 textSize <- size
 largerSize <- textSize + 2
+
+textSize <- textSize * (96/72)
+largerSize <- largerSize * (96/72)
 unmute_theme_myriad <- theme_bw() +
 theme(
 	text = element_text(size = textSize, family = "myriad"),
@@ -42,3 +45,4 @@ save.image(snakemake@output[['Rimage']])
 #ggplot(data=pdata, aes(x, y))+ggtitle('example')+geom_point()+unmute_theme
 #ggsave('test.png')
 
+#egrassi@qui:~/Dropbox/work/biobanca/figures/3b/def$ perl -pne "s/textLength='.+px'//; " < pdo_vs_msk.svg > pdo_vs_msk_notexlen.svg

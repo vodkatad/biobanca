@@ -7,8 +7,10 @@ library(htmlwidgets)
 
 
 input <- snakemake@input[[1]]
-output_pdf <- snakemake@output[['pdf']]
+#output_pdf <- snakemake@output[['pdf']]
 output_html <- snakemake@output[['html']]
+
+save.image("pippo.Rdata")
 
 ### the script takes one input: a df with ID-classification1-classification2
 df <- read.table(input, sep='\t', quote="", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
@@ -50,4 +52,4 @@ saveWidget(sn, output_html)
 
 library(webshot)
 #webshot("sankey_model_cms.html", "sankey_model_cms.png")
-webshot(output_html, output_pdf)
+#webshot(output_html, output_pdf)

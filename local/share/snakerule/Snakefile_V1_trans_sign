@@ -87,13 +87,15 @@ rule corr:
             {params.tool} -s {input.switch} -m {input.meda} -v {input.vsd} -o {output}
         """
 
+## cris vsd separated and then collapsed
+
 rule get_classes:
     input: metadata=MEDA, expr=VSD
     output: results = "{sclass}_allgenealogy.tsv"
     script: SRC_DIR+"/prepare_LMH_cris.R"
 
 rule cris_v2_vsd:
-    input: expr="{metric}_gene_genealogyall.tsv.gz"
+    input: expr="{metric}_allgenealogy.tsv"
     params: prefix="vsd_cris_{metric}"
     output: "vsd_cris_{metric}_prediction_result.xls"
     script: SRC_DIR+"/cris_classify_V2_vsdlmh.R"
@@ -117,3 +119,84 @@ rule highlight_NC_vsd:
             cat {input.tsv} | bawk 'NR==1' > {output}
             cat {input.tsv} | sed 1d | bawk '$6>0.2 {{$2="NC"}}1' >> {output}
         """
+
+rule cris_classes_with_nc_vsd:
+    input: tsv="vsd_cris_{metric}_prediction_result_nc.tsv"
+    output: tsv="vsd_cris_{metric}_nc_{collapselevel}.tsv"
+    run: 
+        import pandas as pd
+        import numpy as np
+        #sample.names    predict.label2  dist.to.template        dist.to.cls1.rank       nominal.p       BH.FDR  Bonferroni.p
+        d = pd.read_table(input.tsv, sep="\t", index_col=False)
+        d.rename(columns={"predict.label2": "cris", "BH.FDR": "fdr","sample.names": "genealogy"}, inplace=True)
+        if wildcards.collapselevel == "arm":
+            d['genealogy'] = [x[0:12] for x in d['genealogy'].values]
+        elif wildcards.collapselevel == "smodel":
+            d['genealogy'] = [x[0:7] for x in d['genealogy'].values]
+        else:
+            raise ValueError('Do not know how to collapse at ' + wildcards.collapselevel + ':[arm, smodel] are possible values')
+        dp = pd.pivot_table(d, values='cris', index=['genealogy'], aggfunc=np.unique)
+        dp.loc[[type(x) is not str for x in dp['cris'].values],'cris'] = "HET"
+        res = pd.DataFrame(dp)
+        res.to_csv(output.tsv, sep="\t")
+
+## Obtain sankey with LMO and LMX cris separated and the couples obtained with "coppie Simo"
+
+rule get_model_cris_simo:
+    input: simo="SIMO_v2.tsv", pdx="vsd_cris_LMX_BASALE_prediction_result_nc.tsv", pdo = "vsd_cris_LMO_BASALE_prediction_result_nc.tsv"
+    output: right="vsd_model_cris-right.tsv", wrong="vsd_model_cris-wrong.tsv"
+    log: "model_cris.log"
+    script: SRC_DIR+ '/CRIS_simo.R'
+
+
+rule true_simo:
+    input: cris="vsd_model_cris-right.tsv", true=TRUE
+    output: "vsd_model_cris-right_validated.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+
+rule sankey_simo:
+    input: "vsd_model_cris-right_validated.tsv"
+    output: html="vsd_sankey_model_simo_cris_validated.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+
+## Obtain sankey with LMO and LMX cris separated and the couples obtained with collaps at smodel
+
+rule get_model_cris_smodel:
+    input: pdx_f="vsd_cris_LMX_BASALE_nc_smodel.tsv", pdo_f = "vsd_cris_LMO_BASALE_nc_smodel.tsv"
+    output: "vsd_smodel_cris-merged.tsv"
+    script: SRC_DIR+ '/CRIS_smodel.R'
+
+rule true_smodel:
+    input: cris="vsd_smodel_cris-merged.tsv", true=TRUE
+    output: "vsd_smodel_cris-merged_validated.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+
+rule sankey_smodel:
+    input: "vsd_smodel_cris-merged_validated.tsv"
+    output: html="vsd_sankey_smodel_cris_validated.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+### sankey x-o 
+### prepare_sankeyxh_cris.R does both pdo_buoni_filter and not, comment the .R accordingly
+### model_cris_validated is with pdo_buoni filter
+
+rule model_cms_lmh:
+    input: lmx = CRIS_NC_LMX_MED_VSD, lmh = CRIS_NC_LMH_VSD #, true= TRUE
+    output: merged = "model_cris_lmh_xh.tsv"
+    script: SRC_DIR+"/prepare_sankeyxh_cris.R"
+
+## model_cms_lmh_validated sankey is the one with pdo_buoni filter, modify the rule accordingly
+
+rule sankey_model_lmh:
+    input: "model_cris_lmh_xh.tsv"
+    output: html="model_cris_lmh_xh.html"
+    script: SRC_DIR+"/sankey_classification.R"

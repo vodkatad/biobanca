@@ -20,6 +20,7 @@ DATA=PRJ_ROOT+"/local/share/data"
 SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
 #CRIS=DATA+"/all_prediction_result.xls" # old
 CRIS=SNAKE_ROOT+'/prj/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_tmm_prediction_result.tsv'
+CRIS_VSD = SCRATCH_ROOT+'/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_vsd_ok_prediction_result.tsv'
 #MEDA=DATA+"/cetuxi/selected_metadata_annot_final.tsv"
 MEDA=SNAKE_ROOT+'/prj/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
 
@@ -33,5 +34,9 @@ CRIS_NC=SCRATCH_ROOT+'/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpk
 
 CRIS_NC_LMX=SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpkm_prediction_result_nc_lmx.tsv"
 CRIS_NC_LMO=SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/cris_fpkm_prediction_result_nc_lmo.tsv"
+
+CRIS_NC_LMX_MED_VSD = SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd_cris_LMX_BASALE_prediction_result_nc.tsv"
+CRIS_NC_LMO_MED_VSD = SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd_cris_LMO_BASALE_prediction_result_nc.tsv"
+CRIS_NC_LMH_VSD = SCRATCH_ROOT+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd_cris_LMH_prediction_result_nc.tsv"
 
 TRUE=DATA+"/biobanca_pdo_buoni.tsv"
