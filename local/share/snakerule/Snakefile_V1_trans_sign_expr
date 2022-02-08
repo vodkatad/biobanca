@@ -204,10 +204,15 @@ rule get_symbols_cms_cris:
             {params.tool} -i {input.VSD_f} -o {output} -n 1  -f SYMBOL -t ENTREZID -d
         """
 
+rule change_order_sankey_coppie_simo:
+    input: cms = "model_cms_validated.tsv"
+    output: reorder = "reorder_model_cms_validated.tsv"
+    script: SRC_DIR+ "/reorder_cms_column.R"
+
 ###TODO: add flag for NA and file from conf?
 rule sankey:
-    input: "model_cms_validated.tsv"
-    output: pdf="sankey_model_cms_validated.pdf", html="sankey_model_cms_validated.html"
+    input: "reorder_model_cms_validated.tsv"
+    output: html="sankey_model_cms_validated_coppie_simo.html"
     script: SRC_DIR+"/sankey_classification.R"
 
 #manualrule html_to_svg:
@@ -353,12 +358,12 @@ rule get_model_cms_smodel:
     script: SRC_DIR+ '/CRIS_smodel.R'
 
 rule true_smodel:
-    input: cris="vsd_smodel_cms-merged.tsv", true= "../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    input: cms="vsd_smodel_cms-merged.tsv", true= "../../../../local/share/data/biobanca_pdo_buoni.tsv"
     output: "vsd_smodel_cms-merged_validated.tsv"
     shell:
         """
-            cat {input.cris} | bawk 'NR==1' > {output}
-            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+            cat {input.cms} | bawk 'NR==1' > {output}
+            cat {input.cms} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
         """
 
 rule sankey_smodel:
