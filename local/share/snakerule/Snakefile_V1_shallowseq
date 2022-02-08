@@ -166,15 +166,15 @@ rule heatmap:
         ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
         if wildcards.mute != "mute":
             ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
-        ax.tick_params(axis='x', rotation=0, labelsize=20)
+        ax.tick_params(axis='x', rotation=0, labelsize=5)
         #ax.tick_params(axis='y', rotation=0, labelsize=20)
         ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
         ax.tick_params(axis='x', length=20, which='minor')
         
         #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
         #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
-
-        plt.gcf().set_size_inches(37, 21)
+        # A4 is 8-1/4 x 11-3/4 in
+        plt.gcf().set_size_inches(5, 2.8) # w, h
         plt.savefig(output[0])
         plt.clf()
 

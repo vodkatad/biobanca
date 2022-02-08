@@ -58,14 +58,14 @@ freqs <- rbind(freqs_amp, freqs_del)
 plot <- ggplot(data=freqs, aes_string(x='MSK', y=kind, color='event'))+rasterise(geom_point(alpha=0.5), dpi=300)+geom_smooth(method='lm')+
         scale_color_manual(values=c('#c84440','#185492'))
 
-plotbis <- function(plot, theme_unmute, theme_mute, name, h=31.7, w=31.7, units='cm') {
+plotbis <- function(plot, theme_unmute, theme_mute, name, h=2, w=2, units='in', dpi=300) {
   unmute <- plot + theme_unmute
-  ggsave(filename=name, plot=unmute, height=h, width=w, units=units)
+  ggsave(filename=name, plot=unmute, height=h, width=w, units=units, dpi=300)
   ext <- substr(name, nchar(name)-3, nchar(name)) 
   # this works only with 3 char extensions, TODO FIXME  https://stackoverflow.com/questions/29113973/get-filename-without-extension-in-r
   name_mute <- paste0(substr(name, 0, nchar(name)-3), 'mute', ext)
   mute <- plot + theme_mute
-  ggsave(filename=name_mute, plot=mute, height=h, width=w, units='cm')
+  ggsave(filename=name_mute, plot=mute, height=h, width=w, units=units, dpi=300)
 }
 
 plotbis(plot, unmute_theme, mute_theme, corrplot_f)
