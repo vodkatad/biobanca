@@ -20,7 +20,7 @@ rule preprocess_tgi:
     input: xlsx=DATA+'/aggregati_TGI_fixed0.xlsx', cet="../cetuximab/cetuxi_perc_w3.tsv"
     output: tgi_nodup="TGI_filled_GenID_removeddup.tsv", scattereci="scatter_tgi_reci.pdf", delta="delta_arms.pdf", tgi_ave="tgi_chosen.tsv"
     log: log="preprocess_tgi.log"
-    script: SRC_DIR+'/preprocess_tgi.R'
+    script: SRC_DIR+'/preprocess_tgi_v2.R'
 
 
 CETUXI="tgi_chosen.tsv" # no header, two cols, smodel then response
