@@ -1,0 +1,194 @@
+include: "./conf.sk"
+
+checkpoint gene_matrix:
+    input: mat=MUTS_MAT, annot=MUTS_ANNOT
+    output: mat="gene_matrix.tsv", counts="gene_nmuts.tsv"
+    run:
+        import pandas as pd
+        mat = pd.read_csv(input.mat, sep="\t")
+        annot = pd.read_csv(input.annot, sep="\t", index_col=0)
+        annot = annot.drop(columns=['cds'])
+        # we map to True/False our AF
+        # Here I am using mask, which is similar to ifelse, but from my perspective a single
+        # list comprehension would be nicer (see comment below in fisher_input)
+        mat = mat.mask(mat > 0, True)
+        mat = mat.mask(mat == 0, False)
+        m = mat.join(annot)
+        # There should be annotations for all muts otherwise something is off
+        assert m.shape[0] == annot.shape[0] == mat.shape[0], 'Mh, annot and muts are not aligned!'
+        # We group on the gene and aggregate using any as a function: 
+        # we count a sample as mutated for gene A if it has one or more muts
+        res = m.groupby('genes').agg(any)
+        # string splicing instead of substr in python
+        res.columns = [ x[0:7] for x in res.columns.values ]
+        counts = res.apply(sum, 1)
+        res.to_csv(output.mat, sep="\t")
+        counts.to_csv(output.counts, sep="\t")
+
+
+# wildcards on percentile to compare w/others
+# rule fisher_input:
+#     input: rank=DATA_DIR+'/{rank}_'+DATE+'.txt'
+#     output: "q-{quantile}_{rank}.tsv"
+#     run:
+#         import pandas as pd
+#         df = pd.read_csv(input.rank, sep="\t")
+#         q = float(wildcards.quantile)
+#         thr = df['rank'].quantile(q)
+#         # where works almost like ifelse, but when the condition is true it keeps the original value, otherwise it puts the second argument
+#         # I am sure there is a better way to do this in pandas though (vanilla python would be a list comprehension, which is what I ended up using
+#         # because I dreaded two instruction when one should suffice.
+#         # If the quantile is in the upper half of values we want to mark as True the larger elements
+#         if q > 0.5:
+#             #df['class'] = df['rank'].where(df['rank'] > thr, False)
+#             #df['class'] = df['rank'].where(df['rank'] <= thr, True)
+#             df['class'] = [True if x > thr else False for x in df['rank'].values]
+#         # Otherwise the smaller ones
+#         else:
+#             df['class'] = [True if x < thr else False for x in df['rank'].values]
+#         df = df.drop(columns=['rank'])
+#         df.to_csv(output[0], sep="\t", index=False)
+
+# rule fisher: file with two groups and matrix of 0/1
+rule fisher:
+    input: groups= BUONI, mutmat="gene_matrix.tsv"
+    output: fisher="biobanca.fisher.tsv"
+    log: log="biobanca.fisher.log"
+    script: SRC_DIR+'/fisher_twogroups.R'
+
+rule get_fra_matrix:
+    input: mut = FRA
+    output: results = "fra_mutational_annotation.tsv"
+    script: SRC_DIR+"/fra_mut_annotation.R"
+
+rule fisher_fra:
+    input: groups= BUONI, mutmat="fra_mutational_annotation.tsv"
+    output: fisher="fra_mutational_ann.fisher.tsv"
+    log: log="fra_mutational_ann.fisher.log"
+    script: SRC_DIR+'/fisher_twogroups.R'
+
+# wilcoxon mut vs non mut does not make sense?
+
+# note ignore RAS in results
+
+# waterfall for top results?
+# rule single_gene:
+#     input: mat="gene_matrix.tsv"
+#     output: "{gene}_annot.tsv"
+#     shell:
+#          """
+#             N=$(grep -w -n {wildcards.gene} {input.mat} | tr ":" "\\t" | cut -f 1)
+#             transpose < {input.mat} | cut -f 1,$(echo $N) | sed 's/True/MUT/g;' | sed 's/False/WT/g;' > {output}
+#          """
+
+# def get_annot(wildcards):
+#     if wildcards.gene == 'cris':
+#         return '/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMO_BASALE_nc_smodel.tsv'
+#     elif wildcards.gene == 'methy':
+#         return 'methy.tsv'
+#     elif wildcards.gene == 'cetuxi':
+#         return 'cetuxi_3w_recist.tsv'
+#     else:
+#         return wildcards.gene+"_annot.tsv"
+
+# # rule waterfall:
+# #     input: expr=DATA_DIR+'/{rank}_'+DATE+'.txt', annotation=get_annot
+# #     output: wf="waterfall_{rank}_{gene}.png"
+# #     log: log="waterfall_{rank}_{gene}.log", Rdata="waterfall_{rank}_{gene}.Rdata"
+# #     script: SRC_DIR+'/colored_waterfall_nolog.R'
+
+# rule xls:
+#     input: fisher1="q-0.75_{rank}.fisher.tsv", fisher2="q-0.25_{rank}.fisher.tsv"
+#     output: "{rank}_fisher.xlsx"
+#     shell:
+#         """
+#             tsv_to_xls -i {input.fisher1},{input.fisher2} -s indep_quartile,dep_quartile -o {output}
+#         """
+
+# ### GSEA - moved the bundle to my home on ulisse for now.
+# # we need to filter out the rnk for the genes with mutational info for gsea since we're using the grp format 
+# # for gene sets.
+# rule rnk:
+#     input: expr=DATA_DIR+'/{rank}_'+DATE+'.txt', mat="gene_matrix.tsv"
+#     output: temp("{rank}.rnk")
+#     shell:
+#         """
+#         cat {input.mat} | head -n1 | cut -f 1 --complement | tr "\\t" "\\n" > {output}.tmp || echo 'ciao'
+#         echo -e "#smodel\\trank" > {output}
+#         cat {input.expr} | sed 1d  | filter_1col 1 {output}.tmp >> {output}
+#         rm {output}.tmp
+#         """
+
+
+# rule grp:
+#     input: "{gene}_annot.tsv"
+#     output: temp("{gene}.grp")
+#     shell:
+#         """
+#             echo "#{wildcards.gene}" > {output}
+#             bawk '$2=="MUT"{{print $1}}' {input} >> {output} 
+#         """
+
+# #egrassi@ulisse:/mnt/cold1/snaketree/prj/pdxopedia/dataset/Marika_KRAS_dep$ head FBXO31_selumetinib_gsea/gsea.GseaPreranked.1644942001884/gsea_report_for_na_neg_1644942001884.tsv
+# #NAME    GS<br> follow link to MSigDB    GS DETAILS      SIZE    ES      NES     NOM p-val       FDR q-val       FWER p-val      RANK AT MAX     LEADING EDGE
+# #egrassi@ulisse:/mnt/cold1/snaketree/prj/pdxopedia/dataset/Marika_KRAS_dep$ head FBXO31_selumetinib_gsea/gsea.GseaPreranked.1644942001884/gsea_report_for_na_pos_1644942001884.tsv
+# #NAME    GS<br> follow link to MSigDB    GS DETAILS      SIZE    ES      NES     NOM p-val       FDR q-val       FWER p-val      RANK AT MAX     LEADING EDGE
+# #FBXO31.grp      FBXO31.grp      Details ...     2       0.96875 1.5934312       0.0015748031    0.0047244094    0.001   2       tags=100%, list=6%, signal=100% 
+
+# # before going on we need to get rid of the previous execution of gsea cause it creates different files for == runs and snakemake
+# # does not know about it:
+# #egrassi@ulisse:/mnt/cold1/snaketree/prj/pdxopedia/dataset/Marika_KRAS_dep$ ls FBXO31_selumetinib_gsea/
+# #gsea.GseaPreranked.1644942001884  gsea.GseaPreranked.1644960332005  gsea.GseaPreranked.1644960357441
+# rule gsea:
+#     input: grp="{gene}.grp", rnk="{rank}.rnk"
+#     output: "{gene}_{rank}.gsea.tsv"
+#     shell:
+#         """
+#         rm -rf {wildcards.gene}_{wildcards.rank}_gsea
+#         echo -e "rank\\tgene\\tES\\tNES\\tFDR" > {output}
+#         ( ~/GSEA/gsea-cli.sh GSEAPreranked -gmx {input.grp} -collapse No_Collapse -mode Max_probe -norm meandiv -nperm 1000 -rnk {input.rnk} -scoring_scheme weighted -rpt_label gsea -create_svgs false -include_only_symbols true -make_sets true -plot_top_x 10 -rnd_seed timestamp -set_max 500 -set_min 1 -zip_report false -out {wildcards.gene}_{wildcards.rank}_gsea \\
+#         && grep -v -w NAME {wildcards.gene}_{wildcards.rank}_gsea/gsea.GseaPreranked*/gsea_report_for_na*.tsv | cut -f 5,6,8  \\
+#         | bawk -v r={wildcards.rank} -v g={wildcards.gene} '{{print r,g,$1,$2,$3}}' >> {output} ) \\
+#         ||
+#         (echo -e "{wildcards.rank}\\t{wildcards.gene}\\t0\\t0\\tNA" >> {output} )
+#         """
+
+# def all_genes_gsea(wildcards):
+#     #genes_file = checkpoints.gene_matrix.get().output[0]
+#     #print(genes_file)
+#     genes_file= 'gene_matrix.tsv'
+#     g = []
+#     with open(genes_file, 'r') as s:
+#         s.readline() # skip genes
+#         for line in s.readlines():
+#             line = line.strip()
+#             lines = line.split("\t")
+#             g.append(lines[0])
+#     res = [x+"_"+r+".gsea.tsv" for x in g for r in RANKS]
+#     return(res)
+
+# rule all_gsea:
+#     input: all_genes_gsea
+#     output: "all_gsea.tsv"
+#     shell:
+#         """
+#             cat {input} | head -n1 > {output} || echo 'ciao'
+#             cat {input} | grep -v -w rank >> {output}
+#         """
+
+# rule gsea_n:
+#     input: gsea="all_gsea.tsv", ngenes="gene_nmuts.tsv"
+#     output: "all_gsea_n.tsv"
+#     shell:
+#         """
+#             head -n1 {input.gsea} | bawk '{{print $1, $2, "n_muts", $3, $4, $5}}' > {output}
+#             sed 1d {input.gsea} | translate -a {input.ngenes} 2 >> {output}
+#         """
+
+# rule gsea_xlsx:
+#     input: "all_gsea_n.tsv"
+#     output: "all_gsea.xlsx"
+#     shell:
+#         """
+#             tsv_to_xls -i {input} -s gsea -o {output}
+#         """

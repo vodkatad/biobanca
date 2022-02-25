@@ -1,0 +1,42 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+if SNAKE_ROOT != "/scratch/trcanmed":
+    NEED_PRJ = "/prj"
+else:
+    NEED_PRJ = ""
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+DATA=PRJ_ROOT+"/local/share/data"
+
+SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
+SIMOUNIQ="../cris/unique_PDX-PDO_switch.tsv"
+RIGHT=SNAKE_ROOT+"/prj/DE_RNASeq/local/share/data/xo_basali"
+CRIS_RES = "../cris/vsd_model_cris-right_validated.tsv"
+BUONI = "../../../local/share/data/biobanca_pdo_buoni.tsv"
+FRA = "../../../../pdxopedia/local/share/data/dtb_mutations_vlookupAndrea_expandedPRLM.tsv"
+
+# List all the classes names of samples for which we want to study replicates and compute correlations
+#CLASSES=["LMO_BASALE","LMX_BASALE","LMH"] # LMH class does not have replicates
+CLASSES=["LMO_BASALE","LMX_BASALE"] 
+
+# Expression data: metadata and vsd
+MEDA=SNAKE_ROOT+NEED_PRJ+'/RNASeq_biod_metadata/dataset/july2020_starOK/selected_metadata_annot_final_nolinfo_nooutlier'
+VSD=SNAKE_ROOT+NEED_PRJ+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/vsd.tsv.gz"
+FPKM=SNAKE_ROOT+NEED_PRJ+"/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/fpkm_H.tsv.gz"
+VSD_TEST="/home/mferri/small_vsd.tsv.gz"
+
+MUTS_MAT=SNAKE_ROOT+NEED_PRJ+"/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele_wtiers"
+MUTS_ANNOT=SNAKE_ROOT+NEED_PRJ+"/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele_wtiers_annot"
