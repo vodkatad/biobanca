@@ -11,6 +11,7 @@ mut_f <- args[7]
 cn_f <- args[8]
 Rimage <- args[9]
 output2 <- args[10]
+muts_f <- args[11]
 
 load(Rimage)
 
@@ -87,6 +88,14 @@ uniqued_mut$GenealogyID <- NULL
 uniqued_mut$CASE <- NULL
 uniqued_mut$flag_H.X <- NULL
 
+#save.image('pippo.Rdata')
+threewt <- as.data.frame(apply(uniqued_mut[,c('KRAS', 'NRAS', 'BRAF')], 1, function(x) {any(x!="wt")}))
+colnames(threewt) <- 'tf'
+threewt$smodel <- row.names(threewt)
+threewt$triple_wt <- ifelse(threewt$tf, 'MUT', 'WT')
+threewt$tf <- NULL
+write.table(threewt, muts_f, sep="\t", quote=FALSE, row.names=FALSE)
+# merge_pdata2$triple_wt <- ifelse(infofour, 'triple MUT', 'WT')
 #uniqued_mut2 <- as.data.frame(apply(uniqued_mut, 2, function(x) { ifelse(is.na(x),'wt', x) } ))
 ## there is a NA for PI3KCA but it has a KRAS mutation so that's fine for fourwt info
 
@@ -98,11 +107,10 @@ merge_pdata2 <- merge(merge_pdata, uniqued_mut, by="row.names", all.x=TRUE)
 # apply(merge_pdata2, 2, class) ?? character why
 #infofour <- apply(merge_pdata2[,c('KRAS', 'NRAS', 'BRAF', 'PIK3CA')], 1, function(x) {any(x!="wt")})
 infofour <- apply(merge_pdata2[,c('KRAS', 'NRAS', 'BRAF')], 1, function(x) {any(x!="wt")})
-
-# togliere PIK3CA
 merge_pdata2$triple_wt <- ifelse(infofour, 'triple MUT', 'WT') 
-# there is a NA for PI3KCA but it has a KRAS mutation so that's fine
 
+
+# there is a NA for PI3KCA but it has a KRAS mutation so that's fine
 lmp <- function(model) {
   #if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
   #f <- summary(modelobject)$fstatistic

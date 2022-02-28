@@ -6,6 +6,8 @@ pheat_f <- snakemake@output[['pheat']]
 density_f <- snakemake@output[['density']]
 violin_f <- snakemake@output[['violin']]
 violin2_f <- snakemake@output[['violin2']]
+jac_f <- snakemake@output[['jac_f']]
+
 
 load(snakemake@input[['Rimage']])
 
@@ -29,6 +31,7 @@ pdf(pheat_f)
 pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50))
 graphics.off()
 
+write.table(jac, jac_f, sep="\t", quote=FALSE)
 pearson <- jac
 diag <- diag(pearson)
 pearson2 <- pearson

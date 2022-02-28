@@ -58,7 +58,7 @@ rule qdnaseq_segment_correlate:
 rule qdnaseq_segment_correlate_filterTRUE_svg:
     #input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
     input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.svg"
+    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.pdf"
     params: expected_pairs=get_exp_pairs
     log: "validated_heatmap_cors_{which}.log"
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake_filter_true.R"
@@ -95,7 +95,7 @@ rule heatmap:
     #input: "{kind}_segm_l2fc.tsv.gz"
     #input: "{kind}.1500000.tsv.gz"
     input: heatmap_in
-    output: "{kind}_{bin}_heatmap_{mute}.svg"
+    output: "{kind}_{bin}_heatmap_{mute}.pdf"
     run:
         import numpy as np
         import pandas as pd
@@ -160,21 +160,28 @@ rule heatmap:
 		#ax.set_rasterization_zordeset_rasterization_zorderr(1)
         #place vertical lines to identify chromosomes
         for pos in chr_limits:
-            ax.axvline(x=pos, color='black')
+            ax.axvline(x=pos, color='black', linewidth=0.3)
 
         #place chromosome ticks at the right position
         ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
         if wildcards.mute != "mute":
             ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        #ax.tick_params(axis='x', rotation=0, labelsize=5)
         ax.tick_params(axis='x', rotation=0, labelsize=5)
-        #ax.tick_params(axis='y', rotation=0, labelsize=20)
         ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
-        ax.tick_params(axis='x', length=20, which='minor')
+        ax.tick_params(axis='x', length=8, which='minor')
         
+        # legend is not a leged but a ax_cbar
+        cax = plt.gcf().axes[-1]
+        cax.tick_params(labelsize=3) # nope
+
         #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
         #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
         # A4 is 8-1/4 x 11-3/4 in
-        plt.gcf().set_size_inches(5, 2.8) # w, h
+        plt.gcf().set_size_inches(7, 3.8) # w, h
+        # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
+        # scale by hand
+        #plt.gcf().set_size_inches(37, 21)
         plt.savefig(output[0])
         plt.clf()
 

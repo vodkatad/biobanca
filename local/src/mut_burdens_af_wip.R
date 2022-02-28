@@ -56,4 +56,58 @@ library(reshape)
 long <- melt(commonall, id.vars="smodel")
 ggplot(data=long, aes(x=smodel, fill=variable, y=value))+geom_boxplot()
 ## /mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele
-all <- read.table('/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele', sep= "\t", header=T, row.names=1)
+allo <- read.table('/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele', sep= "\t", header=T, row.names=1)
+allx <- read.table('/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_pdx/mutect/merged.table_nomultiallele', sep= "\t", header=T, row.names=1)
+
+m <- merge(allo, allx, all.x=TRUE, all.y=TRUE, by="row.names")
+m$Row.names <- NULL
+m[is.na(m)] <- 0
+#m[m < 0.3] <- 0
+
+
+data <- data.frame(o=m$CRC1888LMO0A04009001D02000, x=m$CRC1888LMX0B01001TUMD05000)
+data[apply(data, 1, function(x) {any(x!=0)}),]
+
+## compare CRC1888 and CRC1307
+data <- data.frame(o=m$CRC1888LMO0A04009001D02000, x=m$CRC1888LMX0B01001TUMD05000)
+d <- data[apply(data, 1, function(x) {any(x!=0)}),]
+
+jac <- proxy::simil(d, by_rows = FALSE, method = "Jaccard")
+
+
+data <- data.frame(o=m$CRC1307LMO0A02008004D02000, x=m$CRC1307LMX0A01001TUMD05000)
+d <- data[apply(data, 1, function(x) {any(x!=0)}),]
+
+jac <- proxy::simil(d, by_rows = FALSE, method = "Jaccard")
+
+
+
+####
+
+
+mx <- m[,grepl('LMX', colnames(m))]
+mo <- m[,grepl('LMO', colnames(m))]
+colnames(mx) <- substr(colnames(mx), 0, 7)
+colnames(mo) <- substr(colnames(mo), 0, 7)
+
+com <- intersect(colnames(mx), colnames(mo))
+mx <- mx[, com]
+mo <- mo[, com]
+
+jac <- proxy::simil(mx, mo, by_rows = FALSE, method = "Jaccard")
+
+which.max(jac[,colnames(jac)=='CRC1888'])
+
+pearson <- jac
+diag <- diag(pearson)
+pearson2 <- pearson
+diag(pearson2) <- rep(NA, length(diag))
+all <- as.numeric(unlist(pearson2))
+all <- all[!is.na(all)]
+#all <- upper.tri(pearson, diag = FALSE) # this is not a simmetric matrix!
+pdata <- data.frame(pearson=c(all, diag), type=c(rep('unmatched', length(all)),rep('matched', length(diag))))
+
+ggplot(data=pdata, aes(x=pearson, color=type))+geom_density()+geom_density(size=1.5)+scale_color_manual(values=c('#004D40','#FFC107'))+xlab('jaccard')+theme_bw()+theme(text=element_text(size=10))
+
+ggplot(data=pdata[pdata$type=="matched",], aes(x=pearson, fill=type))+geom_histogram(alpha=0.7, position="dodge")+scale_fill_manual(values=c('#004D40','#FFC107'))+xlab('jaccard')+theme_bw()+theme(text=element_text(size=20))
+ggplot(data=pdata[pdata$type=="unmatched",], aes(x=pearson, fill=type))+geom_histogram(alpha=0.7, position="dodge")+scale_fill_manual(values=c('#004D40','#FFC107'))+xlab('jaccard')+theme_bw()+theme(text=element_text(size=20))
