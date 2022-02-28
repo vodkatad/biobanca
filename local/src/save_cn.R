@@ -6,6 +6,7 @@ xeno_f <- snake_bck@output[['xeno']]
 pdo_f <- snake_bck@output[['pdo']]
 
 #pc <- min(xeno_df_bck[xeno_df_bck>0], pdo_df_bck[pdo_df_bck>0])
+#pc <- 0.01
 pc <- 0.01
 xeno_df <- log2(xeno_df_bck+pc)
 pdo_df <- log2(pdo_df_bck+pc)

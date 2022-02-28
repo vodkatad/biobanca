@@ -54,21 +54,22 @@ freqs_amp$event <- 'amp'
 freqs_del$event <- 'del'
 freqs <- rbind(freqs_amp, freqs_del)
 
-plot <- ggplot(data=freqs, aes_string(x='PDX', y='PDO', color='event'))+rasterise(geom_point(alpha=0.5), dpi=300)+geom_smooth(method='lm')+
+plot <- ggplot(data=freqs, aes_string(x='PDX', y='PDO', color='event'))+rasterise(geom_point(alpha=0.5, size=0.1), dpi=300)+geom_smooth(method='lm', size=0.2)+
         scale_color_manual(values=c('#c84440','#185492'))
 
 save.image('pippo.Rdata')
-plotbis <- function(plot, theme_unmute, theme_mute, name, h=31.7, w=31.7, units='cm') {
+plotbis <- function(plot, theme_unmute, theme_mute, name, h=2.5, w=2.5, units='in') {
   unmute <- plot + theme_unmute
   ggsave(filename=name, plot=unmute, height=h, width=w, units=units)
   ext <- substr(name, nchar(name)-3, nchar(name)) 
   # this works only with 3 char extensions, TODO FIXME  https://stackoverflow.com/questions/29113973/get-filename-without-extension-in-r
   name_mute <- paste0(substr(name, 0, nchar(name)-3), 'mute', ext)
   mute <- plot + theme_mute
-  ggsave(filename=name_mute, plot=mute, height=h, width=w, units='cm')
+  ggsave(filename=name_mute, plot=mute, height=h, width=w, units=units)
 }
 
-plotbis(plot, unmute_theme, mute_theme, corrplot_f)
+#plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f)
+plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f, h=8, w=8)
 
 cor_amp <- cor.test(freqs_amp$PDX, freqs_amp$PDO)
 cor_del <- cor.test(freqs_del$PDX, freqs_del$PDO)

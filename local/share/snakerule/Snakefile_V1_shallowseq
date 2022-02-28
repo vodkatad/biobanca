@@ -58,7 +58,7 @@ rule qdnaseq_segment_correlate:
 rule qdnaseq_segment_correlate_filterTRUE_svg:
     #input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
     input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.pdf"
+    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.svg"
     params: expected_pairs=get_exp_pairs
     log: "validated_heatmap_cors_{which}.log"
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake_filter_true.R"
@@ -288,7 +288,7 @@ rule gistic_vs_msk_thresholded_genes:
 rule gistic_pdo_vs_pdx:
     input: pdx=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_xeno/all_thresholded.by_genes.txt', pdo=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_pdo/all_thresholded.by_genes.txt',
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: corrplot='gistic_pdo_vs_pdx.svg', corrs='gistic_pdo_vs_pdx.tsv'
+    output: corrplot='gistic_pdo_vs_pdx.pdf', corrs='gistic_pdo_vs_pdx.tsv'
     log: log='gistic_x_vs_o.log'
     script: SRC_DIR+'/gistic_genes_thr_x_vs_o.R'
 

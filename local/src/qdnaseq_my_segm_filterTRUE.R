@@ -38,6 +38,7 @@ my_segm_nocall <- function (obj, outfile, filter_samples)
 {
   segments <- assayDataElement(obj, "segmented")
   segments <- log2(segments+1)
+  #segments <- log2(segments+0.01)
   fd <- fData(obj)
   pd <- pData(obj)
   fnames <- pd$name
