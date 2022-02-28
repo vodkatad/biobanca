@@ -268,7 +268,7 @@ rule delta_gistic_overall:
 rule gistic_vs_tcga_thresholded_genes:
     input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', tcga=PRJ_ROOT+'/local/share/data/shallowseq/gistic/crc_gistic.txt',  
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: corrplot='{kind}_vs_tcga.svg', corrs='{kind}_vs_tcga.tsv'
+    output: corrplot='{kind}_vs_tcga.pdf', corrs='{kind}_vs_tcga.tsv'
     log: log='{kind}_vs_tcga.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_tcga.R'
 
@@ -281,7 +281,7 @@ rule gistic_vs_tcga_thresholded_genes:
 rule gistic_vs_msk_thresholded_genes:
     input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', msk=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_msk/all_thresholded.by_genes.txt',
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: corrplot='{kind}_vs_msk.svg', corrs='{kind}_vs_msk.tsv'
+    output: corrplot='{kind}_vs_msk.pdf', corrs='{kind}_vs_msk.tsv'
     log: log='{kind}_vs_msk.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_msk.R'
 

@@ -68,8 +68,8 @@ plotbis <- function(plot, theme_unmute, theme_mute, name, h=2.5, w=2.5, units='i
   ggsave(filename=name_mute, plot=mute, height=h, width=w, units=units, dpi=300)
 }
 
-plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f)
-#plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f, h=8, w=8)
+#plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f)
+plotbis(plot=plot, theme_unmute=unmute_theme, theme_mute=mute_theme, name=corrplot_f, h=8, w=8)
 
 cor_amp <- cor.test(freqs_amp[,kind], freqs_amp$MSK)
 cor_del <- cor.test(freqs_del[,kind], freqs_del$MSK)
