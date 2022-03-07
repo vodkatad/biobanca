@@ -27,8 +27,8 @@ colnames(mo) <- substr(colnames(mo), 0, 7)
 
 jac <- proxy::simil(mx, mo, by_rows = FALSE, method = "Jaccard")
 
-pdf(pheat_f)
-pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50))
+pdf(pheat_f, family="sans")# height=2.36, width=2.36)
+pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50), legend=FALSE)
 graphics.off()
 
 write.table(jac, jac_f, sep="\t", quote=FALSE)
