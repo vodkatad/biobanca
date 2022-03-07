@@ -21,5 +21,6 @@ n_muts_o <- colSums(pdobin)
 #hist(n_muts_o, breaks=20)
 pd <- data.frame(af=c(n_muts_o, n_muts_x), class=c(rep('pdo', length(n_muts_o)),rep('pdx',length(n_muts_x))))
 
-ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme
+ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme+
+    scale_fill_manual(values=c('darkblue', 'firebrick1'))
 ggsave(snakemake@output[['histTiers']])

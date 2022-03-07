@@ -70,7 +70,9 @@ filter_plot <- function(pdo, xeno, keep, out) {
     afo <- unlist(pdo[pdo!=0])
     pd <- data.frame(af=c(afo, afx), class=c(rep('pdo', length(afo)),rep('pdx',length(afx))))
     #ggplot(data=pd, aes(x=af, color=class, y=..count..)) + geom_density()+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
-    ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
+    ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+
+    scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme+
+    scale_fill_manual(values=c('darkblue', 'firebrick1'))
     ggsave(out)
     #ggplot(data=pd, aes(x=af, color=class)) + geom_density()+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
     return(list(x=xeno, o=pdo))
@@ -92,7 +94,8 @@ plot_n <- function(pdo, pdx, out) {
     #hist(n_muts_o, breaks=20)
     pd <- data.frame(af=c(n_muts_o, n_muts_x), class=c(rep('pdo', length(n_muts_o)),rep('pdx',length(n_muts_x))))
     #ggplot(data=pd, aes(x=af, color=class,y=..count..)) + geom_density()+xlab('nmuts')+unmute_theme
-    ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme
+    ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme+
+    scale_fill_manual(values=c('darkblue', 'firebrick1'))
     ggsave(out)
 }
 plot_n(af_all[['o']], af_all[['x']], snakemake@output[['histAll']])

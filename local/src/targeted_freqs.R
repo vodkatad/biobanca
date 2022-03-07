@@ -7,6 +7,7 @@ pdo_genes <- snakemake@input[['pdoGenes']]
 treat_f <- snakemake@input[['treat']]
 msk_f <- snakemake@input[['msk']]
 tcga_f <- snakemake@input[['tcga']]
+log_f <- snakemake@log[['log']]
 
 tcgamsk_xeno_f <- snakemake@output[['TCGAMSK_xeno']]
 tcgamsk_pdo_f <- snakemake@output[['TCGAMSK_pdo']]
@@ -81,8 +82,11 @@ lmplot <- function(data, title, xlim=NULL, out) {
   pi1 <- cor.test(fit1$x, fit1$y)
   pi2 <- cor.test(fit2$x, fit2$y)
   
-  cap1 <- round(c(pi1$estimate, pi1$p.value, pi2$estimate, pi2$p.value),2)
+  cap1 <- c(pi1$estimate, pi1$p.value, pi2$estimate, pi2$p.value)
+  sink(log_f, append=TRUE)
   print(cap1)
+  sink()
+  cap1 <- round(cap1,2)
   names(cap1) <- NULL
   cap <- paste(cap1, collapse= " ")
   if (is.null(xlim)) {
@@ -91,18 +95,26 @@ lmplot <- function(data, title, xlim=NULL, out) {
     linedata <- data.frame(x = c(0.2, 0.4, 0.2, 0.4),
                            y = c(0.2, 0.3, 0, 0),
                            id = c("a", "a", "b", "b"))
-    gg <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class))+ geom_smooth(method=lm, se=FALSE)+xlim(0, 0.2)+ylim(0,0.2)+unmute_theme+theme(legend.position ="none")
+    gg <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class), size=0.1)+ 
+    geom_smooth(method=lm, se=FALSE, size=0.1)+xlim(0, 0.2)+ylim(0,0.2)+unmute_theme+theme(legend.position ="none")+
+    scale_color_manual(values=c('seagreen', 'plum3'))+theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(), axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
 
-    p <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class))+ geom_smooth(method=lm, se=FALSE)+
-         unmute_theme+labs(caption=cap)+ggtitle(title)+
-         xlab('Frequency TCGA/MSK') + ylab('Frequency models')
-    p + geom_path(data = polydata, aes(x, y), color="darkgrey") +
-      geom_line(data = linedata, color="darkgrey", aes(x, y, group = id),
-                linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.4, xmax=0.8, ymin=0, ymax=0.3)
+    p <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class), size=0.3)+ geom_smooth(method=lm, se=FALSE, size=0.3)+
+         unmute_theme+ggtitle(title)+
+         xlab('Frequency TCGA/MSK') + ylab('Frequency models')+scale_color_manual(values=c('seagreen', 'plum3'))
+    p + geom_path(data = polydata, aes(x, y), size=0.3, color="darkgrey") +
+      geom_line(data = linedata, color="darkgrey", size=0.3, aes(x, y, group = id),
+                linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.35, xmax=0.65, ymin=-0.05, ymax=0.3)+
+                theme(legend.position ="none")
   } else {
-    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+unmute_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)
+    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+
+    unmute_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)+
+    scale_color_manual(values=c('seagreen', 'plum3'))
+
   }
-  ggsave(out)
+  ggsave(out, height=60, width=60, units="mm")
 }
 
 lmplot(m3, title='PDO', out=tcgamsk_pdo_f)
