@@ -41,7 +41,7 @@ rule freqs_tcga_msk:
 
 rule oncoprint:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
-    output: op="oncoprint_{AF}.svg", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
+    output: op="oncoprint_{AF}.pdf", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
     script: SRC_DIR+"/oncoprint_diff.R"
 
 

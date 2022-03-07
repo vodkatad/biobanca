@@ -35,22 +35,23 @@ both2 <- t(apply(both, 1, as.numeric))
 rownames(both2) <- rownames(both)
 mat_list <- list(Both=both, PDO= td2o-both, PDX=td2x-both  ) 
 
-col = c("Both" = "blue", "PDO" = "red", "PDX"= "#0b7015")
+#col = c("Both" = "blue", "PDO" = "red", "PDX"= "#0b7015")
+col = c("Both" = "darkgoldenrod3", "PDO" = "darkblue", "PDX"= "firebrick1")
 alter_fun = list(
   background = function(x, y, w, h) {
-    grid.rect(x, y, w-unit(0.5, "mm"), h-unit(0.5, "mm"), 
+    grid.rect(x, y, w*0.5, h, 
               gp = gpar(fill = "#CCCCCC", col = NA))
   },
   Both = function(x, y, w, h) {
-    grid.rect(x, y, w-unit(0.5, "mm"), h-unit(0.5, "mm"), 
+    grid.rect(x, y, w*0.5, h, 
               gp = gpar(fill = col["Both"], col = NA))
   },
   PDO = function(x, y, w, h) {
-    grid.rect(x, y, w-unit(0.5, "mm"), h-unit(0.5, "mm"), 
+    grid.rect(x, y, w*0.5, h, 
               gp = gpar(fill = col["PDO"], col = NA))
   },
   PDX = function(x, y, w, h) {
-    grid.rect(x, y, w-unit(0.5, "mm"), h-unit(0.5, "mm"), 
+    grid.rect(x, y, w*0.5, h, 
               gp = gpar(fill = col["PDX"], col = NA))
   }
 )
@@ -93,7 +94,8 @@ su <- su[order(-su)]
 
 #oncoPrint(mat_list2, alter_fun = alter_fun, col = col)
 op <- oncoPrint(mat_list, alter_fun = alter_fun, col = col, column_order = names(su),
-                remove_empty_columns = TRUE, remove_empty_rows = TRUE)
+                remove_empty_columns = TRUE, remove_empty_rows = TRUE, pct_gp=gpar(fontsize=5), column_names_gp=gpar(fontsize=5),
+                top_annotation = HeatmapAnnotation(cbar = anno_oncoprint_barplot(), annotation_name_gp=gpar(fontsize=5)))
 
 #oncoPrint(mat_list2,
 #          alter_fun = alter_fun, col = col, top_annotation = HeatmapAnnotation(cbar = anno_oncoprint_barplot(),
@@ -104,7 +106,8 @@ op <- oncoPrint(mat_list, alter_fun = alter_fun, col = col, column_order = names
 
 #pdf(op_f)
 #png(op_f, width = 880, height = 880, units = "px")
-svg(op_f, pointsize=7)
+#svg(op_f, width=4.7, height=4.7, family="sans")
+pdf(op_f, width=4.7, height=4.7, family="sans")
 print(op)
 graphics.off()
 
@@ -114,5 +117,5 @@ save.image(op_data_f)
 pd <- as.data.frame(sapply(mat_list, sum))
 colnames(pd) <- "alterations"
 pd$class <- rownames(pd)
-ggplot(pd, aes(x="", y=alterations, fill=class))+ geom_bar(width = 1, stat = "identity")+ coord_polar("y", start=0)+unmute_theme+scale_fill_manual(values=c("blue", "red", "#0b7015"))
+ggplot(pd, aes(x="", y=alterations, fill=class))+ geom_bar(width = 1, stat = "identity")+ coord_polar("y", start=0)+unmute_theme+scale_fill_manual(values=c("darkgoldenrod3", "darkblue", "firebrick1"))
 ggsave(pie_f)
