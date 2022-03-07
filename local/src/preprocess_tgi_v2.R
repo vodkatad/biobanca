@@ -9,6 +9,7 @@ tgi_ave_f <-snakemake@output[['tgi_ave']]
 log_f <- snakemake@log[['log']]
 scattereci_f <- snakemake@output[['scattereci']]
 delta_f <- snakemake@output[['delta']]
+classes <- snakemake@wildcards[['sclass']]
 
 save.image("pippo.Rdata")
 
@@ -17,13 +18,16 @@ save.image("pippo.Rdata")
 #tgi_xlsx <-'aggregati_TGI_fixed0.xlsx'
 
 d <- read.xlsx(tgi_xlsx, sheet="aggregati_all")
+names(d)[names(d) == 'TGI%(Median)'] <- 'TGI_Median'
+names(d)[names(d) == 'TGI%(Average)'] <- 'TGI_Average'
 
-WCOL = 'TGI%(Median)'
+WCOL = classes
 
 
 # 776-799 are repeated entries?
 # 416-427
-d <- d[-seq(775, 798),] # repeated CRC0177 friends
+d <- d[-seq(763, 774),]# repeated CRC0177 friends 403 414
+d <- d[-seq(403, 414),] # repeated CRC0177 friends
 
 ## need to fill in missing GenID in the middle of their blocks
 d[is.na(d$GenID),'GenID'] <- "" # previous loading from tsv had "", with read.xlsx NAs 
@@ -131,7 +135,7 @@ colnames(cet) <- c('ssmodel', 'w3')
 mdf$ssmodel <- substr(mdf$smodel, 0, 7)
 mm <- merge(mdf, cet, by="ssmodel")
 mm$recist3w <- ifelse(mm$w3 < -50, 'OR', ifelse(mm$w3 > 35, 'PD', 'SD'))
-ggplot(data=mm, aes(x=TGI3w,y=TGI2w, color=recist3w))+geom_point()+theme_bw()+xlim(c(-500, 500))+ylim(c(-500, 500))
+ggplot(data=mm, aes(x=TGI3w,y=TGI2w, color=recist3w))+geom_point()+theme_bw()#+xlim(c(-500, 500))+ylim(c(-500, 500))
 ggsave(scattereci_f)
 #ggplot(data=mm, aes(x=TGI3w,y=TGI2w, color=recist3w))+geom_point()+theme_bw()
 

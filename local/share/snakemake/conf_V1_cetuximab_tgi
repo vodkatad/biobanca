@@ -18,8 +18,8 @@ DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
 rule preprocess_tgi:
     input: xlsx=DATA+'/aggregati_TGI_fixed0.xlsx', cet="../cetuximab/cetuxi_perc_w3.tsv"
-    output: tgi_nodup="TGI_filled_GenID_removeddup.tsv", scattereci="scatter_tgi_reci.pdf", delta="delta_arms.pdf", tgi_ave="tgi_chosen.tsv"
-    log: log="preprocess_tgi.log"
+    output: tgi_nodup="TGI_{sclass}_filled_GenID_removeddup.tsv", scattereci="scatter_tgi_{sclass}_reci.pdf", delta="delta_{sclass}_arms.pdf", tgi_ave="tgi_{sclass}_chosen.tsv"
+    log: log="preprocess_tgi_{sclass}.log"
     script: SRC_DIR+'/preprocess_tgi_v2.R'
 
 

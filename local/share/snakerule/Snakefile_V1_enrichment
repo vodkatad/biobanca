@@ -25,6 +25,23 @@ checkpoint gene_matrix:
         res.to_csv(output.mat, sep="\t")
         counts.to_csv(output.counts, sep="\t")
 
+checkpoint gene_matrix_sanger:
+    input: mat=MUTS_MAT_SANG
+    output: mat="gene_matrix_sang.tsv", counts="gene_nmuts_sang.tsv"
+    run:
+        import pandas as pd
+        mat = pd.read_csv(input.mat, sep="\t", index_col=0)
+        mat = mat.mask(mat > 0, True)
+        mat = mat.mask(mat == 0, False)
+        mat = mat[mat.index.str.contains('LMX')]
+        mat['smodel'] = [ x[0:7] for x in mat.index ]
+        res = mat.groupby('smodel').agg(any)
+        res = res.transpose()
+        counts = res.apply(sum, 1)
+        res.to_csv(output.mat, sep="\t")
+        counts.to_csv(output.counts, sep="\t")
+
+
 
 # wildcards on percentile to compare w/others
 # rule fisher_input:
@@ -54,6 +71,12 @@ rule fisher:
     input: groups= BUONI, mutmat="gene_matrix.tsv"
     output: fisher="biobanca.fisher.tsv"
     log: log="biobanca.fisher.log"
+    script: SRC_DIR+'/fisher_twogroups.R'
+
+rule fisher_sang:
+    input: groups= BUONI, mutmat="gene_matrix_sang.tsv"
+    output: fisher="biobanca_sang.fisher.tsv"
+    log: log="biobanca_sang.fisher.log"
     script: SRC_DIR+'/fisher_twogroups.R'
 
 rule get_fra_matrix:

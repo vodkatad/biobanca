@@ -12,7 +12,7 @@ resultscluster <- snakemake@output[["clust_res"]]
 resultspvals <- snakemake@output[["pvals"]]
 
 
-#save.image('ioodioilclustering.Rdata')
+save.image('ioodioilclustering.Rdata')
 
 set.seed(500)
 

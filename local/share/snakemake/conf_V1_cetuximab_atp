@@ -35,10 +35,10 @@ else:
 rule scatterplot_annot:
     input: x=MODELS_X, y=MODELS_Y, mut=FRA_MUT, cn=FRA_CN,
            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
-    output: 'scatter.pdf'
+    output: plot='scatter.pdf', threewt="threewt.tsv"
     log: "scatter.tsv" # will store rare cases when making CN or muts info unique they were not consistent (we randomly kept one)
     params: tool=BIN_DIR+'/scatter_annotated', prefix=NAME, merge=MERGE, yname=YNAME
     shell:
         """
-            {params.tool} {input.x} {input.y} {output} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {log}
+            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {log} {output.threewt}
         """

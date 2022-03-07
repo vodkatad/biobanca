@@ -1,4 +1,5 @@
 library(reshape)
+library(tidyverse)
 
 groups_f <- snakemake@input[['groups']]
 mutmat_f <- snakemake@input[['mutmat']]
@@ -30,6 +31,15 @@ muts <- muts[, common, drop=FALSE]
 groups <- groups[groups$smodel %in% common, , drop=FALSE]
 groups <- groups[match(common, groups$smodel), ,drop=FALSE]
 
+for (i in seq(length(rownames(muts)))) {
+  counts <- as.data.frame((rowSums(muts, na.rm = TRUE)))
+}
+
+colnames(counts) <- "n_true"
+counts <- counts %>% filter(n_true > 4)
+save_genes <- rownames(counts)
+muts <- muts[rownames(muts) %in% save_genes,]
+
 sink(log_f, append=TRUE)
 print('Comparing: ')
 table(groups$group)
@@ -56,7 +66,7 @@ all_fisher_fracs <- apply(at_least_one_muts, 1, fisher_one_gene, groups$group)
 res <- as.data.frame(t(all_fisher_fracs))
 colnames(res) <- c('pvalue', 'frac_muts_group', 'frac_muts_outgroup', 'n_muts_group', 'n_muts_outgroup', 'n_group', 'n_outgroup')
 res$p.adjust <- p.adjust(res$pvalue, method="BH")
-res <- res[order(res$pvalue),]
+res <- res[order(res$p.adjust),]
 
 res$gene <- rownames(res)
 res <- res[, c(ncol(res), seq(1, (ncol(res)-1)))]

@@ -40,3 +40,4 @@ VSD_TEST="/home/mferri/small_vsd.tsv.gz"
 
 MUTS_MAT=SNAKE_ROOT+NEED_PRJ+"/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele_wtiers"
 MUTS_ANNOT=SNAKE_ROOT+NEED_PRJ+"/snakegatk/dataset/biobanca_targeted_pdo/mutect/merged.table_nomultiallele_wtiers_annot"
+MUTS_MAT_SANG=SNAKE_ROOT+NEED_PRJ+"/pdxopedia/dataset/sanger_targeted_v2_genealogy/driver_muts_genecollapse_wide.tsv"
