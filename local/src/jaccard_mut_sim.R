@@ -7,6 +7,7 @@ density_f <- snakemake@output[['density']]
 violin_f <- snakemake@output[['violin']]
 violin2_f <- snakemake@output[['violin2']]
 jac_f <- snakemake@output[['jac_f']]
+mw_f <- snakemake@output[['mw']]
 
 
 load(snakemake@input[['Rimage']])
@@ -50,3 +51,7 @@ ggsave(violin_f)
 
 ggplot(data=pdata, aes(y=pearson,x=type, fill=type))+geom_violin()+geom_jitter(height = 0, width = 0.1)+ylim(-0.001,1.0001)+scale_fill_manual(values=c('#004D40','#FFC107'))+unmute_theme+xlab('jaccard')
 ggsave(violin2_f)
+
+sink(mw_f)
+wilcox.test(formula=as.formula("pearson~type"), data=pdata)$p.value
+sink()
