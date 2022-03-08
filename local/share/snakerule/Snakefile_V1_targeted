@@ -50,3 +50,10 @@ rule jaccard_mut_sim:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
     script: SRC_DIR+"/jaccard_mut_sim.R"
+
+rule AF_imbalance:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: ttest="AF_imbalance_test_{AF}.tsv", plots=directory("AF_imbalance_{AF}_plots")
+    log: log="AF_imbalance_log_{AF}.log"
+    params: muts_thr=5
+    script: SRC_DIR+"/AF_imbalance.R"

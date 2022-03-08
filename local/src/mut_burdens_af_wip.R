@@ -125,6 +125,9 @@ m1$Row.names <- NULL
 m1[is.na(m1)] <- 0
 m1[m1 < thr] <- 0
 
+
+### approximate approach not checking for same models mutated to get the idea:
+# can we work at muts level?
 count_muts <- function(muts, models, n_thr) {
   x <- grepl('.x', models, fixed=T)
   o <- grepl('.y', models, fixed=T)
@@ -136,10 +139,10 @@ count_muts <- function(muts, models, n_thr) {
 wanted_muts <- apply(m1, 1, count_muts, colnames(m1), 5)
 wanted_muts_id <- rownames(m1)[wanted_muts]
 muts_info[rownames(muts_info) %in% wanted_muts_id,]
-
-
 ## ok we need to collapse on genes cause we have too few on APC/TP53/KRAS instead and working
-# separately does not make too much sense. iterate on all genes and select the ones with muts common o-x in 5 models
+# separately does not make too much sense. 
+
+#iterate on all genes and select the ones with muts common o-x in 5 models
 # iterate on genes
  # for all its muts select the common ones
   # if more than 5 proceed
@@ -149,34 +152,42 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr) {
   # we sum over columns to get the n of models mutated both in x o and if the overall sum if >= 5 we can go on
   total_muts <- colSums(common_x_o)
   if (sum(total_muts) >= n_thr) {
-    wanted <- names(total_muts[total_muts!=0]) # we are still not selecting for both here TODO FIXME
+    wanted <- names(total_muts[total_muts!=0]) # we are still not selecting for "both" here but just mutated
     # only the muts same in x-o
     data <- mut_table[rownames(mut_table) %in% wanted, ]
     # only the mutated samples
-    data[, apply(data, 2, function(x){any(x!=0)})]
+    data <- data[, apply(data, 2, function(x){any(x!=0)})]
+    # we now have a table with only the models with muts in the selected muts, thare are mutated in both x and o in at least 5 cumulative
+    # models. We need to switch to the long format for ggplot and we still need to remove the samples that are mutated only in
+    # x or o.
+
     data$id <- rownames(data)
     long <- melt(data, id.vars="id")
+    # we can remove not mutated samples now
     long <- long[long$value != 0,]
+    # and get better columns for x-o etc
     long$type <-  substr(long$variable, 9, 9)
     long$class <- ifelse(long$type == 'x', 'pdx', 'pdo')
     long$smodel <- substr(long$variable, 0, 7)
     long$group <- paste0(long$id, long$smodel)
-    #ggplot(data=long, aes(x=class, y=value))+geom_point()+geom_line(aes(group=group))+theme_bw()
-     
-    # we can remove what's not in both here with table on group - ggplot does that himself?
-    
-    ddd <- as.data.frame(table(long$group))
-    w <- ddd[ddd$Freq==2, 'Var1']
-    long <- long[long$group %in% w,]
-    #ggplot(data=long, aes(x=class, y=value))+geom_point()+geom_line(aes(group=group))+theme_bw()
-    
+
+    dim(long)
+    # we can remove what's not in both x-o here with table on group (ggplot does that himself when using geom_line with group?)
+    paired <- as.data.frame(table(long$group))
+    withpairs <- paired[paired$Freq==2, 'Var1']
+    long <- long[long$group %in% withpairs,]
+    print(ggplot(data=long, aes(x=class, y=value))+geom_point()+geom_line(aes(group=group))+theme_bw()+ggtitle(gene))
+    dim(long)
     #2287 chr12:25245350:C:A CRC1090.y 0.448    y   pdo CRC1090 chr12:25245350:C:ACRC1090 ??
     
+    # setup of data for the t-test, we need two vectors of AF with ordered by mut/smodel (available in group here)
     longx <- long[long$class == "pdx",]
     longo <- long[long$class == "pdo",]
-    longx <- longx[order(longx$id, longx$smodel),]
-    longo <- longo[order(longo$id, longo$smodel),]
-    all(longx$group==longo$group)
+    longx <- longx[order(longx$group),]
+    longo <- longo[order(longo$group),]
+    if (! all(longx$group==longo$group)) {
+      stop('Something messy in putting together pairs of muts!')
+    }
     ttest <- t.test(longx$value, longo$value, paired=TRUE)
     #oo <- long$value > 0.9 & long$class=="pdo"
     #o <- long$value < 0.7 & long$class=="pdx"
@@ -197,7 +208,7 @@ compare_o_x_one_mut <- function(mut, mut_table) {
 muts_info$genes <- as.character(muts_info$genes)
 try <- sapply(unique(muts_info$genes), compare_o_x, m1, muts_info, 5)
 
-
+compare_o_x('TP53', m1, muts_info, 5)
 
 ### work on one mut only only
 kras <- m1[rownames(m1)=="chr12:25245350:C:T", ]
