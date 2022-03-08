@@ -5,7 +5,7 @@ library(reshape)
 # in mut_burdes_af_wip.R, from lines 129 onwards.
 ttest_f <- snakemake@output[['ttest']]
 plots_d <- snakemake@output[['plots']]
-log_f <- snakemake@log[['log']]
+my_log_f <- snakemake@log[['log']]
 n_thr <- as.numeric(snakemake@params[['muts_thr']])
 
 load(snakemake@input[['Rimage']])
@@ -32,7 +32,7 @@ m1[m1 < thr] <- 0
 # if more than 5 models are commonly mutated overall for the gene proceed
 
 # function that will be called with a single gene and compute t.test, print plot if n_thr is reached
-compare_o_x <- function(gene, mut_table, gene_muts, n_thr) {
+compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
   my_muts <- gene_muts[gene_muts$genes == gene, , drop=FALSE]
   common_x_o <- sapply(unique(rownames(my_muts)), compare_o_x_one_mut, mut_table)
   # we sum over columns to get the n of models mutated both in x o and if the overall sum if >= n_thr we can go on
@@ -59,15 +59,15 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr) {
     long$group <- paste0(long$id, long$smodel)
 
     # logging purposes of the number of muts that are mutated in a single x or o and that right now we are removing
-    gene
-    dim(long)
-    # we can remove what's not in both x-o here with table on group (ggplot does that himself when using geom_line with group apparently)
+    print(gene)
+    print(dim(long))
+    # we can remove what's not in both x-o here with table on group
     #2287 chr12:25245350:C:A CRC1090.y 0.448    y   pdo CRC1090 chr12:25245350:C:ACRC1090 
     # was an example of these rogue cases.
     paired <- as.data.frame(table(long$group))
     withpairs <- paired[paired$Freq==2, 'Var1']
     long <- long[long$group %in% withpairs,]
-    dim(long)
+    print(dim(long))
     
     # todo fix y axis interval if we want to use in supplementary
     ggplot(data=long, aes(x=class, y=value))+geom_point()+geom_line(aes(group=group))+theme_bw()+ggtitle(gene)
@@ -108,11 +108,11 @@ if (dir.exists(plots_d)) {
   unlink(plots_d)
 }
 dir.create(plots_d)
+sink(my_log_f)
 setwd(plots_d)
-sink(log_f)
-ttests <- sapply(unique(muts_info$genes), compare_o_x, m1, muts_info, n_thr)
-sink()
+ttests <- sapply(unique(muts_info$genes), compare_o_x, m1, muts_info, n_thr, log_f)
 setwd(cdir)
+sink()
 
 res <- data.frame(gene=unique(muts_info$genes), pval=ttests, fdr=p.adjust(ttests, method="BH") )
 write.table(res, file=ttest_f, sep="\t", quote=FALSE, col.names=TRUE, row.names=FALSE)
