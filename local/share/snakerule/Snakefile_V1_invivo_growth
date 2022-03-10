@@ -1,0 +1,16 @@
+include: "./conf.sk"
+
+rule common_modelarms:
+    input: tgi=TGI_EXPS, las_vol=LAS_VOLUMES
+    output: 'common_modelarms.tsv'
+    shell:
+         """
+            zcat {input.las_vol} | bawk '{{print substr($1,0,12)}}' \
+            | sort | uniq |filter_1col 1 <(bawk '{{print substr($2,0,12)}}' {input.tgi} |sort | uniq) > {output}
+         """
+
+# In the end we match experiment groups right now, we find correspondences for all the common modelarms!
+rule match_days:
+    input: tgi=TGI_EXPS, las_vol=LAS_VOLUMES, common="common_modelarms.tsv"
+    output: placebo_vols="volumes_data.tsv"
+    script: SRC_DIR+'/fuzzy_match_dates_volumes.R'
