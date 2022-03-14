@@ -126,6 +126,7 @@ write.table(avg, file=res_f, sep="\t", quote=FALSE, col.names = TRUE, row.names 
 save.image('pippo.Rdata')
 q(save = "no", status = 0)
 
+# atp
 ctg <- read.table('/scratch/trcanmed/biobanca/local/share/data/CTG_growth_X_CORR_VALUES.txt', sep="\t",header=T, comment.char="")
 colnames(ctg)[1] <- 'smodel'
 colnames(ctg)[3] <- 'CTG_75k'
@@ -143,6 +144,24 @@ colnames(all_avg_smodel) <- 'eslope'
 m <- merge(all_avg_smodel, ctg, by.x='row.names', by.y="smodel")
 
 ggplot(data=m, aes(x=eslope, y=CTG_75k))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(m$eslope, m$CTG_75k, method="spearman")
+
+### imaging
+ima <- read.table('/scratch/trcanmed/biobanca/local/share/data/imaging_ratio9_2_NT.txt', sep="\t",header=T, comment.char="")
+colnames(ima)[1] <- 'smodel'
+colnames(ima)[3] <- 'imaging_9_2'
+
+
+m <- merge(all_avg_smodel, ima, by.x='row.names', by.y="smodel")
+
+ggplot(data=m, aes(x=eslope, y=imaging_9_2))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(m$eslope, m$imaging_9_2, method="spearman")
+
+
+m2 <- merge(ctg, ima, by="smodel")
+
+ggplot(data=m2, aes(x=CTG_75k, y=imaging_9_2))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(m2$CTG_75k, m2$imaging_9_2, method="spearman")
 
 ### volumes when starting fit
 
