@@ -14,3 +14,9 @@ rule match_days:
     input: tgi=TGI_EXPS, las_vol=LAS_VOLUMES, common="common_modelarms.tsv"
     output: placebo_vols="volumes_data.tsv"
     script: SRC_DIR+'/fuzzy_match_dates_volumes.R'
+
+rule exp_fit:
+    input: las_vol="volumes_data.tsv"
+    output: slope_exp="expfit.tsv"
+    log: log="expfit.log"
+    script: SRC_DIR+'/volumes_expfit.R'

@@ -225,3 +225,26 @@ dd$class <- ifelse(dd$type == 'x', 'pdx', 'pdo')
 
 ggplot(data=dd, aes(x=class, y=af))+geom_point()+geom_line(aes(group=smodel))+theme_bw()
 
+
+### HER2
+do <- read.table('/scratch/trcanmed/biobanca/local/share/data/shallowseq/gistic/gistic_pdo/all_thresholded.by_genes.txt', sep="\t", header=T)
+dx <- read.table('/scratch/trcanmed/biobanca/local/share/data/shallowseq/gistic/gistic_xeno/all_thresholded.by_genes.txt', sep="\t", header=T)
+
+x <- dx[grepl('ERBB2', dx$Gene.Symbol),]
+o <- do[grepl('ERBB2', do$Gene.Symbol),]
+
+colnames(x[, apply(x, 2, function(x){x==2})])
+colnames(o[, apply(o, 2, function(x){x==2})])
+
+x <- dx[dx$Gene.Symbol =="EGFR",]
+o <- do[do$Gene.Symbol == "EGFR",]
+
+colnames(x[, apply(x, 2, function(x){x==2})])
+colnames(o[, apply(o, 2, function(x){x==2})])
+
+
+x <- dx[dx$Gene.Symbol == 'MET',]
+o <- do[do$Gene.Symbol == 'MET',]
+
+colnames(x[, apply(x, 2, function(x){x==2}), drop=F])
+colnames(o[, apply(o, 2, function(x){x==2}), drop=F])

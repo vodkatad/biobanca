@@ -27,6 +27,7 @@ sum(ncl>1)/length(ncl)
 sum(ncl>1)
 
 
+
 indagine <- names(ncl[ncl>1])
 ind <- clustered_data[clustered_data$shortgen %in% indagine, ]
 ind[order(ind$shortgen),]
@@ -84,3 +85,26 @@ ggplot(data=scores, aes(y=HALLMARK_WNT_BETA_CATENIN_SIGNALING, x=chosen))+
 
 ggplot(data=scores, aes(y=HALLMARK_WNT_BETA_CATENIN_SIGNALING, x=annot))+
   geom_boxplot(outlier.shape=NA)+theme_bw()+geom_jitter()
+
+############ randomiz clu leaves
+
+tot_boot <- 1000
+res_tot_boot <- data.frame(matrix(ncol = tot_boot, nrow = length(rownames(res_true))), row.names = rownames(res_true))
+# creazione dataframe vuoto tot_boot colonne tot_campioni righe
+shuffle_labels_compute_spread <- function(my_clustered_data) {
+  cl_id_var <- my_clustered_data$cl_id
+  n_el <- length(cl_id_var)
+  cl_id_var_sh <- cl_id_var[sample.int(n=n_el, size=n_el)]
+  my_clustered_data$cl_id <- cl_id_var_sh
+  res <- as.data.frame(sapply(smodels, count_clu_pt2, my_clustered_data))
+  return(res)
+}
+
+for (i in seq(1, tot_boot))  {
+  res_tot_boot[,i] <- shuffle_labels_compute_spread(clustered_data)
+}
+
+table(apply(res_tot_boot, 2, function(x){length(x[x==1])}))
+res_tb_mean <- as.data.frame(apply(res_tot_boot, 1, mean))
+
+summary(res_tb_mean)
