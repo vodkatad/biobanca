@@ -108,3 +108,64 @@ table(apply(res_tot_boot, 2, function(x){length(x[x==1])}))
 res_tb_mean <- as.data.frame(apply(res_tot_boot, 1, mean))
 
 summary(res_tb_mean)
+
+#############3 trying new heatmap
+
+smodels <- unique(substr(colnames(expr_selected),0,7))
+n_samples <- length(smodels)
+
+mycolors <- colors()
+mycolors <- mycolors[!grepl('gr[ae]y\\d+', mycolors)]
+mycolors <- mycolors[!grepl('dark', mycolors)]
+mycolors <- mycolors[!grepl('light', mycolors)]
+mycolors <- mycolors[!grepl('white', mycolors)]
+mycolors <- mycolors[!grepl('cornsilk', mycolors)]
+mycolors <- mycolors[!grepl('lavenderblush', mycolors)]
+mycolors <- mycolors[!grepl('ivory', mycolors)]
+mycolors <- mycolors[!grepl('bisque', mycolors)]
+mycolors <- mycolors[!grepl('azure', mycolors)]
+mycolors <- mycolors[!grepl('mistyrose', mycolors)]
+mycolors <- mycolors[!grepl('snow', mycolors)]
+mycolors <- mycolors[!grepl('seashell', mycolors)]
+mycolors <- mycolors[!grepl('[a-z]+[1-3]', mycolors)]
+
+mycolors <- c(mycolors, 'grey72', 'grey30')
+
+df_rainbow <- c(mycolors[sample.int(n_samples)])
+names(df_rainbow) <- smodels
+
+ann_colors <- list(class=c(X='darkblue', O='firebrick1'), smodel=df_rainbow)
+
+annot <- data.frame(row.names=rownames(cors))
+annot$smodel <- substr(rownames(annot), 0, 7)
+
+annot$class <- substr(rownames(annot), 10, 10)
+
+
+dist_pearson <- as.dist(1-cor(expr_selected, method="pearson"))
+hc1 <- hclust(dist_pearson, method = "complete" )
+
+
+pheatmap(cors, cluster_rows = hc1, cluster_cols=hc1, 
+         show_rownames = FALSE, show_colnames = FALSE, 
+         annotation_col=annot, annotation_colors=ann_colors, treeheight_row=0)
+
+
+criso <- read.table('/scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMO_BASALE_prediction_result_nc.tsv', sep="\t", header=T)
+crisx <- read.table('/scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMX_BASALE_prediction_result_nc.tsv', sep="\t", header=T)
+cris <- rbind(criso, crisx)
+cris <- data.frame(row.names=cris$sample.names, cris=cris$predict.label2)
+
+mannot <- merge(annot, cris, by="row.names")
+rownames(mannot) <- mannot$Row.names
+mannot$Row.names <- NULL
+
+ann_colors <- list(class=c(X='darkblue', O='firebrick1'), smodel=df_rainbow, 
+                   cris=c(`CRIS-A`='darkorange2', `CRIS-B`='brown3', `CRIS-C`='darkblue', 
+                          `CRIS-D`='darkgreen', `CRIS-E`='aquamarine2'))
+
+
+
+pheatmap(cors, cluster_rows = hc1, cluster_cols=hc1, 
+         show_rownames = FALSE, show_colnames = FALSE, 
+         annotation_col=mannot, annotation_colors=ann_colors, treeheight_row=0)
