@@ -57,3 +57,20 @@ rule AF_imbalance:
     log: log="AF_imbalance_log_{AF}.log"
     params: muts_thr=5
     script: SRC_DIR+"/AF_imbalance.R"
+
+# probably experimenting more with ggarrange and pdf one could avoid the pdftk step
+rule AF_imbalance_overall:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', genes='AF_imbalance_test_{AF}.tsv'
+    output: ttest="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots"), muts_thr=5
+    script: SRC_DIR+"/AF_imbalance_overall.R"
+
+rule AF_combine_pdf:
+    input: placeholder_for_pdf="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots")
+    output: "AF_imbalance_all_{AF}.pdf"
+    shell: 
+        """
+            pdftk {params.plots}/*pdf cat output {output}
+        """
+
