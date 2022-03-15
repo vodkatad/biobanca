@@ -14,9 +14,11 @@ unmute_theme <- theme_bw() +
 theme(
 	text = element_text(size = textSize, family='sans'),
 	axis.title = element_text(size = largerSize),
-	axis.text.x = element_text(size = textSize),#, angle = 90, vjust = 0.5, hjust=1)
-	axis.text.y = element_text(size = textSize),
-	plot.title = element_text(size = largerSize, hjust = 0.5)
+	axis.text.x = element_text(size = textSize, color="black"),#, angle = 90, vjust = 0.5, hjust=1)
+	axis.text.y = element_text(size = textSize, color="black"),
+	plot.title = element_text(size = largerSize, hjust = 0.5),
+	legend.title = element_text(size=largerSize),
+    legend.text = element_text(size=textSize)
 )
 
 
@@ -29,7 +31,7 @@ matched <- diag(as.matrix((res_df))) ### diag vuole la matrice perchè non conve
 unmatched <- c(res_df[upper.tri(res_df)], res_df[lower.tri(res_df)])
 
 res_data <- data.frame(res_df=c(unmatched, matched), type=c(rep('unmatched', length(unmatched)), rep('matched', length(matched))))
-ggplot(data=res_data, aes(x=res_df, color=type))+geom_density()+unmute_theme
+ggplot(data=res_data, aes(x=res_df, color=type))+geom_density()+scale_color_manual(values=c("darkgreen", "darkgoldenrod1"))+unmute_theme+xlab("pearson")
 ggsave(density_f)
 
 #write.table(as.data.frame(pearson), file=pearson_f, quote=FALSE, sep="\t")

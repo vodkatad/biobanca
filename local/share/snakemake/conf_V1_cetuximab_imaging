@@ -17,10 +17,10 @@ SRC_DIR=PRJ_ROOT+'/local/src'
 DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
 ### end of common part.
-MODELS_Y='../cetuxi_perc_w3.tsv'
-MODELS_X='../pdo_cetuxi.tsv'
+MODELS_Y='../cetuxi_perc_w3_buoni.tsv'
+MODELS_X='../pdo_cetuxi_buoni.tsv'
 WANTED_X=['imaging_5000','imaging_1250','imaging_20000']
 MERGE='case'
-YNAME='Cetuximab_dVw3'
+YNAME='TGI'
 NAME='Imaging'
 X_AUC="NA"

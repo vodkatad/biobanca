@@ -22,3 +22,17 @@ CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_
 ### end of common part.
 ATP=DATA+'/PDO_CTG.txt'
 IMAGING=DATA+'/PDO_imaging.txt'
+BUONI = "../../../local/share/data/biobanca_pdo_buoni.tsv"
+
+MODELS_Y='cetuxi_perc_w3_buoni.tsv'
+MODELS_X='pdo_cetuxi_buoni.tsv'
+
+rule filter_w3_cetuxi:
+    input: pdo_cet = "cetuxi_perc_w3.tsv", buoni = BUONI
+    output: res = "cetuxi_perc_w3_buoni.tsv"
+    script: SRC_DIR+"/filter_pdocetuxi.R"
+
+rule filter_pdo_cetuxi:
+    input: pdo_cet = "pdo_cetuxi.tsv", buoni = BUONI
+    output: res = "pdo_cetuxi_buoni.tsv"
+    script: SRC_DIR+"/filter_pdocetuxi.R"

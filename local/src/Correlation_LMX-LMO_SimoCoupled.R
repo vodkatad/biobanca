@@ -30,6 +30,8 @@ names(vsd) <- gsub('.', '-', names(vsd), fixed = TRUE)
 rownames(vsd) <- str_remove(rownames(vsd), 'H_')
 
 d <- vsd[,names(vsd) %in% meda$sample_id]
+
+save.image("pippo83.Rdata")
 ### filtering expression data: we want high sd genes but not clear outliers / not expressed genes
 ### filter not expressed genes
 means <- apply(d, 1, mean)
