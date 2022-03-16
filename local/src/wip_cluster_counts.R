@@ -13,6 +13,7 @@ table(sapply(all_pdo, has_smt, clustered_data, 'LMX'))
 
 clustered_data$shortgen <- as.character(clustered_data$shortgen)
 clustered_data <- clustered_data[clustered_data$shortgen!="CRC1451",]
+all_pdo <- unique(as.character(clustered_data$shortgen))
 
 only_one <- function(smodel, data) {
   subset <- data[data$shortgen == smodel,]
@@ -26,6 +27,34 @@ sum(ncl==1)/length(ncl)
 sum(ncl>1)/length(ncl)
 sum(ncl>1)
 
+## majority vote for cluster
+majority <- function(smodel, data) {
+  subset <- data[data$shortgen == smodel,]
+  df <- as.data.frame(table(subset$cl_id))
+  m <- max(df$Freq)
+  return(sum(df$Freq == m))
+  #return(m)
+}
+
+singlemax <- sapply(all_pdo, majority, clustered_data)
+ss <- singlemax[ncl!=1]
+ss[ss==1]
+
+majority_vote <- function(smodel, data) {
+  subset <- data[data$shortgen == smodel,]
+  df <- as.data.frame(table(subset$cl_id), stringsAsFactors=FALSE)
+  df[order(-df$Freq),]
+  return(df[1,'Var1'])
+}
+
+right_one <- lapply(all_pdo, majority_vote, clustered_data)
+names(right_one) <- all_pdo
+right_s <- 0
+for (i in seq(1, nrow(clustered_data))) {
+  if (clustered_data[i, 'cl_id'] == right_one[[clustered_data[i, 'shortgen']]]) {
+    right_s <- right_s + 1
+  }
+}
 
 
 indagine <- names(ncl[ncl>1])

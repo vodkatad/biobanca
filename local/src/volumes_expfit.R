@@ -74,9 +74,10 @@ efit_one_mouse <- function(mouse_d) {
 all_expvels <- lapply(unique(data$exp_group), efit_all_mice_expg, data )
 dfvel <- do.call(rbind, all_expvels)
 
-#ggplot(data=dfvel, aes(x=R2))+geom_histogram()+theme_bw()
-#ggplot(data=dfvel, aes(x=-log10(pval)))+geom_histogram()+theme_bw()
-#ggplot(data=dfvel, aes(x=slope))+geom_histogram()+theme_bw()
+ggplot(data=dfvel, aes(x=R2))+geom_histogram()+theme_bw()
+ggplot(data=dfvel, aes(x=-log10(pval)))+geom_histogram()+theme_bw()
+ggplot(data=dfvel, aes(x=slope))+geom_histogram()+theme_bw()
+ggplot(data=dfvel, aes(x=n_measures))+geom_histogram()+theme_bw()
 
 #dfvel <- dfvel[!is.na(dfvel$pval),] # no NA
 dfvel$padj <- p.adjust(dfvel$pval)
@@ -103,6 +104,8 @@ avg <- as.data.frame(t(all_avg))
 colnames(avg) <- c('mean','sd','nmice','ave_measures')
 rownames(avg) <- unique(dfvel_fil$expg)
 avg$modelarm <- substr(rownames(avg), 0, 12)
+
+ggplot(data=avg, aes(x=nmice))+geom_histogram()+theme_bw()
 
 write.table(avg, file=res_f, sep="\t", quote=FALSE, col.names = TRUE, row.names = TRUE)
 
@@ -163,6 +166,22 @@ m2 <- merge(ctg, ima, by="smodel")
 ggplot(data=m2, aes(x=CTG_75k, y=imaging_9_2))+geom_point()+geom_smooth(method='lm')+theme_bw()
 cor.test(m2$CTG_75k, m2$imaging_9_2, method="spearman")
 
+
+### cc with EGF
+
+cc <- read.table('/scratch/trcanmed/biobanca/local/share/data/all_CC.txt', sep="\t",header=T, comment.char="")
+colnames(cc)[1] <- 'smodel'
+colnames(cc)[5] <- 'cocomp'
+
+avg$smodel <- substr(avg$modelarm, 0, 7)
+
+#
+m <- merge(all_avg_smodel, cc, by.x='row.names', by.y="smodel")
+
+ggplot(data=m, aes(x=eslope, y=cocomp))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(m$eslope, m$cocomp, method="spearman")
+
+
 ### volumes when starting fit
 
 volume_all_mice_expg <- function(exp_group, data) {
@@ -172,7 +191,7 @@ volume_all_mice_expg <- function(exp_group, data) {
   subset_data <- subset_data[subset_data$measure_date >= interval[1] & subset_data$measure_date <= interval[2],]
   subset_data <- subset_data[order(subset_data$measure_date),]
   vels <- sapply(unique(subset_data$longen), function(x) vol_one_mouse(subset_data[subset_data$longen==x,]) )
-  res <- data.frame(volume=vels)
+  res <- data.frame(volume=vels, mouse=unique(subset_data$longen))
   res$expg <- exp_group
   return(res)
 }
@@ -186,9 +205,16 @@ vol_one_mouse <- function(mouse_d) {
     res[i,'day'] <- mouse_d[i, 'measure_date'] - mouse_d[1,'measure_date']
   }
   
-  return(res[1, 'volume'])
+  return(c(res[1, 'volume']))
 }
 
 all_vols <- lapply(unique(data$exp_group), volume_all_mice_expg, data )
 dfvol <- do.call(rbind, all_vols)
+
+#dfvol_fil <- dfvol[dfvol$volume >= 100,] # first try
+dfvol_fil <- dfvol[dfvol$volume <= 300,] # second try
+dfvol_fil <- dfvol[dfvol$volume <= 300 & dfvol$volume >=100,] # last try
+
+keep <- dfvol_fil$mouse
 ggplot(data=dfvol, aes(x=volume))+geom_histogram(binwidth=20)+theme_bw()
+ggplot(data=dfvol_fil, aes(x=volume))+geom_histogram(binwidth=20)+theme_bw()
