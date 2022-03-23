@@ -149,6 +149,20 @@ m <- merge(all_avg_smodel, ctg, by.x='row.names', by.y="smodel")
 ggplot(data=m, aes(x=eslope, y=CTG_75k))+geom_point()+geom_smooth(method='lm')+theme_bw()
 cor.test(m$eslope, m$CTG_75k, method="spearman")
 
+# 
+kio <- read.table('/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/LMO_BASALE-MKI67_tmm_ave.tsv', sep="\t", header=T)
+kix <- read.table('/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5_starOK_selected/LMX_BASALE-MKI67_tmm_ave.tsv', sep="\t", header=T)
+colnames(kio) <- c('MKI67', 'smodel')
+colnames(kix) <- c('MKI67', 'smodel')
+mx <- merge(all_avg_smodel, kix, by.y="smodel", by.x="row.names")
+
+ggplot(data=mx, aes(x=MKI67, y=eslope))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(mx$eslope, mx$MKI67, method="spearman")
+
+mo <- merge(ctg, kio, by="smodel")
+ggplot(data=mo, aes(x=MKI67, y=CTG_75k))+geom_point()+geom_smooth(method='lm')+theme_bw()
+cor.test(mo$CTG_75k, mo$MKI67, method="spearman")
+
 ### imaging
 ima <- read.table('/scratch/trcanmed/biobanca/local/share/data/imaging_ratio9_2_NT.txt', sep="\t",header=T, comment.char="")
 colnames(ima)[1] <- 'smodel'
