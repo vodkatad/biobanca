@@ -1,0 +1,76 @@
+include: './conf.sk'
+
+# Initial AF plots/N muts both for all muts and filtered via PCGR tiers, producing filtered AF tables and log of n samples.
+rule initial_plots_filter_good:
+    input: xenoAF=MUTECT_DIR+'pdx'+ALLFIX,
+            pdoAF=MUTECT_DIR+'pdo'+ALLFIX,
+            xenoWAF=MUTECT_DIR+'pdx'+TIERSFIX,
+            pdoWAF=MUTECT_DIR+'pdo'+TIERSFIX,
+            good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv',
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: freqAll="freq_all.pdf", freqTiers="freq_alltiers.pdf", histTiers="hist_alltiers.pdf", histAll="hist_all.pdf", pdoTiers="pdo_alltiers.tsv", xenoTiers="xeno_alltiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    log: log="starting_log.txt"
+    script: SRC_DIR+"/targeted_plots_filterGOOD.R"
+
+rule n_muts:
+    input: pdoTiers="pdo_alltiers.tsv", xenoTiers="xeno_alltiers.tsv", Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: histTiers="hist_alltiers_af{AF}.pdf"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    script: SRC_DIR+"/N_muts.R"
+
+
+#egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/targeted$ diff <(head -n1 pdo_tiers.tsv | tr "\t" "\n")  <(head -n1 xeno_tiers.tsv | tr "\t" "\n")
+rule freqs_tcga_msk:
+    input: pdoTiers="pdo_alltiers.tsv", xenoTiers="xeno_alltiers.tsv",
+            xenoGenes=MUTECT_DIR+'pdx'+GENESFIX,
+            pdoGenes=MUTECT_DIR+'pdo'+GENESFIX,
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata',
+            msk=MSK,
+            tcga=TCGA
+    output: TCGAMSK_xeno="TCGAMSK_xeno_{AF}.pdf",
+            TCGAMSK_pdo="TCGAMSK_pdo_{AF}.pdf",
+            TCGAMSK_xeno_zoom="TCGAMSK_xenozoom_{AF}.pdf",
+            TCGAMSK_pdo_zoom="TCGAMSK_pdozoom_{AF}.pdf",
+            preprocGeneAF="preprocGeneAF_{AF}.Rdata"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    log: log="TCGAMSK_xeno_{AF}.log"
+    script: SRC_DIR+"/targeted_freqs.R"
+
+rule oncoprint:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: op="oncoprint_all_{AF}.pdf", op_data="oncoprint_all_{AF}.RData", pie="oncoprint_pie_all_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff.R"
+
+
+# here AF thr not considered
+rule jaccard_mut_sim:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
+    script: SRC_DIR+"/jaccard_mut_sim.R"
+
+rule AF_imbalance:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: ttest="AF_imbalance_test_{AF}.tsv", plots=directory("AF_imbalance_{AF}_plots")
+    log: log="AF_imbalance_log_{AF}.log"
+    params: muts_thr=5
+    script: SRC_DIR+"/AF_imbalance.R"
+
+# probably experimenting more with ggarrange and pdf one could avoid the pdftk step
+rule AF_imbalance_overall:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', genes='AF_imbalance_test_{AF}.tsv'
+    output: ttest="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots"), muts_thr=5
+    script: SRC_DIR+"/AF_imbalance_overall.R"
+
+rule AF_combine_pdf:
+    input: placeholder_for_pdf="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots")
+    output: "AF_imbalance_all_{AF}.pdf"
+    shell: 
+        """
+            pdftk {params.plots}/*pdf cat output {output}
+        """
+

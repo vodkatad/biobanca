@@ -174,3 +174,5 @@ write.table(data.frame('exp'=rownames(res), res), file=output2, sep="\t", row.na
 # We need to get  the WT line to start with, therefore:
 # CRC0177 EGFR wt 4PLE WT (ALTRO PDX EGFR G465R)  N.A.    0.2656153766961849
 # For Livio we keep this one, for Biobanca we need to plug back in the WT.
+
+save.image('pluto.Rdata')

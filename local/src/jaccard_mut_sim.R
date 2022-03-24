@@ -12,7 +12,7 @@ mw_f <- snakemake@output[['mw']]
 
 load(snakemake@input[['Rimage']])
 
-
+save.image("paperoga.Rdata")
 # we need to fill with 0 missing muts
 m1 <- merge(pdx, pdo, all.x = TRUE, all.y = TRUE, by='row.names')
 rownames(m1) <- m1$Row.names

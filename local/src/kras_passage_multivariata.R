@@ -1,3 +1,7 @@
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+
 txt <- "/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt"
 txt <- read.table(txt, quote= "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
@@ -45,3 +49,4 @@ res$validated <- as.factor(res$validated)
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
 fit.kras <- glm(validated ~ KRAS + passage, data=res,family=binomial())
+plot_model(fit.kras)

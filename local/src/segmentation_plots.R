@@ -1,7 +1,8 @@
 # TODO put in Snakemake with correct dependencies and input files and split xeno/pdo with wildcard
 # get wanted list of models from input files or wildcard?
 library(QDNAseq)
-wanted <- c('CRC1449','CRC1917','CRC1337', 'CRC1342' ,'CRC1563', 'CRC1566')
+#wanted <- c('CRC1449','CRC1917','CRC1337', 'CRC1342' ,'CRC1563', 'CRC1566')
+wanted <- c('CRC1888')
 
 setwd('/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/shallowseq/cn_plots')
 

@@ -58,6 +58,7 @@ rule add_no_replicates:
 # thr4 ...
 # add wildcard to outfile and out_dir
 # add parameter to Correlations_LMO_LMX-v2 to get the threshold ({wildcards.thr})
+# we don't need to eliminate wrong CRC177 with coppie Simo because all PDO are from LMX0B and we have LMX0A
 
 rule correlation_LMO_LMX:
     input: lmx='LMX_BASALE_mean_gene_genealogyall.tsv.gz',
@@ -80,14 +81,24 @@ rule correlation_LMX_LMO_simo:
             {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile}
         """
 
+rule cor_pdo_buoni_filter:
+    input: simo_cor = "LMX-LMO_correlation_simo.tsv.gz", pdo = BUONI
+    output: res = "LMX-LMO_correlation_simo_buoni.tsv.gz"
+    script: SRC_DIR+"/correlation_pdo_filter.R"
+
 rule pheatmap:
     input: correlation_matrix="LMX-LMO_correlation_simo.tsv.gz"
-    output: pheatmap="pheatmap_correlation.png"
+    output: pheatmap="pheatmap_correlation.pdf"
+    script: SRC_DIR+'/pheatmap.R'
+
+rule pheatmap_buoni:
+    input: correlation_matrix="LMX-LMO_correlation_simo_buoni.tsv.gz"
+    output: pheatmap="pheatmap_correlation_buoni.pdf"
     script: SRC_DIR+'/pheatmap.R'
 
 rule pheatmap_all:
     input: correlation_matrix="LMX-LMO_correlation_smodelCoupled.tsv"
-    output: pheatmap="pheatmap_correlation_smodel.png"
+    output: pheatmap="pheatmap_correlation_smodel.pdf"
     script: SRC_DIR+'/pheatmap.R'
 
 
@@ -102,6 +113,10 @@ rule obtain_density_plot_wilcox_simo:
     output: density_plot = "density_f_simo.pdf", wilcox_result ="wilcox_simo"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
+rule obtain_density_plot_wilcox_simo_buoni:
+    input: res="LMX-LMO_correlation_simo_buoni.tsv.gz"
+    output: density_plot = "density_f_simo_buoni.pdf", wilcox_result ="wilcox_simo_buoni"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
 
 ### Study genes with high studentized residuals in correlations
@@ -420,7 +435,7 @@ rule correlation_LMO_LMX_buoni:
 
 rule pheatmap_all_buoni:
      input: correlation_matrix="LMX-LMO_correlation_smodelCoupled_buoni.tsv"
-     output: pheatmap="pheatmap_correlation_smodel_buoni.png"
+     output: pheatmap="pheatmap_correlation_smodel_buoni.pdf"
      script: SRC_DIR+'/pheatmap.R'
 
 

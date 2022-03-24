@@ -17,9 +17,10 @@ save.image("pippo.Rdata")
 #setwd('/scratch/trcanmed/biobanca/local/share/data/cetuxi')
 #tgi_xlsx <-'aggregati_TGI_fixed0.xlsx'
 
-d <- read.xlsx(tgi_xlsx, sheet="aggregati_all")
+d <- read.xlsx(tgi_xlsx, sheet="aggregati_all", colNames = TRUE, rowNames = FALSE)
 names(d)[names(d) == 'TGI%(Median)'] <- 'TGI_Median'
 names(d)[names(d) == 'TGI%(Average)'] <- 'TGI_Average'
+d$GenID <- ifelse(is.na(d$GenID),"",d$GenID)
 
 WCOL = classes
 
@@ -29,8 +30,17 @@ WCOL = classes
 d <- d[-seq(763, 774),]# repeated CRC0177 friends 403 414
 d <- d[-seq(403, 414),] # repeated CRC0177 friends
 
+#d <- d[!d$GenID == "CRC0177LMX0C03",]
+#d <- d[!d$GenID == "CRC0177LMX0D03",]
+#d <- d[!d$GenID == "CRC0177LMX0E03",]
+
+## eliminate M040SX_CRC0030LMX0A, CRC0166LMXB, CRC1723LMXA
+d <- d[d$GenID != "CRC0030LMX0A",]
+d <- d[!d$GenID == "CRC0166LMX0B",]
+d <- d[!d$Nome.Gruppo.LAS == "CRC1723LMX0A.2018-09-14.0",]
+
 ## need to fill in missing GenID in the middle of their blocks
-d[is.na(d$GenID),'GenID'] <- "" # previous loading from tsv had "", with read.xlsx NAs 
+#d[is.na(d$GenID),'GenID'] <- "" # previous loading from tsv had "", with read.xlsx NAs 
 previous <- ''
 stretch <- c()
 for (i in seq(1, nrow(d))) {

@@ -6,7 +6,7 @@ op_data_f <- snakemake@output[['op_data']]
 pie_f <- snakemake@output[['pie']]
 load(snakemake@input[['Rimage']])
 #eval(parse(text=myriad))
-
+save.image("pippo.Rdata")
 mergemut <- merge(pdobing, pdxbing, by="row.names")#, all.x=TRUE, all.y=TRUE, fill=FALSE) # no need all the same genes:
 #> setdiff(rownames(pdo_df), rownames(xeno_df))
 #character(0)
@@ -95,7 +95,7 @@ su <- su[order(-su)]
 #oncoPrint(mat_list2, alter_fun = alter_fun, col = col)
 op <- oncoPrint(mat_list, alter_fun = alter_fun, col = col, column_order = names(su),
                 remove_empty_columns = TRUE, remove_empty_rows = TRUE, pct_gp=gpar(fontsize=5), column_names_gp=gpar(fontsize=5),
-                top_annotation = HeatmapAnnotation(cbar = anno_oncoprint_barplot(), =gpar(fontsize=5)))
+                top_annotation = HeatmapAnnotation(cbar = anno_oncoprint_barplot(), annotation_name_gp=gpar(fontsize=5)))
 
 #oncoPrint(mat_list2,
 #          alter_fun = alter_fun, col = col, top_annotation = HeatmapAnnotation(cbar = anno_oncoprint_barplot(),
