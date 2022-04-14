@@ -17,7 +17,7 @@ simo <- read.table(gzfile(opt$simo), sep='\t', quote="", header=TRUE, stringsAsF
 cris <- read.table(gzfile(opt$cris), sep='\t', quote="", header=TRUE, stringsAsFactors = FALSE)
 meda <- read.table(gzfile(opt$meda), sep='\t', quote="", header=TRUE, stringsAsFactors = FALSE)
 
-df <- merge(cris, meda, by.x=names(cris)[1], by.y=names(meda)[1]) # 14 filtrati
+df <- merge(cris, meda, by.x=names(cris)[1], by.y=names(meda)[1]) # 14 filtrati (TODO XXX colpa dei .?)
 df[is.na(df)] <- ""
 
 df <- df[df$BH.FDR<0.2,] # 140 filtered on reliable classification

@@ -144,9 +144,9 @@ rule cris_classes_with_nc_vsd:
 
 rule get_model_cris_simo:
     input: simo="SIMO_v2.tsv", pdx="vsd_cris_LMX_BASALE_prediction_result_nc.tsv", pdo = "vsd_cris_LMO_BASALE_prediction_result_nc.tsv"
-    output: right="vsd_model_cris-right.tsv", wrong="vsd_model_cris-wrong.tsv"
+    output: right="vsd_model_cris-right.tsv", wrong="vsd_model_cris-wrong.tsv", lineage = "chosen_lineage.tsv"
     log: "model_cris.log"
-    script: SRC_DIR+ '/CRIS_simo.R'
+    script: SRC_DIR+ '/CRIS_simo_wip2.R'
 
 
 rule true_simo:

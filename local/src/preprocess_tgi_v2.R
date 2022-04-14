@@ -29,10 +29,10 @@ WCOL = classes
 # 416-427
 d <- d[-seq(763, 774),]# repeated CRC0177 friends 403 414
 d <- d[-seq(403, 414),] # repeated CRC0177 friends
-
-#d <- d[!d$GenID == "CRC0177LMX0C03",]
-#d <- d[!d$GenID == "CRC0177LMX0D03",]
-#d <- d[!d$GenID == "CRC0177LMX0E03",]
+d <- d[!d$GenID == "CRC0177LMX0C03",]
+d <- d[!d$GenID == "CRC0177LMX0D03",]
+d <- d[!d$GenID == "CRC0177LMX0E03",]
+d <- d[!d$GenID == "CRC0177LMX0B",]
 
 ## eliminate M040SX_CRC0030LMX0A, CRC0166LMXB, CRC1723LMXA
 d <- d[d$GenID != "CRC0030LMX0A",]

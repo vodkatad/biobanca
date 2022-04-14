@@ -156,7 +156,7 @@ compute_lm <- function(xcol, data, ycol) {
     return(c(pval, r2, ar2,ll, cc$estimate))
 }
 
-compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
+#compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
 res <- compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
 #res <- t(sapply(xcolumns, compute_lm, mdata, yname))
 res <- t(as.data.frame(res))

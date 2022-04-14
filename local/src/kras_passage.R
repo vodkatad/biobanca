@@ -1,3 +1,5 @@
+library(ggplot2)
+library(dplyr)
 txt <- "/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt"
 txt <- read.table(txt, quote= "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
@@ -24,4 +26,3 @@ tfra$model <- rownames(tfra)
 
 merged <- merge(tfra, casi, by= "model")
 ggplot(data=merged, aes(x=KRAS))+geom_bar()+theme_bw()
-

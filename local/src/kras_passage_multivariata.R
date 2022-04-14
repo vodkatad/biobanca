@@ -50,3 +50,17 @@ fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
 fit.kras <- glm(validated ~ KRAS + passage, data=res,family=binomial())
 plot_model(fit.kras)
+
+status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
+                     sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+res2 <- res
+names(res2)[names(res2) == 'model'] <- 'CASE'
+
+merged <- merge(res2, status, by = "CASE")
+engraf <- as.data.frame(cbind(merged$CASE, merged$KRAS, merged$passage, merged$DERIVATION..successful.failed.))
+colnames(engraf) <- c("model", "KRAS", "passage", "derivation")
+engraf$passage <- as.numeric(engraf$passage)
+engraf$model <- as.character(engraf$model)
+
+fit.engraf <- glm(derivation ~ passage + KRAS, data=engraf, family=binomial())
+plot_model(fit.engraf)

@@ -74,7 +74,7 @@ lmx <- lmx[,names(lmx) %in% simo$LMX_lineage]
 #> length(unique(substr(simo$LMX_lineage,0,7)))
 #[1] 55
 # Since we do not have replicates at the smodel level in Simo's right pairs we
-# can safely substr right now and now that we do not have repetitions that will
+# can safely substr right now and know that we do not have repetitions that will
 # mess things up.
 colnames(lmo) <- substr(colnames(lmo),0,7)
 colnames(lmx) <- substr(colnames(lmx),0,7)

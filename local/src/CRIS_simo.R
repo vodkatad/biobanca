@@ -6,6 +6,8 @@ simo_in <- snakemake@input[["simo"]]
 lmx_in <- snakemake@input[["pdx"]]
 lmo_in <- snakemake@input[["pdo"]]
 
+save.image("linage.R")
+
 simo <- read.table(simo_in, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 lmx <- read.table(lmx_in, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 lmo <- read.table(lmo_in, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
