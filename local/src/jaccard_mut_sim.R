@@ -29,13 +29,13 @@ colnames(mo) <- substr(colnames(mo), 0, 7)
 jac <- proxy::simil(mx, mo, by_rows = FALSE, method = "Jaccard")
 
 pdf(pheat_f, family="sans")#, height=1.9, width=1.9)
-ph <- pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50), legend=FALSE)#, border_color = NA)
+ph <- pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDO", labels_row="PDX", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50), legend=FALSE, border_color = "gray90" )
 #ph
 #graphics.off()
 #pdf('urffa.pdf')
 # found were to tweak it setting the color as darkgoldenrod and
 # looking inside the objects
-ph$gtable[[1]][[1]]$children[[1]]$gp$lwd <- 0.5
+ph$gtable[[1]][[1]]$children[[1]]$gp$lwd <- 0.001
 ph
 graphics.off()
 

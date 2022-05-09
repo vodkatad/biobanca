@@ -38,3 +38,48 @@ rule anova_two_ways:
     input: drugs_tables = DRUG_NORM
     output: anova = "anova_2ways.tsv", out_dir=directory('plot_anova_2ways')
     script: SRC_DIR+'/Anova2ways.R'
+
+
+#Anova Test for second round 
+
+rule anova_drugs_long:
+    input: drugs_tables = DRUG_2
+    output: anova = "anova_long.tsv", out_dir=directory('plot_anova_long')
+    script: SRC_DIR+'/anova_drugs_long.R'
+
+# rule get_delta_max:
+#     input: anova = "anova.tsv", drugs_tables = DRUG
+#     output: res_models_drugs = "res_models_drugs.tsv"
+#     script: SRC_DIR+'/DELTAmax.R'
+
+# rule get_heatmap:
+#     input: res_models_drugs_f = "res_models_drugs.tsv"
+#     output: out_dir=directory('plot_heatmap')
+#     script: SRC_DIR+'/heatmapscore.R'
+
+# #Anova test normalized
+
+# rule anova_drugs_norm:
+#     input: drugs_tables = DRUG_NORM
+#     output: anova = "anova_norm.tsv", out_dir=directory('plot_anova_norm')
+#     script: SRC_DIR+'/anova_drugs.R'
+
+# rule get_delta_max_norm:
+#     input: anova = "anova_norm.tsv", drugs_tables = DRUG
+#     output: res_models_drugs = "res_models_drugs_norm.tsv"
+#     script: SRC_DIR+'/DELTAmax.R'
+
+# rule get_heatmap_norm:
+#     input: res_models_drugs_f = "res_models_drugs_norm.tsv"
+#     output: out_dir=directory('plot_heatmap_norm')
+#     script: SRC_DIR+'/heatmapscore.R'
+
+# rule anova_two_ways:
+#     input: drugs_tables = DRUG_NORM
+#     output: anova = "anova_2ways.tsv", out_dir=directory('plot_anova_2ways')
+#     script: SRC_DIR+'/Anova2ways.R'
+
+rule heatmap_both_anova:
+    input: anova = "anova.tsv", anova_long = "anova_long.tsv"
+    output: h_anova = "heatmap_anova_first_drscr.png", h_long = "heatmap_anova_long_drscr.png"
+    script: SRC_DIR+"/heatmap_anova_drscr.R"

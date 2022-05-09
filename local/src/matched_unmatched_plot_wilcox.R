@@ -31,7 +31,7 @@ matched <- diag(as.matrix((res_df))) ### diag vuole la matrice perchè non conve
 unmatched <- c(res_df[upper.tri(res_df)], res_df[lower.tri(res_df)])
 
 res_data <- data.frame(res_df=c(unmatched, matched), type=c(rep('unmatched', length(unmatched)), rep('matched', length(matched))))
-ggplot(data=res_data, aes(x=res_df, color=type))+geom_density()+scale_color_manual(values=c("darkgreen", "darkgoldenrod1"))+unmute_theme+xlab("pearson")
+ggplot(data=res_data, aes(x=res_df, color=type))+geom_density()+xlim(c(0,1))+scale_color_manual(values=c("darkgreen", "darkgoldenrod1"))+unmute_theme+xlab("pearson")+theme(legend.position="none")
 ggsave(density_f)
 
 #write.table(as.data.frame(pearson), file=pearson_f, quote=FALSE, sep="\t")
