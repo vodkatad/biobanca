@@ -4,7 +4,7 @@ include: 'conf.sk'
 
 rule anova_drugs:
     input: drugs_tables = DRUG
-    output: anova = "anova.tsv", out_dir=directory('plot_anova')
+    output: anova = "anova.tsv", max_drug = "max_drug_value.tsv",out_dir=directory('plot_anova')
     script: SRC_DIR+'/anova_drugs.R'
 
 rule get_delta_max:
@@ -80,6 +80,6 @@ rule anova_drugs_long:
 #     script: SRC_DIR+'/Anova2ways.R'
 
 rule heatmap_both_anova:
-    input: anova = "anova.tsv", anova_long = "anova_long.tsv"
-    output: h_anova = "heatmap_anova_first_drscr.png", h_long = "heatmap_anova_long_drscr.png"
+    input: anova = "anova.tsv", anova_long = "anova_long.tsv", anova_norm = "anova_norm.tsv"
+    output: h_anova = "heatmap_anova_first_drscr.pdf", h_long = "heatmap_anova_long_drscr.pdf", h_anova_norm = "heatmap_anova_norm.pdf"
     script: SRC_DIR+"/heatmap_anova_drscr.R"
