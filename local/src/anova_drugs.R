@@ -7,12 +7,14 @@ library(tidyverse)
 # get dir and tsv from snakemake inputs
 drugs_tables <- snakemake@input[["drugs_tables"]]
 anova_f <- snakemake@output[["anova"]]
+max_value_drug <- snakemake@output[["max_drug"]]
 out_dir <- snakemake@output[["out_dir"]]
 models <- c('CRC0322','CRC0327','CRC1331','CRC1272','CRC0059')
 # TODO fit back in SBI exp n.3 CRC0322
 
 #save.image("anova_long.Rdata")
 anova_pvals <- data.frame() #col.names=c('MODEL','DRUG','CONDITION','PVALUE')
+max_value_df <- data.frame()
 
 # do we need to create dir or does snakemake take care of it?
 if (dir.exists(out_dir)) {
@@ -20,8 +22,6 @@ if (dir.exists(out_dir)) {
 } else {
    dir.create(out_dir)
 }
-
-
 
 setwd(out_dir)
 
@@ -43,6 +43,12 @@ for (i in seq(1, length(models))) {
       w_condition <- conditions[k]
       
       subset <- data[data$DRUG == w_drug & data$CONDITION == w_condition, grepl('DOSE', colnames(data))]
+      
+      max_value <- mean((subset$DOSE_1 - subset$DOSE_5) / subset$DOSE_1)
+      
+      res1 <- c(models[i], drugs[j], conditions[k], max_value)
+      
+      max_value_df <- rbind(max_value_df, res1, stringsAsFactors=FALSE)
       
       long <- melt(subset)
       # 
@@ -83,6 +89,7 @@ for (i in seq(1, length(models))) {
 
 
 colnames(anova_pvals) <- c('MODEL','DRUG','CONDITION','PVALUE')
+colnames(max_value_df) <- c('MODEL','DRUG','CONDITION','MAX_VALUE')
 
 save.image("combo.Rdata")
 ### rimuovo le combo PERCHé NON SONO MAI STATE FATTE
@@ -90,8 +97,16 @@ save.image("combo.Rdata")
 anova_pvals <- anova_pvals %>% filter(!CONDITION == "Combo")
 anova_pvals$padj <- p.adjust(anova_pvals$PVALUE, method="BH")
 
+max_value_df <- max_value_df %>% filter(!CONDITION == "Combo")
+max_value_df$MAX_VALUE <- as.numeric(max_value_df$MAX_VALUE)
+max_value_df <- max_value_df[order(-max_value_df$MAX_VALUE),]
+
 setwd('..')
-write.table(anova_pvals, file = anova_f, quote = FALSE, sep = "\t", row.names = TRUE,
+write.table(anova_pvals, file = anova_f, quote = FALSE, sep = "\t", row.names = FALSE,
             col.names = TRUE)
+
+write.table(max_value_df, file = max_value_drug, quote = FALSE, sep = "\t", row.names = FALSE,
+            col.names = TRUE)
+
 
 # output: anova="anova_pvals.tsv", dir=directory('plots')

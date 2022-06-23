@@ -55,7 +55,7 @@ freqs_del$event <- 'del'
 freqs <- rbind(freqs_amp, freqs_del)
 
 plot <- ggplot(data=freqs, aes_string(x='TCGA', y=kind, color='event'))+rasterise(geom_point(alpha=0.5, size=0.1), dpi=300)+geom_smooth(method='lm', size=0.2)+
-        scale_color_manual(values=c('#c84440','#185492'))
+        xlim(c(0,0.8)) + scale_color_manual(values=c('#c84440','#185492'))
 #plot <- ggplot(data=freqs, aes_string(x='TCGA', y=kind, color='event'))+geom_point(alpha=0.5, size=0.2)+geom_smooth(method='lm', size=0.2)+
 #        scale_color_manual(values=c('#c84440','#185492'))
 

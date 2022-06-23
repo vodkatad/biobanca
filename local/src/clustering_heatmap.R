@@ -46,7 +46,7 @@ dist_pearson <- as.dist(1-cor(expr_selected, method="pearson"))
 
 d <- dist(df, method = "euclidean")
 
-Hierarchical clustering using Complete Linkage
+#Hierarchical clustering using Complete Linkage
 hc1 <- hclust(dist_pearson, method = "complete" )
 
 smodels <- unique(substr(colnames(expr_selected),0,7))

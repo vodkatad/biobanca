@@ -353,3 +353,12 @@ sink(log_f, append=TRUE)
 print(paste0("N sample in correct cluster: ", right_s))
 print(paste0("N sample: ", nrow(clustered_data)))
 sink()
+
+## quali modelli correlano poco con gli altri
+
+cors2 <- cors
+meancors <- as.data.frame(rowMeans(cors2))
+meancors$genealogy <- rownames(meancors)
+meancors <- as.data.frame(meancors[order(meancors$`rowMeans(cors2)`, decreasing = FALSE),])
+meancors$genealogy <- NULL
+write.table(meancors, file = "/home/mferri/medie_correlazioni.tsv", quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
