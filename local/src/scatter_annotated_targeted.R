@@ -11,7 +11,7 @@ mut_f <- args[7]
 cn_f <- args[8]
 Rimage <- args[9]
 output2 <- args[10]
-
+annot_f <- args[11]
 
 load(Rimage)
 
@@ -31,10 +31,10 @@ cn <- read.table(cn_f, sep="\t", header=TRUE, stringsAsFactors = FALSE)
 load(mut_f) # pdobing is a T/F matrix with genes on rows and models on cols TODO use only KNOWN MUTS! TODO
 # here we have CRC0177 with the genotypes kept for molecular analyses (PDO is EGFR mutated, PDX is wt)
 uniqued_mut <- t(pdobing)
-uniqued_mut <- uniqued_mut[, colnames(uniqued_mut) %in% c('KRAS', 'BRAF')]
+uniqued_mut <- uniqued_mut[, colnames(uniqued_mut) %in% c('KRAS', 'BRAF', 'NRAS')]
 uniqued_mut <- ifelse(uniqued_mut, 'MUT', 'WT')
 
-threewt <- as.data.frame(apply(uniqued_mut[,c('KRAS', 'BRAF')], 1, function(x) {any(x!="wt")}))
+threewt <- as.data.frame(apply(uniqued_mut[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="wt")}))
 colnames(threewt) <- 'tf'
 threewt$smodel <- row.names(threewt)
 threewt$triple_wt <- ifelse(threewt$tf, 'MUT', 'WT')
@@ -51,9 +51,17 @@ merge_pdata$Row.names <- NULL
 merge_pdata2 <- merge(merge_pdata, uniqued_mut, by="row.names", all.x=TRUE)
 # apply(merge_pdata2, 2, class) ?? character why
 #infofour <- apply(merge_pdata2[,c('KRAS', 'NRAS', 'BRAF', 'PIK3CA')], 1, function(x) {any(x!="wt")})
-infofour <- apply(merge_pdata2[,c('KRAS', 'BRAF')], 1, function(x) {any(x!="WT")})
+infofour <- apply(merge_pdata2[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="WT")})
 merge_pdata2$triple_wt <- ifelse(infofour, 'MUT', 'WT') 
 
+if (! all(merge_pdata2[merge_pdata2$ERBB2 != "WT", "triple_wt"] == "WT") ) {
+  stop('I cannot use a single color for ERBB2 and triple WT!')
+}
+
+merge_pdata2$alterations <- ifelse(merge_pdata2$ERBB2 != "WT", "ERBB2", merge_pdata2$triple_wt)
+merge_pdata2[merge_pdata2$alterations == "MUT", 'alterations'] <- "KRAS/NRAS/BRAF"
+
+write.table(merge_pdata2, file=annot_f, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
 save.image('pippa.Rdata')
 # there is a NA for PI3KCA but it has a KRAS mutation so that's fine
 lmp <- function(model) {
@@ -68,17 +76,18 @@ lmp <- function(model) {
 
 ggplotRegression <- function(fit, data, name) {
   print(ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-          geom_point(data=data, aes(color=triple_wt, size=as.factor(ERBB2))) +
+          geom_point(data=data, aes(color=alterations)) +
           stat_smooth(method = "lm", col = "darkgrey") +
           labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
                              " P =",signif(summary(fit)$coef[2,4], 5)))+
           theme_bw()+theme(text = element_text(size=15))+
           #scale_fill_manual(values=c('red', 'blue'))+
           #scale_colour_manual(values=c('red', 'black'))+
-          scale_colour_manual(values=c('red', 'blue'))+
-          scale_shape_manual(values=c(15, 19))+
-          scale_size_manual(values=c(4, 2)) +
-          labs(color="KRAS/BRAF", size="ERBB2"))
+          scale_colour_manual(values=c('darkorange', 'darkred', 'grey40'))+
+          #scale_shape_manual(values=c(15, 19))+
+          #scale_size_manual(values=c(4, 2)) +
+          labs(color="Relevant somatic alterations") +
+          theme(legend.position = "none"))
           #guides(fill = guide_legend(override.aes = list(shape = 19)),
           #       colour = guide_legend(override.aes = list(shape = 19))))
   #https://stackoverflow.com/questions/48043453/wrong-fill-values-in-a-ggplot2-legend

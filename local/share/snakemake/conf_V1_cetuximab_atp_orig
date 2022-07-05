@@ -52,11 +52,11 @@ TARGETED=PRJ_ROOT+"/dataset/V1/targeted/preprocGeneAF_0.05.Rdata"
 rule scatterplot_annot_targeted:
     input: x=MODELS_X, y=MODELS_Y, mut=TARGETED, cn=FRA_CN,
            Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
-    output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv"
+    output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv", annot="targeted_annot.tsv"
     params: tool=BIN_DIR+'/scatter_annotated_targeted', prefix=NAME, merge=MERGE, yname=YNAME
     shell:
         """
-            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {output.stats}
+            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {output.stats} {output.annot}
         """
 
 # rule model_remove_highCV:
