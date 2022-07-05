@@ -39,7 +39,7 @@ else:
 # here scatter.tsv is no longer the log it says to be.
 rule scatterplot_annot:
     input: x=MODELS_X, y=MODELS_Y, mut=FRA_MUT, cn=FRA_CN,
-           Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
     output: plot='scatter.pdf', threewt="threewt.tsv"
     log: "scatter.tsv" # will store rare cases when making CN or muts info unique they were not consistent (we randomly kept one)
     params: tool=BIN_DIR+'/scatter_annotated', prefix=NAME, merge=MERGE, yname=YNAME
@@ -51,7 +51,7 @@ rule scatterplot_annot:
 TARGETED=PRJ_ROOT+"/dataset/V1/targeted/preprocGeneAF_0.05.Rdata"
 rule scatterplot_annot_targeted:
     input: x=MODELS_X, y=MODELS_Y, mut=TARGETED, cn=FRA_CN,
-           Rimage=PRJ_ROOT+'/dataset/V1/theme_9.Rdata'
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
     output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv", annot="targeted_annot.tsv"
     params: tool=BIN_DIR+'/scatter_annotated_targeted', prefix=NAME, merge=MERGE, yname=YNAME
     shell:

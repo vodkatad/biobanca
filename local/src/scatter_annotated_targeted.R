@@ -76,23 +76,25 @@ lmp <- function(model) {
 
 ggplotRegression <- function(fit, data, name) {
   print(ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-          geom_point(data=data, aes(color=alterations)) +
-          stat_smooth(method = "lm", col = "darkgrey") +
+          geom_point(data=data, aes(color=alterations), size=0.1) +
+          stat_smooth(method = "lm", col = "darkgrey", size=0.2) +
           labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
                              " P =",signif(summary(fit)$coef[2,4], 5)))+
-          theme_bw()+theme(text = element_text(size=15))+
+          #theme_bw()+theme(text = element_text(size=15))+
           #scale_fill_manual(values=c('red', 'blue'))+
           #scale_colour_manual(values=c('red', 'black'))+
           scale_colour_manual(values=c('darkorange', 'darkred', 'grey40'))+
           #scale_shape_manual(values=c(15, 19))+
           #scale_size_manual(values=c(4, 2)) +
-          labs(color="Relevant somatic alterations") +
+          #scale_x_continuous(breaks=c(0, 0.3, 0.6, 0.9, 1.2), limits=c(0, 1.2))+
+          #scale_x_continuous(breaks=c(0.1, 0.3, 0.6, 0.9, 1.2))+
+          labs(color="Relevant somatic alterations") + unmute_theme + # )
           theme(legend.position = "none"))
           #guides(fill = guide_legend(override.aes = list(shape = 19)),
           #       colour = guide_legend(override.aes = list(shape = 19))))
   #https://stackoverflow.com/questions/48043453/wrong-fill-values-in-a-ggplot2-legend
           #ggsave(paste0(name, ".svg"))
-          ggsave(output)
+          ggsave(output, height=2.5, width=2.5, units='in')
 }
 
 
