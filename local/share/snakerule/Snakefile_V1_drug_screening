@@ -83,3 +83,8 @@ rule heatmap_both_anova:
     input: anova = "anova.tsv", anova_long = "anova_long.tsv", anova_norm = "anova_norm.tsv"
     output: h_anova = "heatmap_anova_first_drscr.pdf", h_long = "heatmap_anova_long_drscr.pdf", h_anova_norm = "heatmap_anova_norm.pdf"
     script: SRC_DIR+"/heatmap_anova_drscr.R"
+
+rule heatmap_score_show_anovapval:
+    input: max_inh="max_drug_value.tsv", anova="anova.tsv"
+    output: heatmap="heatmap_max_inhibition_score.pdf"
+    script: SRC_DIR+"/heatmaps_drug_screening.R"
