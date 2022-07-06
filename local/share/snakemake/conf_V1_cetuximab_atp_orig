@@ -69,3 +69,10 @@ rule scatterplot_annot_targeted:
 #             {params.tool} {output}.tmp {input.y} {output} {params.prefix} {params.xs} {params.merge} {params.yname}
 #             rm {output}.tmp
 #         """
+
+
+rule auc_r:
+    input: input_auc="input_auc.tsv", targeted_annot="targeted_annot.tsv"
+    output: auc_all="auc_all.pdf", auc_wt="auc_wt.pdf", sens_table="sens_table.tsv"
+    log: log="auc.log"
+    script: SRC_DIR+"/roc_auc.R"
