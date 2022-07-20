@@ -17,8 +17,10 @@ SRC_DIR=PRJ_ROOT+'/local/src'
 DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 
 #CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w.tsv'
-CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
+#CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
 # following Simonetta emails of 9 Jun 2021, "Re: CRC0078 cetux response class"
+CETUXI=SNAKE_ROOT+'/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR_CRC0166XA.tsv'
+# following Simonetta emails of Jun 2022 and further discussion with Eugy  - we keep only response for XA since XB was probably a lymphoma.
 ### end of common part.
 ATP=DATA+'/PDO_CTG.txt'
 IMAGING=DATA+'/PDO_imaging.txt'

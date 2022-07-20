@@ -19,10 +19,12 @@ sink(log_f)
 precrec_obj
 sink()
 
-get_sensibility <- function(thr, df) {
+get_sensitivity_specificity <- function(thr, df) {
   p <- nrow(df[df$labels == 1,])
   tp <- nrow(df[df$scores > thr & df$labels==1,])
-  return(c(tp/p, tp))
+  n <- nrow(df[df$labels == 0,])
+  tn <- nrow(df[df$scores <= thr & df$labels==0,])
+  return(c(tp/p, tn/n, tp, tn))
 }
 
 compute_thr <- function(scores, labels) {
@@ -34,8 +36,8 @@ compute_thr <- function(scores, labels) {
   upper_bs <- sapply(strsplit(max_i, ','), '[[', 2)
   upper_bs <- as.numeric(upper_bs)
   upper_bs <- upper_bs[order(-upper_bs)]
-  res <- as.data.frame(t(sapply(upper_bs, get_sensibility, df)))
-  colnames(res) <- c('sensibility', 'tp')
+  res <- as.data.frame(t(sapply(upper_bs, get_sensitivity_specificity, df)))
+  colnames(res) <- c('sensitivity', 'specificity', 'tp', 'tn')
   res$thr <- upper_bs
   return(res)
 }
