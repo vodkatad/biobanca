@@ -76,3 +76,19 @@ rule auc_r:
     output: auc_all="auc_all.pdf", auc_wt="auc_wt.pdf", sens_table="sens_table.tsv"
     log: log="auc.log"
     script: SRC_DIR+"/roc_auc.R"
+
+
+rule crispr:    
+    input: g1=DATA+'/EGFR_ds_crispr/EGFR_ds_1.tsv', g2=DATA+'/EGFR_ds_crispr/EGFR_ds_2.tsv', 
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: plot="EGFR_ds_guides_cor.pdf", avg="EGFR_ds_avg.tsv"
+    log: log="EGFR_ds_guides_cor.log"
+    script: SRC_DIR+"/EGFR_guides_cor.R"
+
+# TODO add two plots, one with legend the other without it to have a square grid :/
+rule ctg_vs_crispr:
+    input: cetuxi=MODELS_X, crispr="EGFR_ds_avg.tsv",
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata', annot='targeted_annot.tsv'
+    output: plot="EGFR_{CTG}_cor.pdf"
+    log: log="EGFR_{CTG}_cor.log"
+    script: SRC_DIR+"/EGFR_cetuxi_cor.R"
