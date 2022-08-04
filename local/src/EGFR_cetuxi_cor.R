@@ -21,6 +21,7 @@ merge_data <- merge(cetuxi, crispr, by="smodel")
 merged_annot <- merge(merge_data, annot, by="smodel")
 
 sink(log_f)
+print('WARNING if rerun with more data from MarcoA check which non validated/double failed PDOs more than 1257 will be dragged in. We want 13 top right now:')
 print('cetuxi:')
 nrow(cetuxi)
 print('crispr:')

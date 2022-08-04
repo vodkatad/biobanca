@@ -6,7 +6,7 @@ rule initial_plots_filter_good:
             pdoAF=MUTECT_DIR+'pdo'+ALLFIX,
             xenoWAF=MUTECT_DIR+'pdx'+TIERSFIX,
             pdoWAF=MUTECT_DIR+'pdo'+TIERSFIX,
-            good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv',
+            good=GOOD,
             Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
     output: freqAll="freq_all.pdf", freqTiers="freq_tiers.pdf", histTiers="hist_tiers.pdf", histAll="hist_all.pdf", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
