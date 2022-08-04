@@ -15,8 +15,6 @@ crispr <- read.table(crispr_f, sep="\t", header=TRUE, stringsAsFactors=FALSE)
 cetuxi <- read.table(cetuxi_f, sep="\t", header=TRUE, stringsAsFactors=FALSE)
 colnames(cetuxi)[1] <- 'smodel'
 annot <- read.table(annot_f, sep="\t", header=TRUE, stringsAsFactors=FALSE)
-annot[, col_cetuxi] <- NULL
-colnames(annot)[1] <- 'smodel'
 
 save.image('meh.Rdata')
 merge_data <- merge(cetuxi, crispr, by="smodel")

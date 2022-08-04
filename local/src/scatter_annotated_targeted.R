@@ -12,6 +12,7 @@ cn_f <- args[8]
 Rimage <- args[9]
 output2 <- args[10]
 annot_f <- args[11]
+annot_w_f <- args[12]
 
 load(Rimage)
 
@@ -34,17 +35,36 @@ uniqued_mut <- t(pdobing)
 uniqued_mut <- uniqued_mut[, colnames(uniqued_mut) %in% c('KRAS', 'BRAF', 'NRAS')]
 uniqued_mut <- ifelse(uniqued_mut, 'MUT', 'WT')
 
-threewt <- as.data.frame(apply(uniqued_mut[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="wt")}))
-colnames(threewt) <- 'tf'
-threewt$smodel <- row.names(threewt)
-threewt$triple_wt <- ifelse(threewt$tf, 'MUT', 'WT')
-threewt$tf <- NULL
+#threewt <- as.data.frame(apply(uniqued_mut[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="wt")}))
+#colnames(threewt) <- 'tf'
+#threewt$smodel <- row.names(threewt)
+#threewt$triple_wt <- ifelse(threewt$tf, 'MUT', 'WT')
+#threewt$tf <- NULL
 # merge_pdata2$triple_wt <- ifelse(infofour, 'triple MUT', 'WT')
 #uniqued_mut2 <- as.data.frame(apply(uniqued_mut, 2, function(x) { ifelse(is.na(x),'wt', x) } ))
 ## there is a NA for PI3KCA but it has a KRAS mutation so that's fine for fourwt info
 
 bin_cn <- as.data.frame(apply(cn, 2, function(x) {ifelse(x, 'AMPL', 'WT')}))
 bin_cn <- bin_cn[, colnames(bin_cn) %in% c('ERBB2'), drop=FALSE]
+
+save.image('pluto.Rdata')
+uniqued_mut_w <- as.data.frame(uniqued_mut)
+infofour <- apply(uniqued_mut_w[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="WT")})
+infofour <- ifelse(is.na(infofour),  FALSE, infofour)
+uniqued_mut_w$triple_wt <- ifelse(infofour, 'MUT', 'WT') 
+dim(uniqued_mut_w)
+uniqued_mut_w <- merge(uniqued_mut_w, bin_cn, by="row.names")
+rownames(uniqued_mut_w) <- uniqued_mut_w$Row.names
+uniqued_mut_w$Row.names <- NULL
+dim(uniqued_mut_w)
+uniqued_mut_w$alterations <- ifelse(uniqued_mut_w$ERBB2 != "WT", "ERBB2", uniqued_mut_w$triple_wt)
+if (! all(uniqued_mut_w[uniqued_mut_w$ERBB2 != "WT", "triple_wt"] == "WT") ) {
+  print('I cannot use a single color for ERBB2 and triple WT with whole!')
+}
+uniqued_mut_w[uniqued_mut_w$alterations == "MUT", 'alterations'] <- "KRAS/NRAS/BRAF"
+uniqued_mut_w$smodel <- rownames(uniqued_mut_w)
+write.table(uniqued_mut_w, file=annot_w_f, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
+
 merge_pdata <- merge(mdata, bin_cn, by="row.names", all.x=TRUE)
 rownames(merge_pdata) <- merge_pdata$Row.names
 merge_pdata$Row.names <- NULL
@@ -117,5 +137,3 @@ res <- compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
 res <- t(as.data.frame(res))
 colnames(res) <- c('pvalue','R2','adjR2','logLik', 'pearson')
 write.table(data.frame('exp'=rownames(res), res), file=output2, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
-
-save.image('pluto.Rdata')

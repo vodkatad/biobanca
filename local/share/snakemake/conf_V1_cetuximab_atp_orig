@@ -52,11 +52,11 @@ TARGETED=PRJ_ROOT+"/dataset/V1/targeted/preprocGeneAF_0.05.Rdata"
 rule scatterplot_annot_targeted:
     input: x=MODELS_X, y=MODELS_Y, mut=TARGETED, cn=FRA_CN,
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv", annot="targeted_annot.tsv"
+    output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv", annot="targeted_annot.tsv", annot_whole="targeted_annot_whole.tsv"
     params: tool=BIN_DIR+'/scatter_annotated_targeted', prefix=NAME, merge=MERGE, yname=YNAME
     shell:
         """
-            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {output.stats} {output.annot}
+            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {output.stats} {output.annot} {output.annot_whole}
         """
 
 # rule model_remove_highCV:
@@ -88,7 +88,7 @@ rule crispr:
 # TODO add two plots, one with legend the other without it to have a square grid :/
 rule ctg_vs_crispr:
     input: cetuxi=MODELS_X, crispr="EGFR_ds_avg.tsv",
-           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata', annot='targeted_annot.tsv'
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata', annot='targeted_annot_whole.tsv'
     output: plot="EGFR_{CTG}_cor.pdf"
     log: log="EGFR_{CTG}_cor.log"
     script: SRC_DIR+"/EGFR_cetuxi_cor.R"
