@@ -5,7 +5,9 @@ pdata <- read.table('/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5starOK_ce
 m <- merge(odata, pdata, by="row.names")
 
 nrow(m) # for the caption, need to put in a log file
-cor.test(m$log2FoldChange.x, m$log2FoldChange.y) # idem
+ci <- cor.test(m$log2FoldChange.x, m$log2FoldChange.y) # idem
+ci
+ci$p.value
 #dim(m)
 #dim(odata)
 #dim(pdata)
