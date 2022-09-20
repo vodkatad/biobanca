@@ -6,6 +6,9 @@ library(ggpubr)
 args <- commandArgs(trailingOnly = T)
 infile <- args[1]
 outfile <- args[2]
+theme <- args[3]
+
+load(theme)
 
 data <- read.table(infile, sep="\t", header=TRUE)
 data$R2 <- NULL

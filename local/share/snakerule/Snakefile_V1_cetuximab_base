@@ -38,10 +38,15 @@ rule all_models:
 # CTG_5000 is best based on adjR and pvalue, so we are sadisfied. logLikelihoods, mh? (will need AIC/BIC)
 # Can we compare with anova for nested models? Too collinear probably.
 rule plot:
-    input: 'models.tsv'
-    output: 'models.svg'
+    input: data='models.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: 'models.pdf'
     params: tool=BIN_DIR+'/plot_models_metrics'
     shell:
         """
-            {params.tool} {input} {output}
+            {params.tool} {input.data} {output} {input.Rimage}
         """
+
+rule plot_CTG_imaging:
+    input: pdo_cetuxi = "pdo_cetuxi_buoni.tsv",  Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: pic_legend = "CTG_vs_Imaging_legend.pdf", pic_square = "CTG_vs_Imaging.pdf", cors="CTG_vs_Imaging.tsv"
+    script: SRC_DIR+"/ctg_imaging_plot.R"
