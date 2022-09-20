@@ -69,7 +69,7 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
 
     # todo fix y axis interval if we want to use in supplementary
     plot <- ggplot(data=long, aes(x=class, y=value))+geom_point()+
-    geom_line(aes(group=group))+theme_bw()+ggtitle(gene)+unmute_theme+xlab('model')+ylab('AF')
+    geom_line(aes(group=group))+theme_bw()+ggtitle(gene)+unmute_theme+xlab('')+ylab('AF')
     #ggsave(paste0(gene, ".png"))
 
     # setup of data for the t-test, we need two vectors of AF with ordered by mut/smodel (available in group here)
@@ -117,13 +117,13 @@ sink()
 
 j <- 1
 setwd(plots_d) # created by previous rule
-for (i in seq(1, length(plots), by=8)) {
-  end <- i + 7
+for (i in seq(1, length(plots), by=12)) {
+  end <- i + 11
   if (end > length(plots)) {
     end <- length(plots)
   }
-  pdf(paste0('set_', j, '.pdf'), paper='a4')
-  print(ggarrange(plotlist=plots[i:end], ncol=2, nrow=4))
+  pdf(paste0('set_', j, '.pdf'), width=11, height=16) # paper="a4" was not working, need to specify sizes explicitly to use all the space
+  print(ggarrange(plotlist=plots[i:end], ncol=2, nrow=6)+ theme(plot.margin = margin(0,0,0,0, "cm"))) # margin does not do anything at all
   graphics.off()
   j <- j + 1
   #ggsave(file=paste0('set_', i, '.pdf'), g) 
