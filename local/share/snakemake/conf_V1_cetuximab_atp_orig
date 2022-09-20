@@ -89,6 +89,6 @@ rule crispr:
 rule ctg_vs_crispr:
     input: cetuxi='../pdo_cetuxi.tsv', crispr="EGFR_ds_avg.tsv",
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata', annot='targeted_annot_whole.tsv'
-    output: plot="EGFR_{CTG}_cor.pdf"
+    output: plot="EGFR_{CTG}_cor.pdf", plot_legend="EGFR_{CTG}_cor.legend.pdf", barplot="EGFR_{CTG}_barplot.pdf", barplot_legend="EGFR_{CTG}_barplot_legend.pdf"
     log: log="EGFR_{CTG}_cor.log"
     script: SRC_DIR+"/EGFR_cetuxi_cor.R"
