@@ -3,15 +3,15 @@ library(circlize)
 library(grid)
 library(gridBase)
 library(RColorBrewer)
-  
+
 #dir <- '~/Dropbox/work/biobanca'
-dir <- '/scratch/trcanmed/biobanca/local/share/data/'
+dir <- '/scratch/trcanmed/biobanca/local/share/data'
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ cat clinical_data_circos.tsv  | sed 's/TRUE/True/' | sed 's/FALSE/False/' > clinical_data_circos2.tsv
 
-data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
+data <- read.table("/scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
 data$Classification_N <- as.character(data$Classification_N)
 data$Classification_T <- as.character(data$Classification_T)
-cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
+cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
 cols[is.na(cols)] <- "NA"
 
 
@@ -98,7 +98,9 @@ for (i in seq(1, length(order_cols))) {
     #brewer <- brewer.pal(n=5, name=col_i[[1]][2])
     brewer <- sequential_hcl(5, col_i[[1]][2])
     if (col_i[[1]][1] == "minus") { # we may want to reverse the palette in some cases
+      print(brewer)
       brewer <- rev(brewer)
+      print(brewer)
     } 
     col_i <- colorRamp2(breaks=c(minv, q1, medianv, q3, maxv), colors=brewer)
     legends <- c(legends, Legend(title=name, col_fun=col_i, title_gp=gpar(fontsize=10, fontface="bold"), border = "black"))
@@ -122,7 +124,7 @@ for (i in seq(1, length(order_cols))) {
   #if (i == 1) {
   #  circos.heatmap(data_i, bg.border="black", bg.lwd=0.7, col=col_i, track.height=th, rownames.side="outside", rownames.cex=0.45)
   # } else{
-    circos.heatmap(data_i, bg.border="black", bg.lwd=0.7, col=col_i, track.height=th)
+  circos.heatmap(data_i, bg.border="black", bg.lwd=0.7, col=col_i, track.height=th)
   #}
 }
 graphics.off()
@@ -136,6 +138,4 @@ draw(all_legends)
 #https://stackoverflow.com/questions/30555108/r-circlize-report-gap-degree-is-too-large
 
 #circos.heatmap(ms, bg.border="black", bg.lwd=0.7, track.height=0.02, col=colorRamp2(breaks=c(30,50,60,70,80), colors=brewer.pal(n = 5, name = "RdBu")))
-
-
 

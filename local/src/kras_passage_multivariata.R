@@ -46,10 +46,17 @@ for (i in seq(length(res$model))){
 res$KRAS <- as.factor(res$KRAS)
 res$validated <- as.factor(res$validated)
 
+loc <- "/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv"
+loc <- read.table(loc, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+names(loc)[names(loc) == "CASE"] <- "model"
+
+res2 <- merge(res, loc, by = "model")
+res2 <- res2[, c("model", "KRAS.x", "passage", "validated", "SITE.OF.PRIMARY")]
+
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
-fit.kras <- glm(validated ~ KRAS + passage, data=res,family=binomial())
-plot_model(fit.kras)
+fit.kras <- glm(validated ~ KRAS.x + passage + SITE.OF.PRIMARY, data=res2,family=binomial())
+plot_model(fit.kras) 
 
 status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
                      sep = "\t", header = TRUE, stringsAsFactors = FALSE)

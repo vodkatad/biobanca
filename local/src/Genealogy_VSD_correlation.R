@@ -11,6 +11,8 @@ meta_f <- snakemake@input[["metadata"]]
 vsd_expr_f <- snakemake@input[["expr"]]
 summary_f <- snakemake@output[["summary"]]
 genealogy_VSD_correlation <- snakemake@output[["replicates_correlation"]]
+
+save.image("repliche.Rdata")
 rep_gen_df <- read.table(rep_gen_f, quote = "", sep = "\t", header=TRUE)
 rownames(rep_gen_df) <- rep_gen_df$model
 rep_gen_df$model <- NULL

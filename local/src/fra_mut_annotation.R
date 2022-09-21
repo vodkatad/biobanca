@@ -11,6 +11,10 @@ fra2$X <- NULL
 fra2$GenealogyID <- NULL
 fra2$flag_H.X <- NULL
 
+## removing these because hcc and not CRC
+hcc <- c("CRC1379", "CRC1479", "CRC1737")
+fra2 <- fra2 %>% filter(!CASE %in% hcc)
+
 fra3 <- fra2
 cases <- fra3$CASE              
 
