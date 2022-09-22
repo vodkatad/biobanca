@@ -44,6 +44,11 @@ rule oncoprint:
     output: op="oncoprint_{AF}.pdf", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
     script: SRC_DIR+"/oncoprint_diff.R"
 
+rule oncoprint_subset:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', subset=MARIKA
+    output: op="oncoprintsubsetKRAS_{AF}.pdf", op_data="oncoprintsubsetKRAS_{AF}.RData", pie="oncoprintpiesubsetKRAS_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff_subset.R"
+    
 
 # here AF thr not considered
 rule jaccard_mut_sim:
