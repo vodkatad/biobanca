@@ -449,4 +449,31 @@ rule obtain_density_plot_wilcox_buoni:
     output: density_plot = "density_f_buoni.pdf", wilcox_result ="wilcox_buoni"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
+rule multivariata_clinical_data:
+    input: clinical_data = CLI, pdo=BUONI, mut = FRA_MUT
+    output: df_circos = "clinical_data_for_circos.tsv", fit_plot = "plot_fit_validated.pdf", results_fit = "result_fit.tsv"
+    script: SRC_DIR+'/multivariata_clinicaldata.R'
 
+
+# Numeri paper:
+#> d <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
+#> summary(diag(as.matrix(d)))
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.7042  0.8037  0.8271  0.8231  0.8482  0.8999 
+#> length(diag(as.matrix(d)))
+#[1] 67
+
+#> res_df <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
+#> unmatched <- c(res_df[upper.tri(res_df)], res_df[lower.tri(res_df)])
+#> matched <- diag(as.matrix((res_df))) ### diag vuole la matrice perchè non converte da solo il data frame
+#> summary(unmatched)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.5669  0.6194  0.6078  0.6648  0.8658 
+#> res_df[rownames(res_df)=="CRC1241", colnames(res_df)=="CRC1241"]
+#[1] 0.899925
+#> summary(unlist(res_df[rownames(res_df)=="CRC1241",]) )
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2571  0.2991  0.3118  0.3353  0.8999 
+#> summary(c(unlist(res_df[rownames(res_df)=="CRC1241",]),  res_df[, colnames(res_df)=="CRC1241"]))
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2761  0.3100  0.3222  0.3463  0.8999 
