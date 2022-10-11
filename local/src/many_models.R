@@ -46,15 +46,16 @@ ggplotRegression <- function(fit, name) {
 
 compute_lm <- function(xcol, data, ycol) {
     model <- lm(data=data, formula=as.formula(paste0(ycol, "~", xcol)))
+    n <- sum(is.na(data[,xcol]))
     ggplotRegression(model, xcol)
     sm <- summary(model)
     r2 <- sm$r.squared
     ar2 <- sm$adj.r.squared
     pval <- lmp(sm) 
     ll <- logLik(model)
-    return(c(pval, r2, ar2,ll))
+    return(c(pval, r2, ar2,ll,n))
 }
 
 res <- t(sapply(xcolumns, compute_lm, mdata, yname))
-colnames(res) <- c('pvalue','R2','adjR2','logLik')
+colnames(res) <- c('pvalue','R2','adjR2','logLik', 'n')
 write.table(data.frame('exp'=rownames(res), res), file=output, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
