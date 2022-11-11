@@ -68,7 +68,7 @@ rule pearson_mannw:
     output: mw="validated_pearson_{which}_mw.txt"
     shell:
         """
-        Rscript -e 'load("{input.rdata}"); wilcox.test(formula=as.formula("pearson~type"), data=pdata)$p.value' > {output}
+        Rscript -e 'load("{input.rdata}");  tapply(pdata$pearson, pdata$type, summary); wilcox.test(formula=as.formula("pearson~type"), data=pdata)$p.value' > {output}
         """
 
 # validated xo cn matrixes 

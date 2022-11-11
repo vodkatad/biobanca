@@ -19,7 +19,7 @@ colnames(data_y)[2] <- yname
 mdata <- merge(data_x, data_y, by=merge_col)
 rownames(mdata) <- mdata[, merge_col]
 mdata[,merge_col] <- NULL
-
+print(dim(mdata))
 xcolumns <- unlist(strsplit(wanted_x, ','))
 
 lmp <- function(model) {
@@ -53,9 +53,10 @@ compute_lm <- function(xcol, data, ycol) {
     ar2 <- sm$adj.r.squared
     pval <- lmp(sm) 
     ll <- logLik(model)
-    return(c(pval, r2, ar2,ll,n))
+    p <- cor.test(data[,xcol], data[, ycol])
+    return(c(pval, r2, ar2,ll,n, p$p.value, p$estimate))
 }
 
 res <- t(sapply(xcolumns, compute_lm, mdata, yname))
-colnames(res) <- c('pvalue','R2','adjR2','logLik', 'n')
+colnames(res) <- c('pvalue','R2','adjR2','logLik', 'n', 'pearson_pval', 'pearson')
 write.table(data.frame('exp'=rownames(res), res), file=output, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)

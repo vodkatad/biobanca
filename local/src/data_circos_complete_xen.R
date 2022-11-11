@@ -52,10 +52,10 @@ row_names_df_to_remove<-c("CRC1379", "CRC1479", "CRC1737")
 res <- res[!(row.names(res) %in% row_names_df_to_remove),]
 
 ## creo un df con solo i dati necessari per la multivariata
-res <- res[c("CASE", "AGE.AT.COLLECTION", "SEX", "SITE.OF.PRIMARY", "T", "N", "THERAPY.BEFORE..Y.N.",
+res <- res[c("CASE", "AGE.AT.COLLECTION", "SEX", "SITE.OF.PRIMARY", "STAGE", "THERAPY.BEFORE..Y.N.",
              "KRAS", "BRAF", "NRAS", "MSI_MSS", "buoni")]
-names(res)[names(res) == "T"] <- "Classification_T"
-names(res)[names(res) == "N"] <- "Classification_N"
+#names(res)[names(res) == "T"] <- "Classification_T"
+#names(res)[names(res) == "N"] <- "Classification_N"
 
 ## sistemo il df per poter accorpare i siti del primario
 
@@ -75,41 +75,67 @@ for (i in seq(res$CASE)) {
   }
 }
 
-## sistemo T ed N per poterli rendere numerici senza perdere quelli con la lettera
-res["CRC1241", "Classification_T"] <- "N"
-res["CRC1575", "Classification_T"] <- "N"
-res["CRC0578", "Classification_T"] <- "N"
-res["CRC1390", "Classification_T"] <- "N"
+# ## sistemo T ed N per poterli rendere numerici senza perdere quelli con la lettera
+# res["CRC1241", "Classification_T"] <- "N"
+# res["CRC1575", "Classification_T"] <- "N"
+# res["CRC0578", "Classification_T"] <- "N"
+# res["CRC1390", "Classification_T"] <- "N"
+# 
+# res["CRC1241", "Classification_N"] <- "N"
+# res["CRC1575", "Classification_N"] <- "N"
+# res["CRC0578", "Classification_N"] <- "N"
+# res["CRC1390", "Classification_N"] <- "N"
+# 
+# 
+# for (i in seq(res$CASE)) {
+#   if (res[i, "Classification_T"] == "4A") {
+#     res[i, "Classification_T"] <- "4"
+#   } else if (res[i, "Classification_T"] == "4B") {
+#     res[i, "Classification_T"] <- "4"
+#   } else {
+#     res[i, "Classification_T"] <- res[i, "Classification_T"]
+#   }
+# }
+# 
+# for (i in seq(res$CASE)) {
+#   if (res[i, "Classification_N"] == "1A") {
+#     res[i, "Classification_N"] <- "1"
+#   } else if (res[i, "Classification_N"] == "1B") {
+#     res[i, "Classification_N"] <- "1"
+#   } else if (res[i, "Classification_N"] == "1C") {
+#     res[i, "Classification_N"] <- "1"
+#   } else if (res[i, "Classification_N"] == "2A") {
+#     res[i, "Classification_N"] <- "2"
+#   } else if (res[i, "Classification_N"] == "2B") {
+#     res[i, "Classification_N"] <- "2"
+#   } else {
+#     res[i, "Classification_N"] <- res[i, "Classification_N"]
+#   }
+# }
 
-res["CRC1241", "Classification_N"] <- "N"
-res["CRC1575", "Classification_N"] <- "N"
-res["CRC0578", "Classification_N"] <- "N"
-res["CRC1390", "Classification_N"] <- "N"
+## sistemo stage per non perdere i casi con la lettera
+
+res["CRC1241", "STAGE"] <- "N"
+res["CRC1575", "STAGE"] <- "N"
+res["CRC0578", "STAGE"] <- "N"
+res["CRC1390", "STAGE"] <- "N"
 
 
 for (i in seq(res$CASE)) {
-  if (res[i, "Classification_T"] == "4A") {
-    res[i, "Classification_T"] <- "4"
-  } else if (res[i, "Classification_T"] == "4B") {
-    res[i, "Classification_T"] <- "4"
+  if (res[i, "STAGE"] == "2A") {
+    res[i, "STAGE"] <- "2"
+  } else if (res[i, "STAGE"] == "2B") {
+    res[i, "STAGE"] <- "2"
+  } else if (res[i, "STAGE"] == "3A") {
+    res[i, "STAGE"] <- "3"
+  } else if (res[i, "STAGE"] == "3B") {
+    res[i, "STAGE"] <- "3"
+  } else if (res[i, "STAGE"] == "3C") {
+    res[i, "STAGE"] <- "3"
+  } else if (res[i, "STAGE"] == "4A") {
+    res[i, "STAGE"] <- "4"
   } else {
-    res[i, "Classification_T"] <- res[i, "Classification_T"]
-  }
-}
-
-for (i in seq(res$CASE)) {
-  if (res[i, "Classification_N"] == "1A") {
-    res[i, "Classification_N"] <- "1"
-  } else if (res[i, "Classification_N"] == "1B") {
-    res[i, "Classification_N"] <- "1"
-  } else if (res[i, "Classification_N"] == "1C") {
-    res[i, "Classification_N"] <- "1"
-  } else if (res[i, "Classification_N"] == "2A") {
-    res[i, "Classification_N"] <- "2"
-  } else if (res[i, "Classification_N"] == "2B") {
-    res[i, "Classification_N"] <- "2"
-  } else {
-    res[i, "Classification_N"] <- res[i, "Classification_N"]
+    res[i, "STAGE"] <- res[i, "STAGE"]
   }
 }
 
@@ -121,18 +147,17 @@ res$AGE.AT.COLLECTION <- as.numeric(res$AGE.AT.COLLECTION)
 res$SEX <-  gsub('N', NA, res$SEX)
 res$SEX <- as.factor(res$SEX)
 
-res$Classification_T <- gsub("N", NA, res$Classification_T)
-res$Classification_T <- as.numeric(res$Classification_T)
-
-res$Classification_N <- gsub("N", NA, res$Classification_N)
-res$Classification_N <- as.numeric(res$Classification_N)
+# res$Classification_T <- gsub("N", NA, res$Classification_T)
+# res$Classification_T <- as.numeric(res$Classification_T)
+# 
+# res$Classification_N <- gsub("N", NA, res$Classification_N)
+# res$Classification_N <- as.numeric(res$Classification_N)
 
 res$SITE.OF.PRIMARY <- gsub("NONE", NA, res$SITE.OF.PRIMARY)
 res$SITE.OF.PRIMARY <- as.factor(res$SITE.OF.PRIMARY)
 
-## stage non lo metto più perché sono definiti tutti 4
-#res$STAGE <-  gsub('N', NA, res$STAGE)
-#res$STAGE <- as.numeric(res$STAGE)
+res$STAGE <-  gsub('N', NA, res$STAGE)
+res$STAGE <- as.numeric(res$STAGE)
 
 res$THERAPY.BEFORE..Y.N. <- as.factor(res$THERAPY.BEFORE..Y.N.)
 
@@ -144,7 +169,7 @@ res$buoni <-  gsub('TRUE', "True", res$buoni)
 res$buoni <- gsub("FALSE","False", res$buoni)
 res$buoni <- as.factor(res$buoni)
 ## scrivo la tabella per i circos che comprenda anche i casi
-write.table(res, file = "complete_data_for_circos.tsv", quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
+write.table(res, file = "/scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv", quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 
 res$CASE <- NULL
 #res_prova <- res 

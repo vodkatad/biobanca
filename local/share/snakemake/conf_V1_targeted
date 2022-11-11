@@ -11,6 +11,7 @@ def find_prj_root(path=os.getcwd()):
 PRJ_ROOT=find_prj_root()
 BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
 SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+SCRATCH_ROOT = os.getenv('SCRATCH_ROOT')
 
 BIN_DIR=PRJ_ROOT+'/local/bin'
 SRC_DIR=PRJ_ROOT+'/local/src'
@@ -30,6 +31,7 @@ TCGA='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/tcga_panel_freqs.tsv
 MSK='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv'
 
 GOOD=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni_tarocchiall.tsv'
+MARIKA=SCRATCH_ROOT+'/pdxopedia/local/share/data/Trametinib_Marika_sept2022.tsv'
 
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ head -n1 biobanca_pdo_buoni.tsv  > biobanca_pdo_buoni_tarocchiall.tsv
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ sed 1d XENTURION_DEF_SML_12-10.tsv  | bawk '{print $1, "TRUE"}' >> biobanca_pdo_buoni_tarocchiall.tsv 

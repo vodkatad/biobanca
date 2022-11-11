@@ -3,15 +3,19 @@ library(circlize)
 library(grid)
 library(gridBase)
 library(RColorBrewer)
+library(colorspace)
 
 #dir <- '~/Dropbox/work/biobanca'
 dir <- '/scratch/trcanmed/biobanca/local/share/data'
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ cat clinical_data_circos.tsv  | sed 's/TRUE/True/' | sed 's/FALSE/False/' > clinical_data_circos2.tsv
 
+## for not removed cases use /scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv instead use
+# /scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv
+#data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
 data <- read.table("/scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
-data$Classification_N <- as.character(data$Classification_N)
-data$Classification_T <- as.character(data$Classification_T)
-cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
+#data$Classification_N <- as.character(data$Classification_N)
+#data$Classification_T <- as.character(data$Classification_T)
+cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete_difforder3.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
 cols[is.na(cols)] <- "NA"
 
 
@@ -81,7 +85,7 @@ data <- eval(parse(text=order_command))
 th <- (1/length(order_cols)) / 1.5
 legends <- list()
 
-#pdf(outcircles)
+pdf("/home/mferri/circles_prediletti_complete.pdf")
 for (i in seq(1, length(order_cols))) {
   name <- names(order_cols)[i]
   print(name)
@@ -130,7 +134,7 @@ for (i in seq(1, length(order_cols))) {
 graphics.off()
 
 all_legends <- packLegend(list=legends, direction="horizontal", gap=unit(0.5, "cm"))
-#pdf(outlegend)
+#pdf("circos_prediletti_legends.pdf")
 draw(all_legends)
 #graphics.off()
 

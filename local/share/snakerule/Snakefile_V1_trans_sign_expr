@@ -454,6 +454,11 @@ rule multivariata_clinical_data:
     output: df_circos = "clinical_data_for_circos.tsv", fit_plot = "plot_fit_validated.pdf", results_fit = "result_fit.tsv"
     script: SRC_DIR+'/multivariata_clinicaldata.R'
 
+rule univariata_mutation:
+    input: pdo=BUONI, rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
+    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv"
+    script: SRC_DIR+'/univariata_mutazioni_comments.R'
+
 
 # Numeri paper:
 #> d <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)

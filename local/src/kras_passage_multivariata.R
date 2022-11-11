@@ -1,9 +1,13 @@
+##kras passage
+
 library(sjPlot)
 library(sjlabelled)
 library(sjmisc)
+library(tidyverse)
 
-txt <- "/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt"
-txt <- read.table(txt, quote= "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+
+passage <- "/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt"
+txt <- read.table(passage, quote= "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
 txt$origin <- substr(txt$T.Cell.line.has.aliquot...Genealogy.ID_0, 8, 10)
 lmx <- txt %>% filter(origin == "LMX")
@@ -16,8 +20,8 @@ lmx <- lmx[!(duplicated(lmx$model) | duplicated(lmx$model, fromLast = TRUE)), ]
 casi <- as.data.frame(cbind(lmx$Genealogy.ID, lmx$model, lmx$T.Cell.line.has.aliquot...Genealogy.ID_0, lmx$origin, lmx$passage))
 colnames(casi) <- c("Genealogy.ID", "model", "Genealogy.ID_0", "origin", "passage")
 
-fra <- "/scratch/trcanmed/biobanca/dataset/V1/enrichment/fra_mutational_annotation.tsv"
-fra <- read.table(fra, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+fra_f <- "/scratch/trcanmed/biobanca/dataset/V1/enrichment/fra_mutational_annotation.tsv"
+fra <- read.table(fra_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 rownames(fra) <- fra$genes
 fra$genes <- NULL
 tfra <- as.data.frame(t(fra))
@@ -56,7 +60,9 @@ res2 <- res2[, c("model", "KRAS.x", "passage", "validated", "SITE.OF.PRIMARY")]
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
 fit.kras <- glm(validated ~ KRAS.x + passage + SITE.OF.PRIMARY, data=res2,family=binomial())
-plot_model(fit.kras) 
+pdf("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/multivariata_KRAS_passage_site.pdf")
+plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated", axis.labels = rev(c("KRAS", "Passage", "Site of primary"))) 
+dev.off()
 
 status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
                      sep = "\t", header = TRUE, stringsAsFactors = FALSE)

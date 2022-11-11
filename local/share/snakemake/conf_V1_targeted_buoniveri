@@ -32,6 +32,7 @@ MSK='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv'
 
 GOOD=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv'
 
+#MARIKA=SCRATCH_ROOT+'/pdxopedia/local/share/data/RASdep_Marika_sept2022.tsv'
 MARIKA=SCRATCH_ROOT+'/pdxopedia/local/share/data/RASdep_Marika_sept2022.tsv'
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ head -n1 biobanca_pdo_buoni.tsv  > biobanca_pdo_buoni_tarocchiall.tsv
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ sed 1d XENTURION_DEF_SML_12-10.tsv  | bawk '{print $1, "TRUE"}' >> biobanca_pdo_buoni_tarocchiall.tsv 
