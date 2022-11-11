@@ -12,19 +12,21 @@ pdo_imaging <- read.table(m2, header=TRUE, sep="\t", na.strings="", stringsAsFac
 # Simo's mail 17 March 2020
 #    - se sai per il CRC0177 quale sia il dato che c'e` in vivo, dal tuo excel direi per l'EGFR mut, e` corretto?
 #Yep. PD il mutato, no info sul wt. Ricordo ai tempi di aver chiesto check al Galimi,, che sa chi è mutato dove.
-remove_ctg <- which(pdo_ctg$CASE=="CRC0177 EGFR wt") 
+
+# dobbiamo tenere invece il PDO WT, brutto llama Elena!
+remove_ctg <- which(pdo_ctg$CASE=="CRC0177 EGFR mut") 
 if (length(remove_ctg) != 1) {
-    stop('I wound more than one CRC0177 WT?')
+    stop('I found more than one CRC0177 mut?')
 }
 pdo_ctg <- pdo_ctg[-remove_ctg,]
-pdo_ctg[pdo_ctg$CASE=="CRC0177 EGFR mut",'CASE'] <- "CRC0177"
+pdo_ctg[pdo_ctg$CASE=="CRC0177 EGFR wt",'CASE'] <- "CRC0177"
 
-remove_imaging <- which(pdo_imaging$CASE=="CRC0177" & pdo_imaging$xeno.mut=='4PLE')
+remove_imaging <- which(pdo_imaging$CASE=="CRC0177" & pdo_imaging$xeno.mut=='EGFR')
 if (length(remove_imaging) != 1) {
-    stop('I wound more than one CRC0177 WT?')
+    stop('I found more than one CRC0177 mut?')
 }
 pdo_imaging <- pdo_imaging[-remove_imaging,]
-pdo_imaging[pdo_imaging$CASE=="CRC0177" & pdo_imaging$xeno.mut=='EGFR','CASE'] <- "CRC0177"
+pdo_imaging[pdo_imaging$CASE=="CRC0177" & pdo_imaging$xeno.mut=='4PLE','CASE'] <- "CRC0177"
 
 
 pdo_ctg <- pdo_ctg[,c(1,4,5,6,7)]

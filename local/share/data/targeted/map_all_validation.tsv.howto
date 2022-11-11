@@ -1,0 +1,9 @@
+cat map_lmo.tsv map_lmx.tsv | cut -f 2 | bawk '{print $1, substr($1,0,7)}' >  map_all.tsv
+echo -e "genalogy\\tsmodel\\tvalidation_status" > map_all_validation.tsv
+translate -a -v -e NA ../biobanca_pdo_buoni.tsv 2 < map_all.tsv  >> map_all_validation.tsv
+
+
+cat map_lmo.tsv map_lmx_double.tsv | cut -f 2 | bawk '{print $1, substr($1,0,7)}' >  map_all_2.tsv
+echo -e "genalogy\\tsmodel\\tvalidation_status" > map_all_validation.tsv
+translate -a -v -e NA ../biobanca_pdo_buoni.tsv 2 < map_all_2.tsv  >> map_all_validation.tsv
+
