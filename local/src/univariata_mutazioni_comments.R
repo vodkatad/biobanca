@@ -14,7 +14,7 @@ mut <- as.data.frame(t(mut))
 
 mut2 <- mut
 
-
+save.image("ctnnb1.Rdata")
 #for (i in rownames(mut2)) { # solo come nota secondo me il ciclo sulle righe non serve, conti i true totali in ogni colonna no?
   for (j in seq(colnames(mut2))) { # i proprio non lo usi mai dentro il corpo del for, dovrebbe venire esattamente la stessa cosa con il solo for interno
     mut2["numero", j] <- length(mut[,j][mut[,j]== TRUE]) # lavorando su mut2 per la length la riga aggiunta con numero e NA risultava
@@ -82,7 +82,7 @@ for (f in formula_strings) {
 
 colnames(res) <- c("pvalue", "coef(fit)")
 
-write.table(res, res_genes, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
+write.table(res, res_genes, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
 
 ##correzione con bh
 # pdf("buoni_mut_glm.pdf")

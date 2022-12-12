@@ -166,10 +166,10 @@ res$CASE <- NULL
 
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION, data=res, family=binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + STAGE + THERAPY.BEFORE..Y.N. , data=res, family=binomial())
-fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + STAGE + KRAS + BRAF + NRAS, data=res, family=binomial())
+fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + STAGE + KRAS + NRAS + BRAF, data=res, family=binomial())
 pdf(plot_fit)
 #plot_model(fit.full)
-name <- c("Sex", "Age", "Therapy", "Site of primary", "Stage", "KRAS", "BRAF", "NRAS")
+name <- c("Sex", "Age", "Therapy", "Site of primary", "Stage", "KRAS", "NRAS", "BRAF")
 plot_model(fit.full, axis.lim = c(0.1, 10), axis.labels = rev(name), title = "Validation")
 dev.off()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + BRAF + NRAS, data=res_prova, family=binomial())

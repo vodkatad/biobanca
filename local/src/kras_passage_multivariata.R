@@ -59,9 +59,9 @@ res2 <- res2[, c("model", "KRAS.x", "passage", "validated", "SITE.OF.PRIMARY")]
 
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
-fit.kras <- glm(validated ~ KRAS.x + passage + SITE.OF.PRIMARY, data=res2,family=binomial())
+fit.kras <- glm(validated ~ passage + KRAS.x + SITE.OF.PRIMARY, data=res2,family=binomial())
 pdf("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/multivariata_KRAS_passage_site.pdf")
-plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated", axis.labels = rev(c("KRAS", "Passage", "Site of primary"))) 
+plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated", axis.labels = rev(c("Passage", "KRAS", "Site of primary"))) 
 dev.off()
 
 status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
