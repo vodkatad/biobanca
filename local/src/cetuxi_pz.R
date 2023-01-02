@@ -4,7 +4,7 @@ cld <- read.table('/scratch/trcanmed/biobanca/local/share/data/clinical_data_don
 vivod <- read.table('/scratch/trcanmed/biobanca/dataset/V1/cetuximab/cetuxi_perc_w3_buoni.tsv', sep="\t", header=TRUE) 
 vitrod <- read.table('/scratch/trcanmed/biobanca/dataset/V1/cetuximab/pdo_cetuxi_buoni.tsv', sep="\t", header=TRUE) 
 
-nrow(cld)
+# nrow(cld) 
 nrow(vivod)
 nrow(vitrod)
 table(cld$RESPONSE.TO.CETUX.THERAPY)

@@ -1,5 +1,5 @@
 library(stringr)
-data <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char='')
+data <- read.table("/scratch/trcanmed/biobanca/local/share/data/TABLE_2_SImo_201222.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char='')
 
 # QC:
 # Not passed     Passed 
@@ -29,6 +29,5 @@ dataWithoutMisteryUniverse$buoni[grepl('Successful', dataWithoutMisteryUniverse$
 dataWithoutMisteryUniverse$buoni[dataWithoutMisteryUniverse$VALIDATION == "Trusted"] <- TRUE
 
 ##
-setwd("~/work/biobanca/")
 dataWithoutMisteryUniverse <- dataWithoutMisteryUniverse[,c('smodel','buoni')]
-write.table(dataWithoutMisteryUniverse, file="biobanca_pdo_buoni.tsv", sep="\t", quote=FALSE, row.names=FALSE)
+write.table(dataWithoutMisteryUniverse, file="/scratch/trcanmed/biobanca/local/share/data/altribuoni.tsv", sep="\t", quote=FALSE, row.names=FALSE)

@@ -24,7 +24,9 @@ get_sensitivity_specificity <- function(thr, df) {
   tp <- nrow(df[df$scores > thr & df$labels==1,])
   n <- nrow(df[df$labels == 0,])
   tn <- nrow(df[df$scores <= thr & df$labels==0,])
-  return(c(tp/p, tn/n, tp, tn))
+  fn <- nrow(df[df$scores <= thr & df$labels==1,])
+  fp <- nrow(df[df$scores > thr & df$labels==0,])
+  return(c(tp/p, tn/n, tp, tn, fp, fp))
 }
 
 compute_thr <- function(scores, labels) {
@@ -37,7 +39,7 @@ compute_thr <- function(scores, labels) {
   upper_bs <- as.numeric(upper_bs)
   upper_bs <- upper_bs[order(-upper_bs)]
   res <- as.data.frame(t(sapply(upper_bs, get_sensitivity_specificity, df)))
-  colnames(res) <- c('sensitivity', 'specificity', 'tp', 'tn')
+  colnames(res) <- c('sensitivity', 'specificity', 'tp', 'tn', 'fp', 'fn')
   res$thr <- upper_bs
   return(res)
 }

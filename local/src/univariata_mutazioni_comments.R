@@ -7,6 +7,7 @@ rf <- snakemake@input[["rdata_targeted_all"]]
 buoni_f <- snakemake@input[["pdo"]]
 fit_gene <- snakemake@output[["fit_plot_gene"]]
 res_genes <- snakemake@output[["res"]]
+mut_tab <- snakemake@output[["mut"]]
 
 load(rf)
 mut <- as.data.frame(pdobing)
@@ -54,13 +55,39 @@ mut <- as.data.frame(t(mut))
 mut$smodel <- rownames(mut)
 
 buoni <- read.table(buoni_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+buoni <- buoni %>% filter(!type == "Validation not performed")
+rownames(buoni) <- buoni$CASE
+for (i in rownames(buoni)) {
+  if (buoni[i, "type"] == "Validation successful"){
+    buoni [i, "type"] <- TRUE
+  } else {
+    buoni [i, "type"] <- FALSE
+  }
+}
 
+colnames(buoni) <- c("smodel", "buoni")
 merged <- merge(mut, buoni, by = "smodel")
 #setdiff(mut$smodel, buoni$smodel)
 #[1] "CRC1448" "CRC1897"
 
 merged$smodel <- NULL
 merged$buoni <- as.factor(merged$buoni)
+
+merged2 <- merged
+merged2$Validation <- NA
+for (i in rownames(merged2)) {
+  if (merged2[i, "buoni"] == TRUE){
+    merged2[i, "Validation"] <- "Validation successful"
+  } else {
+    merged2[i, "Validation"] <- "Validation not successful"
+  }
+}
+merged2 <- cbind(merged2$Validation, merged2)
+merged2$buoni <- NULL
+merged2$Validation <- NULL
+names(merged2)[names(merged2) == "merged2$Validation"] <- "Validation"
+
+write.table(merged2, mut_tab, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 
 #fit <- glm(buoni ~ KRAS, merged, family = binomial())
 #plot_model(fit)
@@ -93,6 +120,7 @@ write.table(res, res_genes, quote = FALSE, sep = "\t", col.names = TRUE, row.nam
 # plot_model(fit)
 
 ctnnb1 <- glm(formula = buoni ~ CTNNB1, merged, family = binomial())
-pdf(fit_gene)
-plot_model(ctnnb1, axis.lim = c(0.01, 1), title = "Validation", axis.labels = "CTNNB1")
+pdf(fit_gene, useDingbats=FALSE)
+plot_model(ctnnb1, axis.lim = c(0.01, 1), title = "Validation", axis.labels = "CTNNB1 [True]")
 dev.off()
+

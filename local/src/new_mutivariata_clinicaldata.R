@@ -10,6 +10,8 @@ res_circos <- snakemake@output[["df_circos"]]
 plot_fit <- snakemake@output[["fit_plot"]]
 res_fit <- snakemake@output[["results_fit"]]
 
+## why new? modificati i buoni dopo essere ripartiti dalla table 2 di simo 
+
 print("se clinical data non viene caricata controllare tramite visual studio code che 
 alcune righe non contengano un invio non visibile su rstudio e cancellare l'invio
 controllare che il tab sia corretto per mantere le colonne corrette")
@@ -22,8 +24,10 @@ controllare che il tab sia corretto per mantere le colonne corrette")
 cl <- read.table(cl_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
 #buoni_f <- "/scratch/trcanmed/biobanca/local/share/data/biobanca_pdo_buoni.tsv"
+#buoni_f <- "/scratch/trcanmed/biobanca/local/share/data/whoiswho_validation_xen.tsv" 
 buoni <- read.table(buoni_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
-names(buoni)[names(buoni) == "smodel"] <- "CASE"
+#names(buoni)[names(buoni) == "smodel"] <- "CASE"
+names(buoni)[names(buoni) == "type"] <- "buoni"
 
 merged <- merge(cl, buoni, by = "CASE")
 
@@ -37,9 +41,9 @@ rownames(tfra) <- NULL
 
 res <- merge(merged, tfra, by = "CASE", all.x = TRUE)
 ## remove hcc
-rownames(res) <- res$CASE
-row_names_df_to_remove<-c("CRC1379", "CRC1479", "CRC1737")
-res <- res[!(row.names(res) %in% row_names_df_to_remove),]
+#rownames(res) <- res$CASE
+#row_names_df_to_remove<-c("CRC1379", "CRC1479", "CRC1737")
+#res <- res[!(row.names(res) %in% row_names_df_to_remove),]
 
 ## creo un df con solo i dati necessari per la multivariata
 res <- res[c("CASE", "AGE.AT.COLLECTION", "SEX", "SITE.OF.PRIMARY", "STAGE", "THERAPY.BEFORE..Y.N.",
@@ -48,8 +52,9 @@ res <- res[c("CASE", "AGE.AT.COLLECTION", "SEX", "SITE.OF.PRIMARY", "STAGE", "TH
 #names(res)[names(res) == "N"] <- "Classification_N"
 
 ## sistemo il df per poter accorpare i siti del primario
+rownames(res) <- res$CASE
 
-res["CRC1241", "SITE.OF.PRIMARY"] <- "NONE"
+#res["CRC1241", "SITE.OF.PRIMARY"] <- "NONE"
 res["CRC1575", "SITE.OF.PRIMARY"] <- "NONE"
 res["CRC0578", "SITE.OF.PRIMARY"] <- "NONE"
 for (i in seq(res$CASE)) {
@@ -103,27 +108,27 @@ for (i in seq(res$CASE)) {
 
 ## sistemo stage per non perdere i casi con la lettera
 
-res["CRC1241", "STAGE"] <- "N"
+#res["CRC1241", "STAGE"] <- "N"
 res["CRC1575", "STAGE"] <- "N"
 res["CRC0578", "STAGE"] <- "N"
 res["CRC1390", "STAGE"] <- "N"
 
- 
+
 for (i in seq(res$CASE)) {
-   if (res[i, "STAGE"] == "2A") {
-     res[i, "STAGE"] <- "2"
-   } else if (res[i, "STAGE"] == "2B") {
-     res[i, "STAGE"] <- "2"
-   } else if (res[i, "STAGE"] == "3A") {
-     res[i, "STAGE"] <- "3"
-   } else if (res[i, "STAGE"] == "3B") {
-     res[i, "STAGE"] <- "3"
-   } else if (res[i, "STAGE"] == "4A") {
-     res[i, "STAGE"] <- "4"
-   } else {
-     res[i, "STAGE"] <- res[i, "STAGE"]
-   }
- }
+  if (res[i, "STAGE"] == "2A") {
+    res[i, "STAGE"] <- "2"
+  } else if (res[i, "STAGE"] == "2B") {
+    res[i, "STAGE"] <- "2"
+  } else if (res[i, "STAGE"] == "3A") {
+    res[i, "STAGE"] <- "3"
+  } else if (res[i, "STAGE"] == "3B") {
+    res[i, "STAGE"] <- "3"
+  } else if (res[i, "STAGE"] == "4A") {
+    res[i, "STAGE"] <- "4"
+  } else {
+    res[i, "STAGE"] <- res[i, "STAGE"]
+  }
+}
 
 
 ## rendo tutto numerico o factor a seconda delle necessità
@@ -152,12 +157,16 @@ is.na(res$MSI_MSS) <- NA
 res$MSI_MSS <-  gsub('NT', NA, res$MSI_MSS)
 res$MSI_MSS <- as.factor(res$MSI_MSS)
 
-res$buoni <-  gsub('TRUE', "True", res$buoni)
-res$buoni <- gsub("FALSE","False", res$buoni)
-res$buoni <- as.factor(res$buoni)
-
 ## scrivo la tabella per i circos che comprenda anche i casi
 write.table(res, file = res_circos, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
+
+res <- res %>% filter(!buoni == "Validation not performed")
+res$buoni <-  gsub('Validation successful', "True", res$buoni)
+res$buoni <- gsub("Validation failed","False", res$buoni)
+res$buoni <- gsub("Not established","False", res$buoni)
+res$buoni <- as.factor(res$buoni)
+## scrivo la tabella per i circos che comprenda anche i casi
+#write.table(res, file = res_circos, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 
 res$CASE <- NULL
 #res_prova <- res 
@@ -167,12 +176,12 @@ res$CASE <- NULL
 
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION, data=res, family=binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + STAGE + THERAPY.BEFORE..Y.N. , data=res, family=binomial())
-fit.full <- glm(buoni ~ SITE.OF.PRIMARY + STAGE + THERAPY.BEFORE..Y.N. + KRAS + NRAS + BRAF + SEX + AGE.AT.COLLECTION, data = res, family = binomial())
+fit.full <- glm(buoni ~ SITE.OF.PRIMARY + STAGE + THERAPY.BEFORE..Y.N. + KRAS + BRAF + NRAS + SEX + AGE.AT.COLLECTION, data = res, family = binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + STAGE + KRAS + NRAS + BRAF, data=res, family=binomial())
 pdf(plot_fit, useDingbats=FALSE)
 #plot_model(fit.full)
 #name <- c("Sex", "Age", "Therapy", "Site of primary", "Stage", "KRAS", "NRAS", "BRAF")
-name <- c("Site of primary", "Stage", "Therapy", "KRAS", "NRAS", "BRAF", "Sex", "Age")
+name <- c("Site of primary", "Stage", "Therapy", "KRAS", "BRAF", "NRAS", "Sex", "Age")
 plot_model(fit.full, axis.lim = c(0.1, 10), axis.labels = rev(name), title = "Validation")
 dev.off()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + BRAF + NRAS, data=res_prova, family=binomial())

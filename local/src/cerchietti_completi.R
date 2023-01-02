@@ -12,7 +12,18 @@ dir <- '/scratch/trcanmed/biobanca/local/share/data'
 ## for not removed cases use /scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv instead use
 # /scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv
 #data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
-data <- read.table("/scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
+data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
+for (i in rownames(data)) { 
+  if (data[i, "buoni"] == "Validation failed") {
+    data[i, "buoni"] <- "Failed"
+  } else if (data[i, "buoni"] == "Validation not performed") {
+    data[i, "buoni"] <- "Not performed"
+  } else if (data[i, "buoni"] == "Validation successful") {
+    data[i, "buoni"] <- "Successful"
+  } else {
+    data[i, "buoni"] <- data[i, "buoni"]
+  }
+}
 #data$Classification_N <- as.character(data$Classification_N)
 #data$Classification_T <- as.character(data$Classification_T)
 cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete_difforder3.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")

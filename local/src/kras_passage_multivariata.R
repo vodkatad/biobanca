@@ -36,8 +36,15 @@ merged$Genealogy.ID <- NULL
 merged$Genealogy.ID_0 <- NULL
 merged$origin <- NULL
 
-pdo <- "/scratch/trcanmed/biobanca/local/share/data/biobanca_pdo_buoni.tsv"
+pdo <- "/scratch/trcanmed/biobanca/local/share/data/whoiswho_validation_xen_nolmh.tsv"
 pdo <- read.table(pdo, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+for (i in rownames(pdo)) {
+  if (pdo[i, "type"] == "Validation successful"){
+    pdo [i, "type"] <- TRUE
+  } else {
+    pdo [i, "type"] <- FALSE
+  }
+}
 colnames(pdo) <- c("model", "validated")
 
 res <- merge(merged, pdo, by = "model")
@@ -56,14 +63,29 @@ names(loc)[names(loc) == "CASE"] <- "model"
 
 res2 <- merge(res, loc, by = "model")
 res2 <- res2[, c("model", "KRAS.x", "passage", "validated", "SITE.OF.PRIMARY")]
+colnames(res2) <- c("model", "KRAS", "Passage", "Validation", "Site.of.Primary")
+rownames(res2) <- res2$model
+
+for (i in rownames(res2)) {
+  if (res2[i, "Passage"] == 1 || res2[i, "Passage"] == 2) {
+    res2[i, "Passage"] <- "Early Passage"
+  } else {
+    res2[i, "Passage"] <- "Late Passage"
+  }
+}
 
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
-fit.kras <- glm(validated ~ passage + KRAS.x + SITE.OF.PRIMARY, data=res2,family=binomial())
-pdf("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/multivariata_KRAS_passage_site.pdf")
-plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated", axis.labels = rev(c("Passage", "KRAS", "Site of primary"))) 
+fit.kras <- glm(Validation ~ Passage + Site.of.Primary + KRAS, data=res2,family=binomial())
+pdf("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/multivariata_KRAS_passage_site.pdf",useDingbats=FALSE)
+plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated") 
 dev.off()
+fit <- as.data.frame(summary.glm(fit.kras)$coefficients)
 
+write.table(res2, file = "passage_validation_site_kras.tsv", quote = FALSE,
+            sep = "\t", col.names = TRUE, row.names = FALSE)
+
+#colors = c("royalblue2", "firebrick2")
 status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
                      sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 res2 <- res
