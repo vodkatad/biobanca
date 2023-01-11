@@ -55,13 +55,16 @@ ggsave(out_plot_f, plot=gplot_nol, height=2.5, width=2.5, units='in')
 
 merged_annot$sort <- merged_annot[,col_cetuxi]
 
+maxi <- max(merged_annot$ko_score)
+
 gplot <- ggplot(data=merged_annot, aes(x=reorder(smodel, sort), y=ko_score, fill=alterations))+geom_col()+
   unmute_theme +
   xlab('cetuximab viability') +
   ylab('EGFR avg ko score') +
   scale_fill_manual(values=c('darkorange', 'darkred', 'grey40')) +
   labs(color="Relevant somatic alterations") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_point(aes_string(y=col_cetuxi), size=0.3)
 
 ggsave(out_barplot_f, plot=gplot, height=2.5, width=2.5, units='in')
 
