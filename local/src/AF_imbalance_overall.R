@@ -54,7 +54,7 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     long <- long[long$value != 0,]
     # and get better columns for x-o etc
     long$type <-  substr(long$variable, 9, 9)
-    long$class <- ifelse(long$type == 'x', 'pdx', 'pdo')
+    long$class <- ifelse(long$type == 'x', 'PDX', 'PDXT')
     long$smodel <- substr(long$variable, 0, 7)
     # group is a variable with mut id / model useful for pairing things (e.g. draw lines pairing dots in ggplot)
     long$group <- paste0(long$id, long$smodel)
@@ -73,8 +73,8 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     #ggsave(paste0(gene, ".png"))
 
     # setup of data for the t-test, we need two vectors of AF with ordered by mut/smodel (available in group here)
-    longx <- long[long$class == "pdx",]
-    longo <- long[long$class == "pdo",]
+    longx <- long[long$class == "PDX",]
+    longo <- long[long$class == "PDXT",]
     longx <- longx[order(longx$group),]
     longo <- longo[order(longo$group),]
     if (! all(longx$group==longo$group)) { 

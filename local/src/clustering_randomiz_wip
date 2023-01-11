@@ -1,0 +1,17 @@
+d <- read.table('count_clustering_model.tsv', header=T)
+head(d)
+ds <- d
+ds$cl_id <- sample(ds$cl_id)
+dd <- unique(d)
+dds <- unique(ds)
+head(dd)
+dt <- as.data.frame(table(dd$shortgen))
+dst <- as.data.frame(table(dds$shortgen))
+head(dt)
+dim(dt)
+dim(dt[dt$Freq==1,])
+dim(dst[dst$Freq==1,])
+dim(dst)
+dst
+history()
+
