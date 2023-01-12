@@ -54,7 +54,7 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     long <- long[long$value != 0,]
     # and get better columns for x-o etc
     long$type <-  substr(long$variable, 9, 9)
-    long$class <- ifelse(long$type == 'x', 'PDX', 'PDXT')
+    long$class <- ifelse(long$type == 'x', 'PDXs', 'PDXTs')
     long$smodel <- substr(long$variable, 0, 7)
     # group is a variable with mut id / model useful for pairing things (e.g. draw lines pairing dots in ggplot)
     long$group <- paste0(long$id, long$smodel)
@@ -73,8 +73,8 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     #ggsave(paste0(gene, ".png"))
 
     # setup of data for the t-test, we need two vectors of AF with ordered by mut/smodel (available in group here)
-    longx <- long[long$class == "PDX",]
-    longo <- long[long$class == "PDXT",]
+    longx <- long[long$class == "PDXs",]
+    longo <- long[long$class == "PDXTs",]
     longx <- longx[order(longx$group),]
     longo <- longo[order(longo$group),]
     if (! all(longx$group==longo$group)) { 
@@ -122,8 +122,8 @@ for (i in seq(1, length(plots), by=12)) {
   if (end > length(plots)) {
     end <- length(plots)
   }
-  pdf(paste0('set_', j, '.pdf'), width=11, height=16) # paper="a4" was not working, need to specify sizes explicitly to use all the space
-  print(ggarrange(plotlist=plots[i:end], ncol=2, nrow=6)+ theme(plot.margin = margin(0,0,0,0, "cm"))) # margin does not do anything at all
+  pdf(paste0('set_', j, '.pdf'), width=8.27, height=11.69) # paper="a4" was not working, need to specify sizes explicitly to use all the space
+  print(ggarrange(plotlist=plots[i:end], ncol=2, nrow=6)+ theme(plot.margin = margin(1.6,1.6,1.6,1.6, "cm"))) # margin does not do anything at all
   graphics.off()
   j <- j + 1
   #ggsave(file=paste0('set_', i, '.pdf'), g) 
