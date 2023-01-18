@@ -50,3 +50,10 @@ rule plot_CTG_imaging:
     input: pdo_cetuxi = "pdo_cetuxi_buoni.tsv",  Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
     output: pic_legend = "CTG_vs_Imaging_legend.pdf", pic_square = "CTG_vs_Imaging.pdf", cors="CTG_vs_Imaging.tsv"
     script: SRC_DIR+"/ctg_imaging_plot.R"
+
+### xlsx dei volumi di cetuximab per i PDO buoni creato con /scratch/trcanmed/biobanca/local/src/cetuxi_percentage_xlsx.R
+
+rule vitro_vito_cet:
+    input: pdo_cetuxi = "pdo_cetuxi_buoni.tsv", cetuxi_w3 = "cetuxi_perc_w3_buoni.tsv"
+    output: sup = "supplementary_vitro_vivo_cetuximab.tsv"
+    script: SRC_DIR+"/supplementary_vitrovivo_cet.R"

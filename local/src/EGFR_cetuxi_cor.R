@@ -71,7 +71,8 @@ gplot <- ggplot(data=merged_annot, aes(x=reorder(smodel, sort), y=ko_score, fill
   scale_fill_manual(values=c('darkorange', 'darkred', 'grey40')) +
   labs(color="Relevant somatic alterations") +
   #scale_y_continuous(sec.axis = sec_axis(~ ., name="CTX treated/untreated luminescence ratio")) +
-  scale_y_continuous(sec.axis = sec_axis(~ (. - a)/b, name="CTX treated/untreated luminescence ratio")) +
+  scale_y_continuous(breaks=c(-0.25, 0, 0.25, 0, 0.50, 0.75, 1), limits=c(-0.25, 1),
+    sec.axis = sec_axis(~ (. - a)/b, name="CTX treated/untreated luminescence ratio")) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   #geom_point(aes_string(y=col_cetuxi), size=0.3)
   geom_point(aes(y=a+sort*b), size=0.3)

@@ -79,7 +79,7 @@ rule auc_r:
 
 
 rule crispr:    
-    input: g1=DATA+'/EGFR_ds_crispr/EGFR_ds_1.tsv', g2=DATA+'/EGFR_ds_crispr/EGFR_ds_2.tsv', 
+    input: g1=DATA+'/EGFR_ds_crispr_newnorm/EGFR_ds_1.tsv', g2=DATA+'/EGFR_ds_crispr_newnorm/EGFR_ds_2.tsv', 
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
     output: plot="EGFR_ds_guides_cor.pdf", avg="EGFR_ds_avg.tsv"
     log: log="EGFR_ds_guides_cor.log"
