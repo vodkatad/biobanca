@@ -2,6 +2,7 @@
 library(ggplot2)
 library(pheatmap)
 res_f<- snakemake@input[["res"]]
+clu_f<- snakemake@input[["clu"]]
 density_f <- snakemake@output[["density_plot"]]
 wilcox_f <- snakemake@output[["wilcox_result"]]
 
@@ -23,6 +24,12 @@ theme(
 
 
 res_df <- read.table(gzfile(res_f), quote = "", sep = "\t", header = TRUE)
+
+# estraggo solo i modelli nel clustering, printo i numeri prima dopo per check consistenza
+dim(res_df)
+cludf <- read.table(clu_f, header=TRUE)
+res_df <- res_df[rownames(res_df) %in% cludf$shortgen, colnames(res_df) %in% cludf$shortgen]
+dim(res_df)
 
 ### prendo la diagonale, quindi i campioni matched con la funzione diag mentre gli unmatched li prendo con upper.tri per la
 ### parte sopra la diagonale e lower.tri per la parte inferiore alla diagonale

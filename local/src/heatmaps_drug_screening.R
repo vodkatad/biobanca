@@ -10,7 +10,14 @@ d <- read.table(max_inh_f, sep="\t", header=TRUE)
 dm <- cast(d, formula=DRUG ~ MODEL, value = "MAX_VALUE", add.missing=TRUE, fill=NA)
 row.names(dm) <- dm$DRUG
 dm$DRUG <- NULL
-pheatmap(dm, cluster_cols=F, cluster_rows=F)
+dm$mean <- rowMeans(dm, na.rm = TRUE)
+dm <- dm[order(dm$mean),]
+dm$drug <- rownames(dm)
+dm$drug2 <- sub("_[^.]*$", "", dm$drug)
+rownames(dm) <- dm$drug2
+ 
+pheatmap(dm[1:5], cluster_cols=F, cluster_rows=F)
+
 
 #da <- read.table('/scratch/trcanmed/biobanca/dataset/V1/drug_screening/anova.tsv', sep="\t", header=TRUE)
 da <- read.table(anova_f, sep="\t", header=TRUE)
@@ -21,4 +28,5 @@ dma$DRUG <- NULL
 dma <- round(dma, digits=2)
 dma <- round(dma, digits=2)
 dma[is.na(dma)] <- ''
-pheatmap(dm, cluster_cols=F, cluster_rows=F, display_number=dma, fontsize=5, height=4, width=4, file=heatmap_f)
+pheatmap(dma)
+pheatmap(dm[1:5], cluster_cols=F, cluster_rows=F, display_number=dma, fontsize=5, height=4, width=4, file=heatmap_f)

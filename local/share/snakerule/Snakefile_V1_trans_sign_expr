@@ -118,6 +118,10 @@ rule obtain_density_plot_wilcox_simo_buoni:
     output: density_plot = "density_f_simo_buoni.pdf", wilcox_result ="wilcox_simo_buoni"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
+rule obtain_density_plot_wilcox_clustering:
+    input: res="LMX-LMO_correlation_smodelCoupled.tsv", clu="count_clustering_model.tsv"
+    output: density_plot = "density_f_clustering.pdf", wilcox_result ="wilcox_clustering"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox_filterclu.R'
 
 ### Study genes with high studentized residuals in correlations
 rule threshold_residual:
@@ -450,17 +454,22 @@ rule obtain_density_plot_wilcox_buoni:
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
 rule multivariata_clinical_data:
-    input: clinical_data = CLI, pdo=BUONI, mut = FRA_MUT
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
     output: df_circos = "clinical_data_for_circos.tsv", fit_plot = "plot_fit_validated.pdf", results_fit = "result_fit.tsv"
-    script: SRC_DIR+'/multivariata_clinicaldata.R'
+    script: SRC_DIR+'/new_multivariata_clinicaldata.R'
 
-### kras multivariata con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
+### alla luce del dramma dei numeri non corrispondenti è stato creato un pdo buoni ad hoc con lo script in /local/share/definition_case_validation.R
+### multivariata_KRAS_passage_site con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
 
 rule univariata_mutation:
-    input: pdo=BUONI, rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
-    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv"
+    input: pdo= "../../../../local/share/data/whoiswho_validation_xen_nolmh.tsv", rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
+    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv", mut = "table_mut_genes.tsv"
     script: SRC_DIR+'/univariata_mutazioni_comments.R'
 
+rule DNAseq_samples_EGAids_whoiswho:
+    input: dataset = "/scratch/trcanmed/biobanca/local/share/data/DNAseq_samples_EGAids.xlsx", pdo= "../../../../local/share/data/whoiswho_validation_xen.tsv"
+    output: res = "DNAseq_samples_EGAids_whoiswho.xlsx"
+    script: SRC_DIR+'/DNAseq_samples_EGAids_whoiswho.R'
 
 # Numeri paper:
 #> d <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
@@ -484,3 +493,6 @@ rule univariata_mutation:
 #> summary(c(unlist(res_df[rownames(res_df)=="CRC1241",]),  res_df[, colnames(res_df)=="CRC1241"]))
 #   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 0.1700  0.2761  0.3100  0.3222  0.3463  0.8999 
+# summary(c(unlist(res_df[rownames(res_df)=="CRC1241", colnames(res_df)!="CRC1241"]),  res_df[rownames(res_df)!="CRC1241", colnames(res_df)=="CRC1241"]))
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2755  0.3097  0.3134  0.3449  0.5105 

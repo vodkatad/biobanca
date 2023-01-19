@@ -86,6 +86,8 @@ merged2 <- cbind(merged2$Validation, merged2)
 merged2$buoni <- NULL
 merged2$Validation <- NULL
 names(merged2)[names(merged2) == "merged2$Validation"] <- "Validation"
+merged2[merged2==TRUE] <- "Mutated"
+merged2[merged2==FALSE] <- "WT"
 
 write.table(merged2, mut_tab, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 
@@ -108,6 +110,7 @@ for (f in formula_strings) {
 }
 
 colnames(res) <- c("pvalue", "coef(fit)")
+res <- res[order(res$pvalue),]
 
 write.table(res, res_genes, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
 
@@ -124,3 +127,11 @@ pdf(fit_gene, useDingbats=FALSE)
 plot_model(ctnnb1, axis.lim = c(0.01, 1), title = "Validation", axis.labels = "CTNNB1 [True]")
 dev.off()
 
+# to put odds ratio in the main text, run 19/01/23 loading ctnnb1.Rdata
+#> exp(res[,2])
+ #[1] 6.722689e-02 1.939655e-01 1.475410e-01 3.669725e-01 3.559322e-01
+ #[6] 3.559322e-01 2.000000e+00 4.102564e-01 4.102564e-01 5.217391e-01
+ # [11] 5.789474e-01 1.075472e+00 1.051136e+00 2.502636e+06 4.317079e-08
+ # [16] 2.481781e+06 2.481781e+06 2.481781e+06 2.481781e+06 2.481781e+06
+ # [21] 7.039492e+06 2.461270e+06 6.860522e+06 6.860522e+06 6.860522e+06
+ # [26] 6.860522e+06

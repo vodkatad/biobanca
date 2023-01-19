@@ -1,2 +1,0 @@
-egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ bawk '$2!=""' XENTURION_CLINICAL\ DATA_Eugenia_06092022_DEF.tsv  | grep -v "N\/A" | cut -f 1,2 | grep -v Y > paired_PDO.tsv
-# manual cause bit of mess with empty lines etc that I want to check if redone in the future directly

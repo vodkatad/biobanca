@@ -66,13 +66,13 @@ res2 <- res2[, c("model", "KRAS.x", "passage", "validated", "SITE.OF.PRIMARY")]
 colnames(res2) <- c("model", "KRAS", "Passage", "Validation", "Site.of.Primary")
 rownames(res2) <- res2$model
 
-for (i in rownames(res2)) {
-  if (res2[i, "Passage"] == 1 || res2[i, "Passage"] == 2) {
-    res2[i, "Passage"] <- "Early Passage"
-  } else {
-    res2[i, "Passage"] <- "Late Passage"
-  }
-}
+# for (i in rownames(res2)) {
+#   if (res2[i, "Passage"] == 1 || res2[i, "Passage"] == 2) {
+#     res2[i, "name_Passage"] <- "Early Passage"
+#   } else {
+#     res2[i, "name_Passage"] <- "Late Passage"
+#   }
+# }
 
 fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())

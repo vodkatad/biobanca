@@ -92,3 +92,18 @@ rule ctg_vs_crispr:
     output: plot="EGFR_{CTG}_cor.pdf", plot_legend="EGFR_{CTG}_cor.legend.pdf", barplot="EGFR_{CTG}_barplot.pdf", barplot_legend="EGFR_{CTG}_barplot_legend.pdf"
     log: log="EGFR_{CTG}_cor.log"
     script: SRC_DIR+"/EGFR_cetuxi_cor.R"
+
+
+#> d <- read.table('targeted_annot.tsv', sep="\t", header=T)
+#> cor.test(d$CTG_5000, d$Cetuximab_dVw3)
+#
+#        Pearson's product-moment correlation
+#
+#data:  d$CTG_5000 and d$Cetuximab_dVw3
+#t = 5.8814, df = 77, p-value = 9.913e-08
+#alternative hypothesis: true correlation is not equal to 0
+#95 percent confidence interval:
+# 0.3827721 0.6926076
+#sample estimates:
+#      cor 
+#0.5567611 

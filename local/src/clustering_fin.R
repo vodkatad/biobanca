@@ -42,7 +42,7 @@ pdoex <- pdoex %>% filter(model %in% difference)
 crc <- pdoex$lineage
 
 expr_selected <- expr_selected[,!colnames(expr_selected) %in% crc]
-
+save.image('table_expression_clustering.Rdata')
 dist_pearson <- as.dist(1-cor(expr_selected, method="pearson"))
 
 #d <- dist(df, method = "euclidean")
