@@ -90,7 +90,7 @@ rule heatmap_score_show_anovapval:
     script: SRC_DIR+"/heatmaps_drug_screening.R"
 
 rule heatmap_score_show_anovapval_novalue:
-    input: max_inh="max_drug_value.tsv", anova="anova.tsv"
+    input: max_inh="max_drug_value.tsv", drug_targets="/scratch/trcanmed/biobanca/local/share/data/targets_drug_screening.xlsx"
     output: heatmap="heatmap_max_inhibition_score_novalue.pdf"
     script: SRC_DIR+"/heatmaps_drug_screening_novalue.R"
 
@@ -98,3 +98,6 @@ rule anova_and_max_inh:
     input: max_inh="max_drug_value.tsv", anova="anova.tsv"
     output: results="anova_and_max_inh.tsv", results2 = "anova_and_max_inh.xlsx"
     script: SRC_DIR+"/anova_max_inh.R"
+
+
+### table_expr_drug_screening.tsv eseguita con script table_expr_drug_screening.R

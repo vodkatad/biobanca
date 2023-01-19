@@ -82,7 +82,7 @@ table(res$filter_PDX_S & res$filter_PDX_R)
 table(res$filter_PDX_S & res$filter_PDX_R & res$filter_expr)
 table(res$allfilter)
 
-write.table(res, gzfile('18v1_deg_filtersteps_tractability_group.tsv.gz'), sep="\t", quote=F, row.names=T)
+#write.table(res, gzfile('18v1_deg_filtersteps_tractability_group.tsv.gz'), sep="\t", quote=F, row.names=T)
 
 res_new <- res
 

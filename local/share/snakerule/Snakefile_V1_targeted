@@ -1,5 +1,7 @@
 include: './conf.sk'
 
+# Rerun the 19/01/23 to satisfy Livio hunger for statistics, this will trigger all the other rules if they will be relaunched.
+# checked diff of pdo_tiers.tsv with the previous one, it's the same.
 # Initial AF plots/N muts both for all muts and filtered via PCGR tiers, producing filtered AF tables and log of n samples.
 rule initial_plots_filter_good:
     input: xenoAF=MUTECT_DIR+'pdx'+ALLFIX,
@@ -12,6 +14,7 @@ rule initial_plots_filter_good:
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
     log: log="starting_log.txt"
     script: SRC_DIR+"/targeted_plots_filterGOOD.R"
+
 
 rule n_muts:
     input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv", Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'

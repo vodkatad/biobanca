@@ -68,7 +68,12 @@ filter_plot <- function(pdo, xeno, keep, out) {
 
     afx <- unlist(xeno[xeno!=0])
     afo <- unlist(pdo[pdo!=0])
+
+    ks <- ks.test(afx, afo)
+    sink(snakemake@log[[1]], append=TRUE)
+    print(paste0('ks test ', out,  ': ', ks$p.value))
     pd <- data.frame(af=c(afo, afx), class=c(rep('pdo', length(afo)),rep('pdx',length(afx))))
+
     #ggplot(data=pd, aes(x=af, color=class, y=..count..)) + geom_density()+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
     ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+
     scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme+
@@ -92,6 +97,11 @@ plot_n <- function(pdo, pdx, out) {
     n_muts_o <- colSums(pdobin)
     #hist(n_muts_x, breaks=20)
     #hist(n_muts_o, breaks=20)
+
+    ks <- ks.test(n_muts_o, n_muts_x)
+    sink(snakemake@log[[1]], append=TRUE)
+    print(paste0('ks test ', out,  ': ', ks$p.value))
+    
     pd <- data.frame(af=c(n_muts_o, n_muts_x), class=c(rep('pdo', length(n_muts_o)),rep('pdx',length(n_muts_x))))
     #ggplot(data=pd, aes(x=af, color=class,y=..count..)) + geom_density()+xlab('nmuts')+unmute_theme
     ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme+
