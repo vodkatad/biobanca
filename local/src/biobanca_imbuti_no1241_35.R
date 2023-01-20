@@ -82,24 +82,44 @@ table(res$filter_PDX_S & res$filter_PDX_R)
 table(res$filter_PDX_S & res$filter_PDX_R & res$filter_expr)
 table(res$allfilter)
 
-#write.table(res, gzfile('18v1_deg_filtersteps_tractability_group.tsv.gz'), sep="\t", quote=F, row.names=T)
 
-res_new <- res
+#res_new <- res
+
+dgi <- read.table('/scratch/trcanmed/biobanca/local/share/data/dgidb_101.csv', sep="\t", header=TRUE, quote="", comment.char="")
+dgig <- unique(dgi$search_term)
+dgi_genes <- data.frame(gene.name=dgig, dgi=rep('DGI101', length(dgig)))
+
+length(dgig)
+length(intersect(row.names(res_new), dgig))
+res_new_m <- merge(res_new, dgi_genes, by.x="row.names", by.y='gene.name', all.x=TRUE, sort=FALSE)
+
+write.table(res_new_m, gzfile('18v1_deg_filtersteps_tractability_group.tsv.gz'), sep="\t", quote=F, row.names=T)
+
+dim(res_new_m)
+dim(res_new)
+rownames(res_new_m) <- res_new_m$Row.names
+res_new_m$Row.names <- NULL
+res_new_m <- res_new_m[match(rownames(res_new), rownames(res_new_m)),]
+all(rownames(res)== rownames(res_new_m))
+nuovi <- res_new_m[res$allfilter != res_new_m$allfilter & res_new_m$allfilter,]
 
 
 
-all(rownames(res)== rownames(res_new))
-res_new[res$allfilter != res_new$allfilter,]
-nuovi <- res_new[res$allfilter != res_new$allfilter & res_new$allfilter,]
+
 write.table(nuovi, '~/stronzi_nodgi.tsv', sep="\t", quote=F)
 
 buckets <- read.table("../../local/share/data/Supplementary_Table_9_list_bucket.txt", sep="\t", header=T)
 buck <- aggregate(buckets$Cancer.Tissue.Type, buckets[, c(2,3,4)], FUN=function(x) {as.character(paste0(unique(x), collapse=","))} , simplify=T)
 colnames(buck)[4] <- 'cancer_type'
 
-mres <- merge(res_new, buck, by.x="row.names", by.y="Target", all.x=TRUE)
+mres <- merge(res_new_m, buck, by.x="row.names", by.y="Target", all.x=TRUE)
 rownames(mres) <- mres$Row.names
 mres$Row.names <- NULL
+
+
+
+
+
 #write.table(res, gzfile('deg_filtersteps_tractability_group.tsv.gz'), sep="\t", quote=F, row.names=T)
 selection <- mres[!is.na(mres$Tractability.Group) & mres$Tractability.Group <=1 & mres$allfilter,] 
 

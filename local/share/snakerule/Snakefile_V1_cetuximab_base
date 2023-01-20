@@ -53,7 +53,12 @@ rule plot_CTG_imaging:
 
 ### xlsx dei volumi di cetuximab per i PDO buoni creato con /scratch/trcanmed/biobanca/local/src/cetuxi_percentage_xlsx.R
 
-rule vitro_vito_cet:
+rule vitro_vivo_cet:
     input: pdo_cetuxi = "pdo_cetuxi_buoni.tsv", cetuxi_w3 = "cetuxi_perc_w3_buoni.tsv"
     output: sup = "supplementary_vitro_vivo_cetuximab.tsv"
     script: SRC_DIR+"/supplementary_vitrovivo_cet.R"
+
+rule vitro_vivo_cet_x:
+    input: sup = "supplementary_vitro_vivo_cetuximab.tsv"
+    output: supx = "supplementary_vitro_vivo_cetuximab.xlsx"
+    shell: "tsv_to_xls -i {input.sup} -o {output.supx} -s fig5"

@@ -12,10 +12,10 @@ ctgi <- read.table(ctgi_f, quote = "", sep = "\t", header = TRUE, stringsAsFacto
 #vivo_f <- "/scratch/trcanmed/biobanca/dataset/V1/cetuximab/cetuxi_perc_w3_buoni.tsv"
 vivo <- read.table(vivo_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
-merged <- merge(ctgi, vivo, all.x = TRUE)
+merged <- merge(ctgi, vivo, by="case",  all.x = TRUE)
 names(merged)[names(merged) == "perc"] <- "perc_cetux_3_weeks"
 
-write.table(merged, file = "/scratch/trcanmed/biobanca/dataset/V1/cetuximab/supplementary_vitro_vivo_cetuxi.tsv", quote = FALSE,
+write.table(merged, file = res, quote = FALSE,
             sep = "\t", col.names = TRUE, row.names = FALSE)
 
 
