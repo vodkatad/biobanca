@@ -187,3 +187,7 @@ rule naive_roc:
     #0.8609374999999999
 
 ### targeted_annot.xlsx e targeted_annot_clean.xlsx derive from table_mutation_kras_nras_braf_her2.R
+rule raw_data:
+    input: "targeted_annot.tsv"
+    output: "targeted_annot_rule.xlsx"
+    shell: "tsv_to_xls -i {input} -o {output} -s Fig5b"

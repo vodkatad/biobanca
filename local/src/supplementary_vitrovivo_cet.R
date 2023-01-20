@@ -18,4 +18,4 @@ names(merged)[names(merged) == "perc"] <- "perc_cetux_3_weeks"
 write.table(merged, file = res, quote = FALSE,
             sep = "\t", col.names = TRUE, row.names = FALSE)
 
-
+write.xlsx(merged, "/home/mferri/prova_cetuxi.xlsx")
