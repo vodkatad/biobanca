@@ -44,7 +44,10 @@ w <- wilcox.test(x, y)
 
 wilcox <- data.frame(row.names = "wilcox.test", pvalue=w$p.value)
 write.table(wilcox, file=wilcox_f, quote = FALSE, sep = "\t", row.names = TRUE, col.names = TRUE)
+
 sink(wilcox_f, append=TRUE)
+length(x)
+length(y)
 summary(matched)
 summary(unmatched)
 sink()
