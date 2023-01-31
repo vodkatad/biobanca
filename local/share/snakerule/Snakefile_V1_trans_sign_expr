@@ -471,6 +471,8 @@ rule DNAseq_samples_EGAids_whoiswho:
     output: res = "DNAseq_samples_EGAids_whoiswho.xlsx"
     script: SRC_DIR+'/DNAseq_samples_EGAids_whoiswho.R'
 
+## deg_filtersteps_tractability_group.tsv made with /local/src/biobanca_imbuti_no1241_53.R
+
 # Numeri paper:
 #> d <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
 #> summary(diag(as.matrix(d)))
