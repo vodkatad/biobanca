@@ -148,6 +148,14 @@ rule get_model_cris_simo:
     log: "model_cris.log"
     script: SRC_DIR+ '/CRIS_simo_wip2.R'
 
+# Alternative where we do not toss out the replicates with different cris assignment but keep them choosing:
+# the smallest passage available for PDOs at a given lineage
+# the PDX which has the genealogy more similar to the one chosen by Simo for DNA.
+rule get_model_cris_simo_parallelo:
+    input: simo="SIMO_v2.tsv", pdx="vsd_cris_LMX_BASALE_prediction_result_nc.tsv", pdo = "vsd_cris_LMO_BASALE_prediction_result_nc.tsv"
+    output: right="vsd_model_cris-right_parallelo.tsv", lineage = "chosen_lineage_parallelo.tsv"
+    log: "model_cris_parallelo.log"
+    script: SRC_DIR+ '/CRIS_simo_wip2_parallel.R'
 
 rule true_simo:
     input: cris="vsd_model_cris-right.tsv", true=TRUE
