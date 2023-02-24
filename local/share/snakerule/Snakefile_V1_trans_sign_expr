@@ -453,17 +453,21 @@ rule obtain_density_plot_wilcox_buoni:
     output: density_plot = "density_f_buoni.pdf", wilcox_result ="wilcox_buoni"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
+# rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
 rule multivariata_clinical_data:
     input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
     output: df_circos = "clinical_data_for_circos.tsv", fit_plot = "plot_fit_validated.pdf", results_fit = "result_fit.tsv"
+    log: log="clinical_data_for_circos.tsv.log"
     script: SRC_DIR+'/new_multivariata_clinicaldata.R'
 
 ### alla luce del dramma dei numeri non corrispondenti è stato creato un pdo buoni ad hoc con lo script in /local/share/definition_case_validation.R
 ### multivariata_KRAS_passage_site con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
 
+# rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
 rule univariata_mutation:
     input: pdo= "../../../../local/share/data/whoiswho_validation_xen_nolmh.tsv", rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
     output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv", mut = "table_mut_genes.tsv"
+    log: log="fit_genes_univariata.tsv.log"
     script: SRC_DIR+'/univariata_mutazioni_comments.R'
 
 rule DNAseq_samples_EGAids_whoiswho:
@@ -498,3 +502,85 @@ rule DNAseq_samples_EGAids_whoiswho:
 # summary(c(unlist(res_df[rownames(res_df)=="CRC1241", colnames(res_df)!="CRC1241"]),  res_df[rownames(res_df)!="CRC1241", colnames(res_df)=="CRC1241"]))
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 0.1700  0.2755  0.3097  0.3134  0.3449  0.5105 
+
+
+### parallelo dell'espressione per le coppie simo con il merge giusto e non al lineage
+
+rule correlation_LMX_LMO_simo_parallelo:
+    input: simo=SIMOUNIQ_parallelo, expr=VSD, metadata=MEDA, right=RIGHT
+    params: tool=BIN_DIR+"/Correlation_LMX-LMO_SimoCoupled_parallelo"
+    output: outfile = "LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    shell:
+        """
+            {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile}
+        """
+
+rule cor_pdo_buoni_filter_parallelo:
+    input: simo_cor = "LMX-LMO_correlation_simo_parallelo.tsv.gz", pdo = BUONI
+    output: res = "LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    script: SRC_DIR+"/correlation_pdo_filter.R"
+
+rule pheatmap_parallelo:
+    input: correlation_matrix="LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    output: pheatmap="pheatmap_correlation_parallelo.pdf"
+    script: SRC_DIR+'/pheatmap.R'
+
+rule pheatmap_buoni_parallelo:
+    input: correlation_matrix="LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    output: pheatmap="pheatmap_correlation_buoni_parallelo.pdf"
+    script: SRC_DIR+'/pheatmap.R'
+
+rule obtain_density_plot_wilcox_simo_parallelo:
+    input: res="LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    output: density_plot = "density_f_simo_parallelo.pdf", wilcox_result ="wilcox_simo_parallelo"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+
+rule obtain_density_plot_wilcox_simo_buoni_parallelo:
+    input: res="LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    output: density_plot = "density_f_simo_buoni_parallelo.pdf", wilcox_result ="wilcox_simo_buoni_parallelo"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+    
+rule get_model_cms_parallelo:
+    input: simo=SIMOUNIQ_parallelo, pdo="LMO_BASALE_CMScaller.tsv", pdx="LMX_BASALE_CMScaller.tsv"
+    output: results="model_cms_parallelo.tsv"
+    script: SRC_DIR+ '/CMS_simo_parallelo.R'
+
+rule true_parallelo:
+    input: cms="model_cms_parallelo.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "model_cms_validated_parallelo.tsv"
+    shell:
+        """
+            cat {input.cms} | bawk 'NR == 1' > {output}
+            cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}' > {output}.tmp
+            cat {input.cms} | filter_1col 1 {output}.tmp >> {output}
+        """
+## questa volta non è reorder (rispetto all'originale) perchè è stato modificato lo script 
+## produce direttamente prima i PDX e poi i PDO
+
+rule sankey_parallelo:
+    input: "model_cms_validated_parallelo.tsv"
+    output: html="sankey_model_cms_validated_coppie_simo_parallelo.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+rule true_simo_cris_parallelo:
+    input: cris="../cris/vsd_model_cris-right_parallelo.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "vsd_model_cris-right_validated_parallelo.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+rule cris_polishing_parallelo:
+    input: cris="vsd_model_cris-right_validated_parallelo.tsv"
+    output: results="vsd_model_cris-right_validated_clean_parallelo.tsv"
+    script: SRC_DIR+"/cris_df_cleaning.R"
+
+rule sankey_simo_cris_parallelo:
+    input: "vsd_model_cris-right_validated_clean_parallelo.tsv"
+    output: html="vsd_sankey_model_simo_cris_validated_clean_parallelo.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+rule get_jaccards_parallelo:
+    input: cms = "model_cms_validated_parallelo.tsv", cris = "vsd_model_cris-right_validated_clean_parallelo.tsv"
+    output: cms_t = "jaccard_cms_parallelo.tsv", cris_t = "jaccard_cris_parallelo.tsv"
+    script: SRC_DIR+"/jaccardscore_cmscris.R"

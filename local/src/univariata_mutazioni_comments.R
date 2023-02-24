@@ -9,6 +9,7 @@ fit_gene <- snakemake@output[["fit_plot_gene"]]
 res_genes <- snakemake@output[["res"]]
 mut_tab <- snakemake@output[["mut"]]
 
+log <- snakemake@log[['log']]
 load(rf)
 mut <- as.data.frame(pdobing)
 mut <- as.data.frame(t(mut))
@@ -65,9 +66,16 @@ for (i in rownames(buoni)) {
   }
 }
 
+
+sink(log)
+print('pre merge mut')
+print(table(buoni$type))
+sink()
+
 colnames(buoni) <- c("smodel", "buoni")
 merged <- merge(mut, buoni, by = "smodel")
 #setdiff(mut$smodel, buoni$smodel)
+
 #[1] "CRC1448" "CRC1897"
 
 merged$smodel <- NULL
@@ -91,6 +99,11 @@ merged2[merged2==FALSE] <- "WT"
 
 write.table(merged2, mut_tab, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 
+sink(log, append=TRUE)
+print('post merge mut')
+print(table(merged$buoni))
+print(table(merged2$Validation))
+sink()
 #fit <- glm(buoni ~ KRAS, merged, family = binomial())
 #plot_model(fit)
 vars <- names(merged[1:26])

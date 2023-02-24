@@ -37,7 +37,7 @@ deg_lf <- deg[deg$log2FoldChange > THR,]
 deg_up <- deg[deg$log2FoldChange > 0,]
 deg_up$description <- as.character(deg_up$description)
 pdx_r <- read.table('../Biodiversa_up5starOK_cetuxi_treat_PDX_R_no1241/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv', comment.char="", quote='', header=T, sep="\t") # saved as new_res
-############pdx_r <- read.table('../Biodiversa_up5starOK_cetuxi_treat_PDX_R/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv', comment.char="", quote='', header=T, sep="\t")
+#pdx_r <- read.table('../Biodiversa_up5starOK_cetuxi_treat_PDX_R/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv', comment.char="", quote='', header=T, sep="\t")
 
 pdx_s <- read.table('../Biodiversa_up5starOK_cetuxi_treat_PDX_S/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv', comment.char="", quote='', header=T, sep="\t")
 
@@ -89,6 +89,7 @@ dgi <- read.table('/scratch/trcanmed/biobanca/local/share/data/dgidb_101.csv', s
 dgig <- unique(dgi$search_term)
 dgig <- as.character(dgig)
 dgig <- c(dgig, "ABCA1")
+dgig <- c(dgig, "MAOA") #added the 23/02/23 to reach his friend.
 dgi_genes <- data.frame(gene.name=dgig, dgi=rep('druggable', length(dgig)))
 # dgi_genes <- as.data.frame(dgig)
 # names(dgi_genes)[names(dgi_genes)=="dgig"] <- "gene.name"

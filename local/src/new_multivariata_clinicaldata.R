@@ -179,8 +179,11 @@ res$CASE <- NULL
 #res_prova <- res 
 #res_prova <- res_prova %>% filter(!KRAS == "True")
 
-## faccio il fit
+# faccio il fit
 
+sink(snakemake@log[['log']])
+print(table(res$buoni))
+sink()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION, data=res, family=binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + STAGE + THERAPY.BEFORE..Y.N. , data=res, family=binomial())
 fit.full <- glm(buoni ~ SITE.OF.PRIMARY + STAGE + THERAPY.BEFORE..Y.N. + KRAS + BRAF + NRAS + SEX + AGE.AT.COLLECTION, data = res, family = binomial())

@@ -41,7 +41,7 @@ simo_df <- merge(lmo_m, lmx_m, by = "model")
 smodel <- unique(simo_df$model)
 
 choose_lmo <- function(lineages, log) {
-  passages <- as.numeric(substr(lineages, 15, 18))
+  passages <- as.numeric(substr(lineages, 15, 17)) # CRC0051LMO0A02[006]001R01000
   ordered <- lineages[order(passages)]
   smodel <- unique(substr(lineages, 0, 7))
   sink(log, append=TRUE)

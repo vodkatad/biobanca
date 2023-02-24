@@ -155,7 +155,7 @@ rule get_model_cris_simo_parallelo:
     input: simo="SIMO_v2.tsv", pdx="vsd_cris_LMX_BASALE_prediction_result_nc.tsv", pdo = "vsd_cris_LMO_BASALE_prediction_result_nc.tsv"
     output: right="vsd_model_cris-right_parallelo.tsv", lineage = "chosen_lineage_parallelo.tsv"
     log: "model_cris_parallelo.log"
-    script: SRC_DIR+ '/CRIS_simo_wip2_parallel.R'
+    script: SRC_DIR+ '/CRIS_simo_wip2_parallelo.R'
 
 rule true_simo:
     input: cris="vsd_model_cris-right.tsv", true=TRUE

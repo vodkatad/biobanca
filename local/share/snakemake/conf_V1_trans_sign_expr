@@ -25,6 +25,7 @@ SIMO=DATA+"/list_matched_PDO-PDX_DNA.txt"
 # We change it to ../cris/SIMO_v2.tsv which has more pairs (TODO why?)
 #SIMOUNIQ="../cris/unique_PDX-PDO_switch.tsv"
 SIMOUNIQ="../cris/chosen_lineage.tsv"
+SIMOUNIQ_parallelo="../cris/chosen_lineage_parallelo.tsv"
 RIGHT=SNAKE_ROOT+"/prj/DE_RNASeq/local/share/data/xo_basali"
 CRIS_RES = "../cris/vsd_model_cris-right_validated.tsv"
 BUONI = "../../../../local/share/data/biobanca_pdo_buoni.tsv"

@@ -2,9 +2,14 @@
 
 library(tidyverse)
 
-simo_in <- snakemake@input[["simo"]]
-lmx_in <- snakemake@input[["pdx"]]
-lmo_in <- snakemake@input[["pdo"]]
+simo_in <- snakemake@input[["simo"]] # /scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/SIMO_v2.tsv
+lmx_in <- snakemake@input[["pdx"]] # /scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMX_BASALE_prediction_result_nc
+lmo_in <- snakemake@input[["pdo"]] # /scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMO_BASALE_prediction_result_nc
+
+# for testing and evaluating the code, 22/02/23
+#simo_in <- '/scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/SIMO_v2.tsv'
+#lmx_in <- '/scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMX_BASALE_prediction_result_nc'
+#lmo_in <- '/scratch/trcanmed/biobanca/dataset/V1/trans_sign/cris/vsd_cris_LMO_BASALE_prediction_result_nc'
 
 simo <- read.table(simo_in, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 lmx <- read.table(lmx_in, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
