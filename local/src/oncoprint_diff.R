@@ -105,9 +105,10 @@ op <- oncoPrint(mat_list, alter_fun = alter_fun, col = col, column_order = names
 #pp <- oncoPrint(mat_list, alter_fun = alter_fun, col = col)
 
 #pdf(op_f)
-#png(op_f, width = 880, height = 880, units = "px")
+#png('oncoprint.png', width = 6, height = 6, units = "in", res=600)
 #svg(op_f, width=4.7, height=4.7, family="sans")
-pdf(op_f, width=4.7, height=4.7, family="sans")
+pdf(op_f, width=6, height=6, family="sans")
+
 print(op)
 graphics.off()
 

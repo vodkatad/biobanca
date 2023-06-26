@@ -584,3 +584,11 @@ rule get_jaccards_parallelo:
     input: cms = "model_cms_validated_parallelo.tsv", cris = "vsd_model_cris-right_validated_clean_parallelo.tsv"
     output: cms_t = "jaccard_cms_parallelo.tsv", cris_t = "jaccard_cris_parallelo.tsv"
     script: SRC_DIR+"/jaccardscore_cmscris.R"
+
+## multivariata parallela senza i not established
+
+rule multivariata_clinical_data_parallelo:
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
+    output: df_circos = "clinical_data_for_circos_parallelo.tsv", fit_plot = "plot_fit_validated_parallelo.pdf", results_fit = "result_fit_parallelo.tsv"
+    log: log="clinical_data_for_circos_parallelo.tsv.log"
+    script: SRC_DIR+'/new_multivariata_clinicaldata_parallelo.R'

@@ -102,14 +102,19 @@ rule anova_and_max_inh:
 
 ### table_expr_drug_screening.tsv eseguita con script table_expr_drug_screening.R
 
-### parallelo per le combo (LE MONO NON SONO MAI ESISTITE...)
+## prova per il drug screening di KRAS prima di aprire un nuovo progetto
 
-rule anova_drugs_parallelo_combo:
-    input: drugs_tables = DRUG_PARALLELO
-    output: anova = "anova_parallelo_combo.tsv", max_drug = "max_drug_value_parallelo_combo.tsv",out_dir=directory('plot_anova_parallelo_combo')
-    script: SRC_DIR+'/anova_drugs_parallelo_combo.R'
+# rule prova_kras:
+#     input: excel = "/home/mferri/template_for_synergy_dati_fake.xlsx"
+#     output: out_dir=directory('plot_synergy')
+#     script: "/home/mferri/script_wip/kras_synergyfinder.R"
 
-rule heatmap_score_show_anovapval_novalue_parallelo:
-    input: max_inh="max_drug_value_parallelo_combo.tsv", drug_targets="/scratch/trcanmed/biobanca/local/share/data/targets_drug_screening.xlsx"
-    output: heatmap="heatmap_max_inhibition_score_novalue_parallelo.pdf"
-    script: SRC_DIR+"/heatmaps_drug_screening_novalue.R"
+rule prova_kras_replicati:
+    input: excel = "/scratch/trcanmed/inibitore_kras/local/share/data//template_for_synergy_Simo_technical_replicates_EXP1.xlsx"
+    output: out_dir=directory('plot_synergy')
+    script: "/home/mferri/script_wip/synergyfinder_replicati.R"
+
+rule prova_kras_media:
+    input: excel = "/scratch/trcanmed/inibitore_kras/local/share/data/template_for_synergy_Simo_average_EXP1.xlsx"
+    output: out_dir=directory('plot_synergy_media')
+    script: "/home/mferri/script_wip/synergyfinder_media.R"

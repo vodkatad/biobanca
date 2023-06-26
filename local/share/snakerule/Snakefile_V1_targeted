@@ -82,3 +82,8 @@ rule AF_combine_pdf:
             pdftk {params.plots}/*pdf cat output {output}
         """
 
+
+rule oncoprint_2:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: op="2oncoprint_{AF}.pdf", op_data="2oncoprint_{AF}.RData", pie="2oncoprint_pie_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff.R"
