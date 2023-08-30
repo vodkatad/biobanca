@@ -44,7 +44,9 @@ lmo$model <- substr(lmo$sample_id_R, 0,7)
 delta_col <- function(model, data, col) {
   subd <- data[data$model == model,]
   if (nrow(subd)==2) {
-    return(abs(subd[1, col]-subd[2, col]))
+    p1 <- min(subd[1, col],subd[2, col])
+    p2 <- max(subd[1, col],subd[2, col])
+    return(c(abs(subd[1, col]-subd[2, col]), p1, p2))
   } else {
     return(NA)
   }
@@ -53,9 +55,23 @@ delta_col <- function(model, data, col) {
 delta_scong <- sapply(has_rep, delta_col, lmo, 'scong')
 delta_passaggio <- sapply(has_rep, delta_col, lmo, 'passaggio')
 
-pd <- data.frame(model=has_rep, delta_scong=delta_scong, delta_passaggio=delta_passaggio)
+delta_passaggiopd <- as.data.frame(t(delta_passaggio))
+colnames(delta_passaggiopd) <- c('delta_passaggio', 'p1', 'p2')
+delta_passaggiopd$model <- has_rep
+
+pd <- data.frame(model=has_rep, delta_scong=delta_scong, delta_passaggio=delta_passaggiopd$delta_passaggio)
 ggplot(data=pd, aes(x=delta_passaggio))+geom_bar()+theme_bw()
 ggplot(data=pd, aes(x=delta_scong))+geom_bar()+theme_bw()
+
+#
+orderdp <- delta_passaggiopd[order(delta_passaggiopd$delta_passaggio),]
+orderdp1 <- orderdp
+library(reshape)
+orderdp$delta_passaggio <- NULL
+mm <- melt(orderdp)
+mmm <- merge(mm, orderdp1, by="model")
+mmm$larger5 <- ifelse(mmm$delta_passaggio > 5, 'yes', 'no')
+ggplot(data=mmm, aes(x=reorder(model,delta_passaggio), y=value, color=larger5))+geom_point()+theme_bw()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 lmo <- lmo[lmo$rep == "yes",]
 x_axis_labels <- min(lmo[,'passaggio']):max(lmo[,'passaggio'])
@@ -80,4 +96,80 @@ el <- sapply(has_rep, early_late, lmo, 'passaggio')
 
 el2 <- sapply(has_rep, early_late, lmo, 'passaggio', low=10, high=15)
 el3 <- sapply(has_rep, early_late, lmo, 'passaggio', low=5, high=15)
+
+
+#### expr geni LMO_S + R
+genes <- read.table('/mnt/trcanmed/snaketree/prj/DE_RNASeq/local/share/data/xenturion_threesome', header=FALSE)
+
+d <- read.table('/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_S/fpkm.tsv.gz', sep="\t")
+ann <- read.table('/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_S/samples_data', sep="\t", header=TRUE)
+rownames(ann) <- ann$id
+ann$id <- NULL
+
+dr <- read.table('/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_R/fpkm.tsv.gz', sep="\t")
+annr <- read.table('/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_R/samples_data', sep="\t", header=TRUE)
+rownames(annr) <- annr$id
+annr$id <- NULL
+
+ann$class <- 'S'
+annr$class <-  'R'
+ann <- rbind(ann, annr)
+d <- merge(d, dr, by="row.names")
+rownames(d) <- d$Row.names
+d$Row.names <- NULL
+
+expr <- d[rownames(d) %in% paste0('H_', genes$V1),]
+
+
+expr <- expr[, rownames(ann)]
+
+ann <- ann[order(ann$sample, ann$treat),]
+expr <- expr[, match(rownames(ann), colnames(expr))]
+expr <- log2(expr+1)
+pheatmap(expr, annotation_col=ann, cluster_rows = F, cluster_cols=F)
+
+# expr levels excel
+toexc <- merge(t(expr), ann, by="row.names")
+colnames(toexc)[1] <- 'genealogy'
+library(WriteXLS)
+WriteXLS(toexc, ExcelFileName = "cetuxi_pdo.xlsx")
+
+fc <- function(model, data, sign, ann) {
+  d <- data[rownames(data)==sign,]
+  dt <- t(d)
+  m <- merge(dt, ann, by="row.names")
+  d <- m[m$sample==model, ]
+  d <- d[order(d$Row.names),] # we resort to using gen id to identify treat/nt, but we check
+  if (nrow(d) == 4) {
+    fc <- mean(c(d[2, sign] - d[1, sign], d[4, sign] - d[3, sign])) 
+    stopifnot(d[1, 'treat'] == "NT" && d[2, 'treat'] == "cetuxi" && d[3, 'treat'] == "NT" && d[4, 'treat'] == "cetuxi")
+  } else {
+    fc <- d[2, sign] - d[1, sign]
+    stopifnot(d[1, 'treat'] == "NT" && d[2, 'treat'] == "cetuxi")
+  }
+  return(fc)
+}
+
+callfc <- function(model, data, ann) {
+  genes <- rownames(data)
+  res <- c()
+  for (g in genes) {
+    res <- c(res, fc(model, data, g, ann))
+  }
+  return(res)
+}
+
+fcs <- sapply(unique(ann$sample), callfc, expr, ann)
+fcs <- as.data.frame(fcs)
+rownames(fcs) <- rownames(expr)
+colnames(fcs) <- unique(ann$sample)
+#fcs$gene <- rownames(fcs)
+
+td <- t(fcs)
+response <- unique(ann[c('sample', 'class')])
+fcs_re <- merge(td, response, by.x="row.names", by.y="sample")
+setwd('/home/egrassi')
+colnames(fcs_re)[1] <- 'model'
+WriteXLS(as.data.frame(fcs), ExcelFileName = "cetuxi_pdo_fc.xlsx")
+
 
