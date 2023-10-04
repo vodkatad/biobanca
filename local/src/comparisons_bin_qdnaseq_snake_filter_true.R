@@ -12,6 +12,7 @@ pearson_f <- snakemake@output[['pearson']]
 rdata_f <- snakemake@output[['rdata']]
 which <- snakemake@wildcards[['which']]
 good_f <- snakemake@input[['good']]
+longgen_f <- snakemake@output[['longgen_list']]
 save.image(rdata_f)
 
 
@@ -43,6 +44,11 @@ xeno_df <- xeno_df[,colnames(xeno_df) != "CRC0177LMX0B05001TUMD06000"] # remove 
 good_df <- read.table(good_f, sep="\t", stringsAsFactors=FALSE, header=TRUE)
 keep <- good_df[good_df$buoni, , drop=FALSE]
 
+print_list_longgen <- function(pdo, pdx) {
+  res <- data.frame(gen=c(colnames(pdo), colnames(pdx)))
+  write.table(res, file=longgen_f, sep="\t", row.names= FALSE, quote=FALSE)
+}
+
 list_remove_xeno <- c("CRC1870", "CRC1875","CRC2041")
 list_lmh <- colnames(pdo_df)[grepl('LMH', colnames(pdo_df))]
 model_lmh <- substr(list_lmh, 0,7)
@@ -50,23 +56,28 @@ if (which == "xo") {
   expected_n <- expected_n - 1  # removal of CRC0177 brings us here
   pdo_df <- pdo_df[, !colnames(pdo_df) %in% list_lmh]
   pdo_df <- pdo_df[, !substr(colnames(pdo_df),0,7) %in% model_lmh]
-  xeno_df <- xeno_df[, !substr(colnames(xeno_df),0,7) %in% model_lmh]
+  xeno_df <- xeno_df[, !substr(colnames(xeno_df),0,7) %in% model_lmh] 
 
   #> setdiff(models_xeno, models_pdo)
   #[1] "CRC1870" "CRC1875" "CRC2041"
   # We know we were missing some PDOs TODO load from file if qc changes in the future
   xeno_df <- xeno_df[, !substr(colnames(xeno_df),0,7) %in% list_remove_xeno]
+  print_list_longgen(pdo_df, xeno_df)
   # TODO? make modular: first step to prepare matrix then general script for correlations
 } else if (which == "xh") {
   pdo_df <- pdo_df[, colnames(pdo_df) %in% list_lmh]
   xeno_df <- xeno_df[, substr(colnames(xeno_df),0,7) %in% model_lmh]
+  print_list_longgen(pdo_df, xeno_df)
 } else if (which == "oh") {
   xeno_df <- pdo_df[, colnames(pdo_df) %in% list_lmh] # xeno now impersonate human samples
   pdo_df <- pdo_df[, !colnames(pdo_df) %in% list_lmh]
   pdo_df <- pdo_df[, substr(colnames(pdo_df),0,7) %in% model_lmh]
+  print_list_longgen(pdo_df, xeno_df)
 } else {
   stop(paste0("Dunno which type you requested! ", which))
 }
+
+
 
 models_xeno <- substr(colnames(xeno_df), 0, 7)
 models_pdo <- substr(colnames(pdo_df), 0, 7)

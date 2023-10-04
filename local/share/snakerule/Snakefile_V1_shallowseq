@@ -58,7 +58,8 @@ rule qdnaseq_segment_correlate:
 rule qdnaseq_segment_correlate_filterTRUE_svg:
     #input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_20.Rdata'
     input: pdo="pdo_qdnaseq/cn_segm.tsv", xeno="xeno_qdnaseq/cn_segm.tsv", good=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv', Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.svg"
+    output: heatmap="validated_heatmap_cors_{which}.svg", pearson="validated_pearson_{which}.tsv", rdata="validated_pearson_{which}.Rdata", density="validated_density_cors_{which}.svg",
+            longgen_list="validated_heatmap_list_{which}.tsv"
     params: expected_pairs=get_exp_pairs
     log: "validated_heatmap_cors_{which}.log"
     script: SRC_DIR+"/comparisons_bin_qdnaseq_snake_filter_true.R"
