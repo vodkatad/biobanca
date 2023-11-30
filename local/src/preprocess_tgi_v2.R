@@ -131,10 +131,10 @@ mdf <- merge(df2, df3, by="smodel", all.x=T)
 #ggplot(data=mdf, aes(x=reorder(-TGI3w,smodel), y=TGI3w))+geom_col()+theme_bw()+theme(axis.text.x=element_blank())
 
 #ggplot(data=mdf, aes(x=TGI3w,y=TGI2w))+geom_point()+theme_bw()
-mdf2 <- mdf[mdf$TGI3w > -1000 & mdf$TGI3w < 2000,]
+#mdf2 <- mdf[mdf$TGI3w > -1000 & mdf$TGI3w < 2000,]
 #ggplot(data=mdf2, aes(x=TGI3w,y=TGI2w))+geom_point()+theme_bw()
 sink(log_f, append=TRUE)
-cor.test(mdf2$TGI2w, mdf2$TGI3w)
+cor.test(mdf$TGI2w, mdf$TGI3w)
 sink()
 
 #
@@ -167,7 +167,7 @@ deltas3w <- sapply(dup, getdelta, mdf, 'TGI3w')
 delta <- data.frame(ssmodel=dup, delta3w=deltas3w, delta2w=deltas2w)
 
 m2 <- merge(delta, mdf, by="ssmodel")
-m2 <- m2[m2$ssmodel != "CRC0066",]
+#m2 <- m2[m2$ssmodel != "CRC0066",]
 m2$arm <- as.factor(substr(m2$smodel, 12,12))
 ggplot(data=m2, aes(x=reorder(ssmodel, -delta3w), y=TGI3w, color=arm))+
   geom_point()+
@@ -188,10 +188,27 @@ getaverage <- function(ssmodel, data, col) {
   return(mean(subset[,col]))
 }
 
-# 177 and CRC1432 are the only > 2, we'll manage them separatelyave
-ave2w <- sapply(unique(mdf$ssmodel), getaverage, mdf, 'TGI2w')
+ave3w <- sapply(unique(mdf$ssmodel), getaverage, mdf, 'TGI3w')
 
-res <- as.data.frame(ave2w)
-res <- res[rownames(res) != "CRC0066",, drop=FALSE]
+res <- as.data.frame(ave3w)
+
+sink(file=log_f, append=TRUE)
+print("Not NA and all week 3 for avg models:")
+nrow(res)
+table(is.na(res[,1]))
+sink()
+
+#res <- res[rownames(res) != "CRC0066",, drop=FALSE]
 res <- res[!is.na(res[,1]),, drop=FALSE]
 write.table(res, tgi_ave_f, sep="\t", row.names=TRUE, col.names=FALSE, quote=FALSE)
+
+q(save='no')
+
+
+getAB <- function(ssmodel, data, col) {
+  subset <- data[data$ssmodel==ssmodel,]
+  subset <- subset[!is.na(subset[,col]),, drop=FALSE]
+  return(as.data.frame(table(substr(subset$smodel, 12, 13))))
+}
+
+s <- sapply(unique(mdf$ssmodel), getAB, mdf, 'TGI3w')

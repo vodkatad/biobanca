@@ -71,6 +71,15 @@ merge_pdata$Row.names <- NULL
 merge_pdata2 <- merge(merge_pdata, uniqued_mut, by="row.names", all.x=TRUE)
 # apply(merge_pdata2, 2, class) ?? character why
 #infofour <- apply(merge_pdata2[,c('KRAS', 'NRAS', 'BRAF', 'PIK3CA')], 1, function(x) {any(x!="wt")})
+
+# 3wt for Fra but not in the targeted, will in this way?
+if (any(merge_pdata2$Row.names =="CRC1921")) { #manca nello shallow ma è 4wt per Fra
+  merge_pdata2[merge_pdata2$Row.names=="CRC1921", 'NRAS'] <-  'WT'
+  merge_pdata2[merge_pdata2$Row.names=="CRC1921", 'KRAS'] <-  'WT'
+  merge_pdata2[merge_pdata2$Row.names=="CRC1921", 'BRAF'] <-  'WT'
+}
+
+
 infofour <- apply(merge_pdata2[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="WT")})
 merge_pdata2$triple_wt <- ifelse(infofour, 'MUT', 'WT') 
 
@@ -132,7 +141,7 @@ compute_lm <- function(xcol, data, ycol) {
 }
 
 #compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
-res <- compute_lm('CTG_5000', merge_pdata2, 'Cetuximab_dVw3')
+res <- compute_lm('CTG_5000', merge_pdata2, yname)
 #res <- t(sapply(xcolumns, compute_lm, mdata, yname))
 res <- t(as.data.frame(res))
 colnames(res) <- c('pvalue','R2','adjR2','logLik', 'pearson')

@@ -15,13 +15,13 @@ SNAKE_ROOT=os.getenv('SNAKE_ROOT')
 BIN_DIR=PRJ_ROOT+'/local/bin'
 SRC_DIR=PRJ_ROOT+'/local/src'
 DATA=PRJ_ROOT+'/local/share/data/cetuxi'
-BUONI = "../../../local/share/data/biobanca_pdo_buoni.tsv"
 
-MODELS_Y='cetuxi_perc_w3_buoni.tsv'
-MODELS_X='pdo_cetuxi_buoni.tsv'
+### end of common part.
+MODELS_Y='../cetuxi_perc_w3_buoni.tsv'
+MODELS_X='../pdo_cetuxi_buoni.tsv'
 WANTED_X=['CTG_5000','CTG_1250','CTG_20000']
 MERGE='case'
-YNAME='Cetuximab_dVw3'
+YNAME='Cetuximab_TGI_3w'
 NAME='CTG'
 X_AUC='CTG_5000'
 
@@ -31,30 +31,6 @@ if SNAKE_ROOT == '/mnt/trcanmed/snaketree':
 else:
     FRA_MUT=SNAKE_ROOT+'/pdxopedia/local/share/data/dtb_mutations_vlookupAndrea_expandedPRLM.tsv'
     FRA_CN=SNAKE_ROOT+'/pdxopedia/dataset/misc_annots/binarized_cn.tsv'
-
-rule preprocess_tgi:
-    input: xlsx=DATA+'/aggregati_TGI_fixed0.xlsx', cet="../cetuximab/cetuxi_perc_w3_buoni.tsv"
-    output: tgi_nodup="TGI_{sclass}_filled_GenID_removeddup.tsv", scattereci="scatter_tgi_{sclass}_reci.pdf", delta="delta_{sclass}_arms.pdf", tgi_ave="tgi_{sclass}_chosen.tsv"
-    log: log="preprocess_tgi_{sclass}.log"
-    script: SRC_DIR+'/preprocess_tgi_v2.R'
-
-
-CETUXI="tgi_TGI_Median_chosen.tsv" # no header, two cols, smodel then response
-# remember to keep the right CRC0177! LMX0A was kept.
-
-ATP=DATA+'/PDO_CTG.txt'
-IMAGING=DATA+'/PDO_imaging.txt'
-
-rule filter_pdo_cetuxi:
-    input: pdo_cet = "pdo_cetuxi.tsv", buoni = BUONI
-    output: res = "pdo_cetuxi_buoni.tsv"
-    script: SRC_DIR+"/filter_pdocetuxi.R"
-
-rule filter_w3_cetuxi:
-    input: pdo_cet = "cetuxi_perc_w3.tsv", buoni = BUONI
-    output: res = "cetuxi_perc_w3_buoni.tsv"
-    script: SRC_DIR+"/filter_pdocetuxi.R"
-
 
 rule scatterplot_annot:
     input: x=MODELS_X, y=MODELS_Y, mut=FRA_MUT, cn=FRA_CN,
@@ -66,3 +42,21 @@ rule scatterplot_annot:
         """
             {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {log} {output.threewt}
         """
+
+
+TARGETED=PRJ_ROOT+"/dataset/V1/targeted_all/preprocGeneAF_0.05.Rdata"
+rule scatterplot_annot_targeted:
+    input: x=MODELS_X, y=MODELS_Y, mut=TARGETED, cn=FRA_CN,
+           Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: plot='scatter_targeted.pdf', stats="scatter_targeted.tsv", annot="targeted_annot.tsv", annot_whole="targeted_annot_whole.tsv"
+    params: tool=BIN_DIR+'/scatter_annotated_targeted', prefix=NAME, merge=MERGE, yname=YNAME
+    shell:
+        """
+            {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {output.stats} {output.annot} {output.annot_whole}
+        """
+
+rule auc_r:
+    input: input_auc="input_auc.tsv", targeted_annot="targeted_annot.tsv"
+    output: auc_all="auc_all.pdf", auc_wt="auc_wt.pdf", sens_table="sens_table.tsv"
+    log: log="auc.log"
+    script: SRC_DIR+"/roc_auc.R"
