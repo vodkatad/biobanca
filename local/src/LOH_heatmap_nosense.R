@@ -66,8 +66,8 @@ righini <- c(1,2,3,4,5,6,7,8)
 
 a<-pheatmap(result, cluster_rows = FALSE, cluster_cols = FALSE, annotation_col = an_col, 
          show_colnames = FALSE, legend_breaks = c(0,1,2,3), color = colorRampPalette(c("grey", "black", "red","blue"))(4),
-         legend_labels = c("NO","LOH_diff","only_late","common"),gaps_col = gappini2$segment_id, gaps_row = righini) #,
-ggsave(output_plot,plot = a,  width = 20,
+         legend_labels = c("NO","LOH_diff","only_early","common"),gaps_col = gappini2$segment_id, gaps_row = righini) #,
+ggsave(output_plot,plot = a,  width = 40,
        height = 20,
        units =  "cm",
        dpi = 300)

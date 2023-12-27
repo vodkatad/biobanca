@@ -11,8 +11,6 @@ scattereci_f <- snakemake@output[['scattereci']]
 delta_f <- snakemake@output[['delta']]
 classes <- snakemake@wildcards[['sclass']]
 
-save.image("pippo.Rdata")
-
 # for the live session to begin with
 #setwd('/scratch/trcanmed/biobanca/local/share/data/cetuxi')
 #tgi_xlsx <-'aggregati_TGI_fixed0.xlsx'
@@ -200,6 +198,7 @@ sink()
 
 #res <- res[rownames(res) != "CRC0066",, drop=FALSE]
 res <- res[!is.na(res[,1]),, drop=FALSE]
+res[,1] <- -res[,1] # to have a positive correlation also here
 write.table(res, tgi_ave_f, sep="\t", row.names=TRUE, col.names=FALSE, quote=FALSE)
 
 q(save='no')

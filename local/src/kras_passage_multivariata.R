@@ -84,8 +84,47 @@ fit <- as.data.frame(summary.glm(fit.kras)$coefficients)
 
 write.table(res2, file = "passage_validation_site_kras.tsv", quote = FALSE,
             sep = "\t", col.names = TRUE, row.names = FALSE)
-
+## part for revision
+for (i in rownames(res2)) {
+   if (res2[i, "Passage"] <=3) {
+     res2[i, "name_Passage"] <- "Early Passage"
+   } else {
+     res2[i, "name_Passage"] <- "Late Passage"
+   }
+ }
 #colors = c("royalblue2", "firebrick2")
+table_test_3 <- res2
+table_test_3 <- table_test_3 %>% filter(name_Passage == "Early Passage")
+table_test_3 <- as.data.frame(table(table_test_3$KRAS, table_test_3$name_Passage))
+rownames(table_test_3) <- c("KRAS_wt", "KRAS_mut")
+table_test_3$Var1 <- NULL
+table_test_3$Var2 <- NULL
+colnames(table_test_3) <- "Early Passage 1-3"
+table_test_3 <- as.data.frame(t(table_test_3))
+
+table_test_late <- res2
+table_test_late <- table_test_late %>% filter(name_Passage == "Late Passage")
+table_test_late <- as.data.frame(table(table_test_late$KRAS, table_test_late$name_Passage))
+rownames(table_test_late) <- c("KRAS_wt", "KRAS_mut")
+table_test_late$Var1 <- NULL
+table_test_late$Var2 <- NULL
+colnames(table_test_late) <- "Late Passage 4-9"
+table_test_late <- as.data.frame(t(table_test_late))
+
+table_test <- rbind(table_test_3, table_test_late)
+
+fisher.test(table_test)
+
+passage_kras_val <- res2
+passage_kras_val <- passage_kras_val %>% filter(Passage == 3)
+table3_kras_val <- as.data.frame(matrix(ncol = 2, nrow = 2))
+rownames(table3_kras_val) <- c("KRAS", "Validation")
+colnames(table3_kras_val) <- c("3", "3")
+table3_kras_val["KRAS",] <- c(30, 23)
+table3_kras_val["Validation",] <- c(32, 21)
+
+fisher.test(table3_kras_val)
+
 status <- read.table("/scratch/trcanmed/biobanca/local/share/data/XENTURION_DEF_SML_12-10.tsv", quote = "",
                      sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 res2 <- res

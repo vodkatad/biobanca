@@ -1,6 +1,7 @@
 include: './conf.sk'
 
 # Rerun the 19/01/23 to satisfy Livio hunger for statistics, this will trigger all the other rules if they will be relaunched.
+# rerun the 29/08/23 to add a check on expected/preGOOD number of pairs
 # checked diff of pdo_tiers.tsv with the previous one, it's the same.
 # Initial AF plots/N muts both for all muts and filtered via PCGR tiers, producing filtered AF tables and log of n samples.
 rule initial_plots_filter_good:

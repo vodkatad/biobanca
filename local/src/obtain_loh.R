@@ -24,14 +24,14 @@ loh <- mixed %>% filter(loh == "LOH")
 nosense_loh<- mixed_check %>% filter(nosense_loh == "EARLY")
 common<- common %>% filter(common_loh == "COMMON")
 
-loh$start <- pmin(loh$start_e, loh$start_l)
-loh$end <- pmax(loh$end_e, loh$end_l)
+loh$start <- pmax(loh$start_e, loh$start_l)
+loh$end <- pmin(loh$end_e, loh$end_l)
 
-nosense_loh$start <- pmin(nosense_loh$start_e, nosense_loh$start_l)
-nosense_loh$end <- pmax(nosense_loh$end_e, nosense_loh$end_l)
+nosense_loh$start <- pmax(nosense_loh$start_e, nosense_loh$start_l)
+nosense_loh$end <- pmin(nosense_loh$end_e, nosense_loh$end_l)
 
-common$start <- pmin(common$start_e, common$start_l)
-common$end <- pmax(common$end_e, common$end_l)
+common$start <- pmax(common$start_e, common$start_l)
+common$end <- pmin(common$end_e, common$end_l)
 
 loh <- loh[,c(1, 11, 13, 14)]
 loh <- loh[,c(1, 3, 4, 2)]

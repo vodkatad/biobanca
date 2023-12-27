@@ -170,6 +170,6 @@ response <- unique(ann[c('sample', 'class')])
 fcs_re <- merge(td, response, by.x="row.names", by.y="sample")
 setwd('/home/egrassi')
 colnames(fcs_re)[1] <- 'model'
-WriteXLS(as.data.frame(fcs), ExcelFileName = "cetuxi_pdo_fc.xlsx")
+WriteXLS(as.data.frame(fcs_re), ExcelFileName = "cetuxi_pdo_fc.xlsx")
 
 

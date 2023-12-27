@@ -66,3 +66,15 @@ rule scatterplot_annot:
         """
             {params.tool} {input.x} {input.y} {output.plot} {params.prefix} {params.merge} {params.yname} {input.mut} {input.cn} {input.Rimage} {log} {output.threewt}
         """
+
+rule order_tgi:
+    input: tgi="cetuxi_perc_w3_buoni.tsv", order=DATA+'/order_suppl_6.tsv'
+    output: "addition_suppl_6.tsv"
+    shell: 
+        """
+            Rscript -e 'd <- read.table("{input.tgi}", sep="\\t", header=T); 
+            o <- read.table("{input.order}", sep="\\t", header=T);
+            m <- merge(o, d, by.x="smodel", by.y="case", all.x=T);
+            m <- m[match(o$smodel, m$smodel),];
+            write.table(m, file="{output}", sep="\\t", row.names=F, quote=F);'
+        """

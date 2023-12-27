@@ -47,7 +47,6 @@ uniqued_mut <- ifelse(uniqued_mut, 'MUT', 'WT')
 bin_cn <- as.data.frame(apply(cn, 2, function(x) {ifelse(x, 'AMPL', 'WT')}))
 bin_cn <- bin_cn[, colnames(bin_cn) %in% c('ERBB2'), drop=FALSE]
 
-save.image('pluto.Rdata')
 uniqued_mut_w <- as.data.frame(uniqued_mut)
 infofour <- apply(uniqued_mut_w[,c('KRAS', 'BRAF', 'NRAS')], 1, function(x) {any(x!="WT")})
 infofour <- ifelse(is.na(infofour),  FALSE, infofour)
@@ -91,7 +90,6 @@ merge_pdata2$alterations <- ifelse(merge_pdata2$ERBB2 != "WT", "ERBB2", merge_pd
 merge_pdata2[merge_pdata2$alterations == "MUT", 'alterations'] <- "KRAS/NRAS/BRAF"
 
 write.table(merge_pdata2, file=annot_f, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
-save.image('pippa.Rdata')
 # there is a NA for PI3KCA but it has a KRAS mutation so that's fine
 lmp <- function(model) {
   #if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
@@ -146,3 +144,5 @@ res <- compute_lm('CTG_5000', merge_pdata2, yname)
 res <- t(as.data.frame(res))
 colnames(res) <- c('pvalue','R2','adjR2','logLik', 'pearson')
 write.table(data.frame('exp'=rownames(res), res), file=output2, sep="\t", row.names=FALSE, col.names=TRUE, quote=FALSE)
+
+save.image(paste0(output2, '.Rdata'))

@@ -79,53 +79,7 @@ rule generate_final_heatmap:
     input:d='loh_plot/seg_dim_{number}'
     output:out='loh_plot/seg_dim_{number}/heatmap_seg_dim{number}.svg'
     script:SRC_DIR+'/LOH_heatmap_sofia.R'
-
-
-"""
-rule NOSENSE_LOH_for_plot:
-    input: loh='check/{sample}_nosense_loh.tsv',len_chr='../../../local/share/data/chr_len.tsv'
-    output: tsv="nosense_loh_plot/seg_dim_{number}/{sample}_nosense_loh_seg_dim_{number}.tsv"  #10000000
-    run: 
-        import pandas as pd
-        seg_dim=int(wildcards.number)
-        data=pd.read_csv(input['loh'],sep='\t',header=0,index_col=None)
-        #data_e=pd.read_csv(input['loh_e'],sep='\t',header=None,index_col=None)
-        chr_len=pd.read_csv(input['len_chr'],sep='\t',header=0,index_col=None)
-        chr_len['bp']=chr_len['bp'].astype('int')
-        
-        data['event']=['LOH_diff']*len(data)
-        data=data[['chr','start','end','event']]
-        
-        chr_len['bp']=chr_len['bp'].astype('int')
-        chr_dic={}
-        for row in chr_len.iterrows():
-            chr_dic[row[1]['Chromosome']]=row[1]['bp']
-            
-        def intersezione(start_seg,start,end_seg,end):
-            intersezione=(min(end_seg,end)-max(start_seg,start))
-            return intersezione
-
-        data_seg=pd.DataFrame(columns=['chr','start','end','event','segment_id'])
-        a=0
-        for chr in chr_dic.keys():
-            tmp=data[data['chr']==chr]
-            for i in range(0,chr_dic[chr],seg_dim):
-                a=a+1
-                start=i+1
-                end=i+seg_dim
-                #cerco se esiste un segmento nel tmp che ha LOH
-                tmp2=tmp[(tmp['start']<end ) & (tmp['end']>start)]
-                if len(tmp2)==0:
-                    riga={'chr':chr,'start':start,'end':end,'event':'NO','segment_id':a}
-                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
-                else:
-                    tmp2['intersezione']=tmp2.apply(lambda x: intersezione(start,x['start'],end,x['end']), axis=1)
-                    evento=tmp2.loc[tmp2['intersezione'].idxmax()]
-                    riga={'chr':chr,'start':start,'end':end,'event':evento['event'],'segment_id':a}
-                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
-
-        data_seg.to_csv(output['tsv'],sep='\t',index=False)
-"""
+    
 rule  all_NOSENSE_LOH_for_plot:
     input: expand('nosense_loh_plot/seg_dim_{number}/{sample}_nosense_loh_seg_dim_{number}.tsv', sample=SAMPLES,number=SEG_DIM)
 

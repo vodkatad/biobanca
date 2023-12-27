@@ -56,11 +56,11 @@ filter_plot <- function(pdo, xeno, keep, out) {
     colnames(xeno) <- models_xeno
     colnames(pdo) <- substr(colnames(pdo), 0, 7)
 
+    com <- length(intersect(models_xeno, colnames(pdo)))
     # selection of the good one only (validated PDOs)
     models_xeno <- models_xeno[models_xeno %in% keep$smodel]
-
     sink(snakemake@log[[1]], append=TRUE)
-    print(paste0('After validation filtering we kept ', length(models_xeno), ' starting from x= ', ncol(xeno), 'and o= ', ncol(pdo)))
+    print(paste0('After validation filtering we kept ', length(models_xeno), ' starting from x= ', ncol(xeno), 'and o= ', ncol(pdo), ' -> ', com))
     sink()
 
     xeno <- xeno[, models_xeno[order(models_xeno)]]
