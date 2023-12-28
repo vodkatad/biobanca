@@ -1,0 +1,84 @@
+include: './conf.sk'
+
+
+rule initial_plots_filter_good:
+    input: xenoAF=MUTECT_DIR+'xeno'+ALLFIX,
+            pdoAF=MUTECT_DIR+'pdo'+ALLFIX,
+            xenoWAF=MUTECT_DIR+'xeno'+TIERSFIX,
+            pdoWAF=MUTECT_DIR+'pdo'+TIERSFIX,
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    params: vs=VS
+    output: freqAll="freq_all.pdf", freqTiers="freq_tiers.pdf", histTiers="hist_tiers.pdf", histAll="hist_all.pdf", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    log: log="starting_log.txt"
+    script: SRC_DIR+"/wes_plots_split_x.R"
+
+rule n_muts:
+    input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv", Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
+    output: histTiers="hist_tiers_af{AF}.pdf"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    script: SRC_DIR+"/N_muts.R"
+
+#egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/targeted$ diff <(head -n1 pdo_tiers.tsv | tr "\t" "\n")  <(head -n1 xeno_tiers.tsv | tr "\t" "\n")
+rule freqs_tcga_msk:
+    input: pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv",
+            xenoGenes=MUTECT_DIR+'xeno'+GENESFIX,
+            pdoGenes=MUTECT_DIR+'pdo'+GENESFIX,
+            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata',
+            msk=MSK,
+            tcga=TCGA
+    output: TCGAMSK_xeno="TCGAMSK_xeno_{AF}.pdf",
+            TCGAMSK_pdo="TCGAMSK_pdo_{AF}.pdf",
+            TCGAMSK_xeno_zoom="TCGAMSK_xenozoom_{AF}.pdf",
+            TCGAMSK_pdo_zoom="TCGAMSK_pdozoom_{AF}.pdf",
+            preprocGeneAF="preprocGeneAF_{AF}.Rdata"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
+    log: log="TCGAMSK_xeno_{AF}.log"
+    script: SRC_DIR+"/wes_freqs_x.R"
+
+rule oncoprint:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: op="oncoprint_{AF}.pdf", op_data="oncoprint_{AF}.RData", pie="oncoprint_pie_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff.R"
+
+
+rule oncoprint_shuffle:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: op="oncoprintshuffle_{AF}.pdf", op_data="oncoprintshuffle_{AF}.RData", pie="oncoprintshuffle_pie_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff_shuffle.R"
+
+
+rule oncoprint_subset_genes:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', subset=DATA+"/targeted/panel_pdo_pdx_genesymbol.tsv"
+    output: op="oncoprintsubset_{AF}.pdf", op_data="oncoprintsubset_{AF}.RData", pie="oncoprintpiesubset_{AF}.pdf"
+    script: SRC_DIR+"/oncoprint_diff_subset_genes.R"
+    
+# here AF thr not considered
+rule jaccard_mut_sim:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
+    script: SRC_DIR+"/jaccard_mut_sim.R"
+
+rule AF_imbalance:
+    input: Rimage='preprocGeneAF_{AF}.Rdata'
+    output: ttest="AF_imbalance_test_{AF}.tsv", plots=directory("AF_imbalance_{AF}_plots")
+    log: log="AF_imbalance_log_{AF}.log"
+    params: muts_thr=5
+    script: SRC_DIR+"/AF_imbalance.R"
+
+# probably experimenting more with ggarrange and pdf one could avoid the pdftk step
+rule AF_imbalance_overall:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', genes='AF_imbalance_test_{AF}.tsv'
+    output: ttest="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots"), muts_thr=5
+    script: SRC_DIR+"/AF_imbalance_overall.R"
+
+rule AF_combine_pdf:
+    input: placeholder_for_pdf="AF_imbalance_test_{AF}_overall.txt"
+    params: plots=directory("AF_imbalance_{AF}_plots")
+    output: "AF_imbalance_all_{AF}.pdf"
+    shell: 
+        """
+            pdftk {params.plots}/*pdf cat output {output}
+        """

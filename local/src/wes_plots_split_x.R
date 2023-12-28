@@ -1,7 +1,9 @@
 library(ggplot2)
 
-af <- snakemake@input[['AF']]
-waf <- snakemake@input[['WAF']]
+xeno_af <- snakemake@input[['xenoAF']]
+pdo_af <- snakemake@input[['pdoAF']]
+xeno_waf <- snakemake@input[['xenoWAF']]
+pdo_waf <- snakemake@input[['pdoWAF']]
 vs <- snakemake@params[['vs']]
 log <- snakemake@log[['log']]
 
@@ -10,18 +12,20 @@ load(snakemake@input[['Rimage']])
 #eval(parse(text=myriad))
 snakemake <- osnakemake
 
-df <- read.table(af, header=TRUE, sep="\t", row.names=1)
+xeno_df <- read.table(xeno_af, header=TRUE, sep="\t", row.names=1)
+pdo_df <- read.table(pdo_af, header=TRUE, sep="\t", row.names=1)
 
-if (vs == "earlylate") {    
-    samples <- colnames(df)
-    if (sum(grepl('LMO', samples)) != ncol(df)) {
+sink(snakemake@log[[1]])
+print(paste0('Starting with x= ', ncol(xeno_df), ' o= ', ncol(pdo_df)))
+sink()
+
+if (vs == "earlyxeno") {
+    samples <- colnames(pdo_df)
+    if (sum(grepl('LMO', samples)) != ncol(pdo_df)) {
         stop('I was expecting only LMOs!')
     }
     passage <- as.numeric(substr(samples, 15, 17))
-    xeno_df <- df[, passage <= 3]
-    pdo_df <- df[, passage > 3]
-} else if (vs == "earlyxeno") {
-
+    pdo_df <- pdo_df[, passage <= 3]
 } else {
     stop('Still to be implemented!')
 }
@@ -71,16 +75,16 @@ filter_plot <- function(pdo, xeno, out) {
 
 af_all <- filter_plot(pdo_df, xeno_df, snakemake@output[['freqAll']])
 ##
-df_w <- read.table(waf, header=TRUE, sep="\t", row.names=1)
+xeno_df_w <- read.table(xeno_waf, header=TRUE, sep="\t", row.names=1)
+pdo_df_w <- read.table(pdo_waf, header=TRUE, sep="\t", row.names=1)
 
-if (vs == "earlylate") {    
-    samples <- colnames(df_w)
-    if (sum(grepl('LMO', samples)) != ncol(df_w)) {
+if (vs == "earlyxeno") {    
+    samples <- colnames(pdo_df_w)
+    if (sum(grepl('LMO', samples)) != ncol(pdo_df_w)) {
         stop('I was expecting only LMOs!')
     }
     passage <- as.numeric(substr(samples, 15, 17))
-    xeno_df_w <- df_w[, passage <= 3]
-    pdo_df_w <- df_w[, passage > 3]
+    pdo_df_w <- pdo_df_w[, passage <= 3]
 } else {
     stop('Still to be implemented!')
 }
