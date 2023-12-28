@@ -1,0 +1,36 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,'.PRJ_ROOT')):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception('Can not find the PRJ_ROOT directory')
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SCRATCH_ROOT = os.getenv('SCRATCH_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+'/local/bin'
+SRC_DIR=PRJ_ROOT+'/local/src'
+
+# The expected number of matching pairs x-o
+PAIRS=142
+PAIRS_H=4
+
+MUTECT_DIR='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo'
+ALLFIX='/mutect_paired/merged.table_nomultiallele'
+TIERSFIX='/mutect_paired/merged.table_nomultiallele_wtiers'
+GENESFIX='/mutect_paired/merged.table_nomultiallele_wtiers_annot'
+
+TREAT='/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
+
+TCGA='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/tcga_panel_freqs.tsv'
+MSK='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv'
+
+GOOD=PRJ_ROOT+'/local/share/data/biobanca_pdo_buoni.tsv'
+DATA=PRJ_ROOT+'/local/share/data'
+
+VS="earlylate" # or earlyxeno or latexeno
