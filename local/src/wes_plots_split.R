@@ -20,8 +20,6 @@ if (vs == "earlylate") {
     passage <- as.numeric(substr(samples, 15, 17))
     xeno_df <- df[, passage <= 3]
     pdo_df <- df[, passage > 3]
-} else if (vs == "earlyxeno") {
-
 } else {
     stop('Still to be implemented!')
 }

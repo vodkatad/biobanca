@@ -19,13 +19,15 @@ sink(snakemake@log[[1]])
 print(paste0('Starting with x= ', ncol(xeno_df), ' o= ', ncol(pdo_df)))
 sink()
 
+samples <- colnames(pdo_df)
+if (sum(grepl('LMO', samples)) != ncol(pdo_df)) {
+    stop('I was expecting only LMOs!')
+}
+passage <- as.numeric(substr(samples, 15, 17))
 if (vs == "earlyxeno") {
-    samples <- colnames(pdo_df)
-    if (sum(grepl('LMO', samples)) != ncol(pdo_df)) {
-        stop('I was expecting only LMOs!')
-    }
-    passage <- as.numeric(substr(samples, 15, 17))
     pdo_df <- pdo_df[, passage <= 3]
+} else if (vs == "latexeno") {
+    pdo_df <- pdo_df[, passage > 3]
 } else {
     stop('Still to be implemented!')
 }
@@ -78,13 +80,15 @@ af_all <- filter_plot(pdo_df, xeno_df, snakemake@output[['freqAll']])
 xeno_df_w <- read.table(xeno_waf, header=TRUE, sep="\t", row.names=1)
 pdo_df_w <- read.table(pdo_waf, header=TRUE, sep="\t", row.names=1)
 
+samples <- colnames(pdo_df_w)
+if (sum(grepl('LMO', samples)) != ncol(pdo_df_w)) {
+    stop('I was expecting only LMOs!')
+}
+passage <- as.numeric(substr(samples, 15, 17))
 if (vs == "earlyxeno") {    
-    samples <- colnames(pdo_df_w)
-    if (sum(grepl('LMO', samples)) != ncol(pdo_df_w)) {
-        stop('I was expecting only LMOs!')
-    }
-    passage <- as.numeric(substr(samples, 15, 17))
     pdo_df_w <- pdo_df_w[, passage <= 3]
+} else if (vs == "latexeno") {
+    pdo_df_w <- pdo_df_w[, passage > 3]
 } else {
     stop('Still to be implemented!')
 }
