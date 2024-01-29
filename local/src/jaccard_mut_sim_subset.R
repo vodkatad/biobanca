@@ -8,9 +8,19 @@ violin_f <- snakemake@output[['violin']]
 violin2_f <- snakemake@output[['violin2']]
 jac_f <- snakemake@output[['jac_f']]
 mw_f <- snakemake@output[['mw']]
-
+subset_f <- snakemake@input[['subset']]
 
 load(snakemake@input[['Rimage']])
+
+subset <- read.table(subset_f, sep="\t", header=TRUE, stringsAsFactors=FALSE)
+# build .x and .y
+wanted <- subset[,1]
+
+wo <- gpdo[gpdo$genes %in% wanted,]
+wx <- gpdx[gpdx$genes %in% wanted,]
+
+pdo <- pdo[rownames(pdo) %in% rownames(wo),]
+pdx <- pdx[rownames(pdx) %in% rownames(wo),]
 
 save.image("paperoga.Rdata")
 # we need to fill with 0 missing muts

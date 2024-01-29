@@ -60,6 +60,12 @@ rule jaccard_mut_sim:
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
     script: SRC_DIR+"/jaccard_mut_sim.R"
 
+# here AF thr not considered
+rule jaccard_mut_sim_subset:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', subset=DATA+"/targeted/panel_pdo_pdx_genesymbol.tsv"
+    output: pheat="jaccard_subset_heat_{AF}.pdf", density="jaccard_subset_density_{AF}.pdf", violin="jaccard_subset_violin_{AF}.pdf", violin2="jaccard_subset_violin2_{AF}.pdf", jac_f="jac_subset_matrix_{AF}.tsv", mw="jac_subset_MW_{AF}.txt"
+    script: SRC_DIR+"/jaccard_mut_sim_subset.R"
+
 rule AF_imbalance:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: ttest="AF_imbalance_test_{AF}.tsv", plots=directory("AF_imbalance_{AF}_plots")
