@@ -64,8 +64,8 @@ m2[is.na(m2$pdo_freq),]$pdo_freq <- 0
 
 cl <- c(rep('tcga',nrow(m2)), rep('msk',nrow(m2)))
 
-m3 <- data.frame(x=c(m2$pdo_freq, m2$pdo_freq), 
-                 y=c(m2$tcga_freq, m2$msk_freq), 
+m3 <- data.frame(y=c(m2$pdo_freq, m2$pdo_freq), 
+                 x=c(m2$tcga_freq, m2$msk_freq), 
                  class=cl)
 
 lmplot <- function(data, title, xlim=NULL, out) {
