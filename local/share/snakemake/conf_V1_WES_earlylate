@@ -21,9 +21,9 @@ PAIRS=142
 PAIRS_H=4
 
 MUTECT_DIR='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo'
-ALLFIX='/mutect_paired/merged.table_nomultiallele'
-TIERSFIX='/mutect_paired/merged.table_nomultiallele_wtiers'
-GENESFIX='/mutect_paired/merged.table_nomultiallele_wtiers_annot'
+ALLFIX='/mutect_paired_st/merged.table_nomultiallele'
+TIERSFIX='/mutect_paired_st/merged.table_nomultiallele_wtiers'
+GENESFIX='/mutect_paired_st/merged.table_nomultiallele_wtiers_annot'
 
 TREAT='/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
 
