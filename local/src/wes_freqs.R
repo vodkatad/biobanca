@@ -112,8 +112,8 @@ lmplot <- function(data, title, xlim=NULL, out) {
 lmplot(m3, title='PDO', out=tcgamsk_pdo_f)
 lmplot(m3, title='PDO', xlim=c(0, 0.2), out=tcgamsk_pdo_zoom_f)
 
-m3 <- data.frame(x=c(m2$pdx_freq, m2$pdx_freq), 
-                 y=c(m2$tcga_freq, m2$msk_freq), 
+m3 <- data.frame(y=c(m2$pdx_freq, m2$pdx_freq), 
+                 x=c(m2$tcga_freq, m2$msk_freq), 
                  class=cl)
 lmplot(m3, title='PDX', out=tcgamsk_xeno_f)
 lmplot(m3, title='PDX', xlim=c(0, 0.2), out=tcgamsk_xeno_zoom_f)
