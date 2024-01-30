@@ -36,17 +36,17 @@ common$end <- pmin(common$end_e, common$end_l)
 loh <- loh[,c(1, 11, 13, 14)]
 loh <- loh[,c(1, 3, 4, 2)]
 names(loh)[names(loh)== "chr_e"] <- "chr"
-loh <- loh %>% filter(intersection > 100000)
+#loh <- loh %>% filter(intersection > 100000)
 
 nosense_loh <- nosense_loh[,c(1, 11, 13, 14)]
 nosense_loh <- nosense_loh[,c(1, 3, 4, 2)]
 names(nosense_loh)[names(nosense_loh)== "chr_e"] <- "chr"
-nosense_loh <- nosense_loh %>% filter(intersection > 100000)
+#nosense_loh <- nosense_loh %>% filter(intersection > 100000)
 
 common <- common[,c(1, 11, 13, 14)]
 common <- common[,c(1, 3, 4, 2)]
 names(common)[names(common)== "chr_e"] <- "chr"
-common <- common %>% filter(intersection > 100000)
+#common <- common %>% filter(intersection > 100000)
 
 write.table(loh, file=res, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 write.table(nosense_loh, file=res_check, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
