@@ -51,6 +51,9 @@ filter_plot <- function(pdo, xeno, keep, out) {
     print(paste0('Filter pairs x=', ncol(xeno), ' o= ', ncol(pdo)))
     sink()
 
+    ### list of long gen for reviewer 2 brutal addition ###
+    pdo_orig <- pdo
+    ######################################################
     models_xeno <- substr(colnames(xeno), 0, 7)
     #models_pdo <- substr(colnames(pdo_df), 0, 7)
     colnames(xeno) <- models_xeno
@@ -65,6 +68,11 @@ filter_plot <- function(pdo, xeno, keep, out) {
 
     xeno <- xeno[, models_xeno[order(models_xeno)]]
     pdo <- pdo[, models_xeno[order(models_xeno)]]
+    ### list of long gen for reviewer 2 brutal addition ###
+    short_orig <- substr(colnames(pdo_orig), 0, 7)
+    pdo_orig <- pdo_orig[, short_orig %in% colnames(pdo)]
+    write.table(colnames(pdo_orig), file='pdo_longgen_after_xo_filtering.tsv', sep="\t", quote=FALSE, col.names=FALSE, row.names=FALSE)
+    ######################################################
 
     afx <- unlist(xeno[xeno!=0])
     afo <- unlist(pdo[pdo!=0])
