@@ -5,7 +5,8 @@ library(QDNAseq)
 #wanted <- c('CRC1888')
 #wanted <- c('CRC0578')
 #wanted <- c('CRC1575')
-wanted <- c('CRC1251', 'CRC0729', 'CRC0370')
+#wanted <- c('CRC1251', 'CRC0729', 'CRC0370')
+wanted <- c('CRC1239')
 
 setwd('/mnt/trcanmed/snaketree/prj/biobanca/dataset/V1/shallowseq/cn_plots')
 

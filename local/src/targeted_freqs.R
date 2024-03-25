@@ -103,7 +103,7 @@ lmplot <- function(data, title, xlim=NULL, out) {
 
     p <- ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class), size=0.3)+ geom_smooth(method=lm, se=FALSE, size=0.3)+
          unmute_theme+ggtitle(title)+
-         xlab('Frequency TCGA/MSK') + ylab('Frequency models')+scale_color_manual(values=c('seagreen', 'plum3'))+xlim(c(0,0.8))
+         xlab('Frequency TCGA/MSK') + ylab('Frequency models')+scale_color_manual(values=c('seagreen', 'plum3'))+xlim(c(0,0.8))+ylim(c(0, 0.8))
     p + geom_path(data = polydata, aes(x, y), size=0.3, color="darkgrey") +
       geom_line(data = linedata, color="darkgrey", size=0.3, aes(x, y, group = id),
                 linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.35, xmax=0.65, ymin=-0.05, ymax=0.3)+

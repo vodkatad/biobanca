@@ -47,11 +47,17 @@ rule oncoprint_subset_genes:
     output: op="oncoprintsubset_{AF}.pdf", op_data="oncoprintsubset_{AF}.RData", pie="oncoprintpiesubset_{AF}.pdf"
     script: SRC_DIR+"/oncoprint_diff_subset_genes.R"
     
-# here AF thr not considered
+# here AF thr not considered: the thr it's reimplemented in the R script at single muts level
 rule jaccard_mut_sim:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
     script: SRC_DIR+"/jaccard_mut_sim.R"
+
+# here AF thr not considered: the thr it's reimplemented in the R script at single muts level
+rule jaccard_mut_sim_subset:
+    input: Rimage='preprocGeneAF_{AF}.Rdata', subset=DATA+"/targeted/panel_pdo_pdx_genesymbol.tsv"
+    output: pheat="jaccard_subset_heat_{AF}.pdf", density="jaccard_subset_density_{AF}.pdf", violin="jaccard_subset_violin_{AF}.pdf", violin2="jaccard_subset_violin2_{AF}.pdf", jac_f="jac_subset_matrix_{AF}.tsv", mw="jac_subset_MW_{AF}.txt"
+    script: SRC_DIR+"/jaccard_mut_sim_subset.R"
 
 rule AF_imbalance:
     input: Rimage='preprocGeneAF_{AF}.Rdata'

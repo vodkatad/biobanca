@@ -4,8 +4,8 @@ library(dplyr)
 library(ggplot2)
 
 
-path_common<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_earlylate/check_good"
-path_loh<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_earlylate/final_good"
+path_common<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_pdx_pdoearly/check_good"
+path_loh<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_pdx_pdoearly/final_good"
 chr_len<-"/scratch/trcanmed/biobanca/local/share/data/chr_len.tsv"
 
 files <- list.files(path=path_loh, pattern="*.tsv", full.names=TRUE, recursive=FALSE)
@@ -30,10 +30,6 @@ for (i in seq(1,length(files))){
   t_diff<-((sum(diff_$intersection))/total)*100
   t_early<-((sum(early$intersection))/total)*100
   t_common<-((sum(common$intersection))/total)*100
-  if(t_common>50){
-    print(sample)
-    print(common)
-  }
   if (i == 1) {
     percentuali <- data.frame(modello=model, error=t_early, gained=t_diff,common=t_common,stringsAsFactors = FALSE)
   } else {

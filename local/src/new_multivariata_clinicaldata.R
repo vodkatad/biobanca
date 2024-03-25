@@ -196,4 +196,16 @@ plot_model(fit.full, axis.lim = c(0.1, 10), title = "Validation")
 dev.off()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + BRAF + NRAS, data=res_prova, family=binomial())
 fit <- as.data.frame(summary.glm(fit.full)$coefficients)
-write.table(fit, file = res_fit, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
+## intervallo di confidenza
+conf_intervals <- confint(fit.full)
+fit2 <- cbind(fit, conf_intervals)
+## odds ratio
+# Obtain coefficients
+coefficients <- coef(fit.full)
+odds_ratios <- as.data.frame(exp(coefficients))
+colnames(odds_ratios) <- "odds ratio"
+fit3 <- cbind(fit2, odds_ratios)
+rownames(fit3) <- c("Intercept", "Site of primary (right colon)", "Stage", "Therapy Before (yes)", 
+                    "KRAS (mutant)", "BRAF (mutant)", "NRAS (mutant)", "Sex (male)", "Age at collection")
+
+write.table(fit3, file = res_fit, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)

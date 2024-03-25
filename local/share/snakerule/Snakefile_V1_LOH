@@ -107,7 +107,7 @@ rule  all_NOSENSE_LOH_for_plot:
 
 rule generate_final_heatmap_nosense:
     input:d='nosense_loh_plot/seg_dim_{number}'
-    output:out='nosense_loh_plot/seg_dim_{number}/heatmap_seg_dim{number}_nosense.svg'
+    output:out='nosense_loh_plot/seg_dim_{number}/heatmap_seg_dim{number}_nosense.svg',data_out='final_heatmap_data/heatmap_{number}.csv',ann_out='final_heatmap_data/annotation_{number}.csv'
     script:SRC_DIR+'/LOH_heatmap_nosense.R'    #100000
 
 rule NOSENSE_LOH_for_plot:
@@ -173,3 +173,447 @@ rule NOSENSE_LOH_for_plot:
                         data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
                     
         data_seg.to_csv(output['tsv'],sep='\t',index=False)
+
+
+rule heatmap:
+    #input: "{kind}_segm_l2fc.tsv.gz"
+    #input: "{kind}.1500000.tsv.gz"
+    input:d='final_heatmap_data/heatmap_{number}.csv',annotation='final_heatmap_data/annotation_{number}.csv'
+    output: out='prova/prova_heatmap_finale_{number}.pdf'
+    run:
+        import numpy as np
+        import pandas as pd
+        import seaborn as sns
+        import matplotlib.colors as colors
+        import matplotlib 
+        import matplotlib.cm as cm
+        import matplotlib.ticker as ticker
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.transforms as transforms
+        from matplotlib.colors import ListedColormap
+        import matplotlib.patches as mpatches
+
+
+        cnvs = pd.read_csv(input[0], header=0,index_col=0) 
+        print(cnvs.head())
+
+        
+       # if wildcards.bin == 'orig':
+        #    split1 = [x.split(':') for x in cnvs.index.values]
+         #   split2 = [x[1].split('-') for x in split1]
+          #  boundaries = pd.DataFrame(data={'chr':[x[0] for x in split1], 'b': [x[0] for x in split2], 'e': [x[1] for x in split2]})
+           # cnvs = cnvs.transpose()
+        #else:
+            #boundaries = cnvs[['chr','b','e']].copy()
+            #cnvs = cnvs.drop(columns=['chr','b','e']).transpose()
+        boundaries=pd.read_csv(input[1],header=0,index_col=None)
+        boundaries=boundaries.rename(columns={'':'bin'})
+        
+        boundaries['bin']=boundaries.index
+        boundaries=boundaries.rename(columns={'Chr':'chr'})
+
+        chr_limits = boundaries.index[boundaries['bin'].isin(boundaries.groupby('chr', sort=False)['bin'].max().values)].tolist()
+        i = 0
+        chr_limits = []
+        last = ""
+        for index, row in boundaries.iterrows():
+            if last != "" and last != row['chr']:
+                chr_limits.append(i-1)
+            last = row['chr']
+            i = i + 1        
+        chr_limits.append(i-1)
+
+        chr_boundaries = np.append(0, chr_limits)
+        chr_list = boundaries['chr'].unique().tolist()
+        chrN_list = []
+        print(chr_boundaries)
+        for x in chr_list:
+            x = x[3:] #remove 'chr' for readability
+            chrN_list.append(x)
+        #compute the position where chromosome labels will be placed on the plots
+        start = 0
+        pos_list = []
+        for end in chr_limits:
+            pos_list.append((start+end)/2)
+            start = end+1
+
+        yticklabels = False
+
+        #cbar_kws={"ticks": np.arange(0,13,1)}
+        maxv = cnvs.max().max()
+        minv = cnvs.min().min()
+        cmap_dict ={0:'white',1:'grey',2:'blue',3:'red'}
+        cmap = ListedColormap([cmap_dict[i] for i in range(4)])
+        
+        f, culo = plt.subplots()
+        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = True, cmap=cmap,robust=True, rasterized=True,cbar=False,vmin=minv,vmax=maxv)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='RdBu_r', robust=True, center=0)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='bwr', vmax=maxv, vmin=minv, center=0)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='coolwarm', robust=True, center=0)# cbar_kws=cbar_kws)
+        #Z = h.dendrogram_row.linkage
+        ax = h.ax_heatmap
+        h.cax.set_visible(False)
+		#ax.set_rasterization_zordeset_rasterization_zorderr(1)
+        #place vertical lines to identify chromosomes
+        for pos in chr_limits:
+            ax.axvline(x=pos, color='black', linewidth=0.3)
+
+        #place chromosome ticks at the right position
+        ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
+       
+        ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        h.ax_heatmap.set_yticklabels(h.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
+        ax.tick_params(axis='x', rotation=0, labelsize=5)
+        ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
+        ax.tick_params(axis='x', length=8, which='minor')
+        
+        
+       
+        # add legend
+        box = culo.get_position()
+        #culo.set_position([box.x0, box.y0, box.width * 0.3, box.height])
+        legend_ax = h.fig.add_axes([0, 0, 0.1, 0.6])
+        legend_ax.axis('off')
+        # reconstruct color map
+        colors = [cmap_dict[i] for i in range(4)]
+        # add color map to legend
+        patches = [mpatches.Patch(facecolor=c, edgecolor=c) for c in colors]
+        value_to_int={'No event':0,'common':1,'loss_loh':2,'gained_loh':3}
+        legend = legend_ax.legend(patches,
+            value_to_int.keys(),
+            handlelength=0.8, loc='upper left')
+        for t in legend.get_texts():
+            t.set_ha("left")
+
+        #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
+        #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
+        # A4 is 8-1/4 x 11-3/4 in
+        plt.gcf().set_size_inches(7, 3.8) # w, h
+        # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
+        # scale by hand
+        #plt.gcf().set_size_inches(37, 21)
+        plt.savefig(output[0], dpi=300)
+        plt.clf()
+
+def find_early_depth_ratio_bed(wildcards):
+    return SEQUENZA+'/loh/bed_depth/'+SAMPLES_dic[wildcards.sample][0]+'.bed'
+def find_late_depth_ratio_bed(wildcards):
+    return SEQUENZA+'/loh/bed_depth/'+SAMPLES_dic[wildcards.sample][1]+'.bed'
+
+rule segment_depth_ratio:
+    input: bed= SEQUENZA+'/loh/bed_depth/{sample}.bed',len_chr='../../../local/share/data/chr_len.tsv'
+    output: out='depth_ratio/seg_dim_{number}/{sample}.tsv'
+    run:
+        import pandas as pd
+        import numpy as np
+        seg_dim=int(wildcards.number)
+        data=pd.read_csv(input['bed'],sep='\t',header=None,index_col=None)
+        data.columns=['chr','start','end','depth.ratio']
+        chr_len=pd.read_csv(input['len_chr'],sep='\t',header=0,index_col=None)
+        chr_len['bp']=chr_len['bp'].astype('int')
+        chr_dic={}
+        for row in chr_len.iterrows():
+            chr_dic[row[1]['Chromosome']]=row[1]['bp']
+            
+        def intersezione(start_seg,start,end_seg,end):
+            intersezione=(min(end_seg,end)-max(start_seg,start))
+            return intersezione
+
+        data_seg=pd.DataFrame(columns=['chr','start','end','depth.ratio','segment_id'])
+        a=0
+        for chr in chr_dic.keys():
+            tmp=data[data['chr']==chr]
+            for i in range(0,chr_dic[chr],seg_dim):
+                a=a+1
+                start=i+1
+                end=i+seg_dim
+                #cerco se esiste un segmento nel tmp che ha depth_ratio
+                tmp2=tmp[(tmp['start']<end ) & (tmp['end']>start)]
+                #tmp2_bad=tmp_bad[(tmp_bad['start']<end ) & (tmp_bad['end']>start)]
+                if len(tmp2)==0:
+                    riga={'chr':chr,'start':start,'end':end,'depth.ratio':0,'segment_id':a}
+                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
+                else:
+                    tmp2['intersezione']=tmp2.apply(lambda x: intersezione(start,x['start'],end,x['end']), axis=1)
+                    mean_segment=np.average(tmp2['depth.ratio'], weights=tmp2['intersezione'])
+                    #print(mean_segment)
+                    #verifico se c'è qualcosa in bad bed
+                    #if len(tmp2_bad)==0:
+                    riga={'chr':chr,'start':start,'end':end,'depth.ratio':mean_segment,'segment_id':a}
+                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
+                        #print(tmp2_bad)
+                    #else:
+                        #riga={'chr':chr,'start':start,'end':end,'event':evento['event'],'segment_id':a}
+                        #data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
+                    
+        data_seg.to_csv(output['out'],sep='\t',index=False)
+def flatten_extend(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list.extend(row)
+    return flat_list
+def all_samples_list():
+    return flatten_extend(SAMPLES_dic.values())
+
+rule all_segment_depth_ratio:
+    input:expand('depth_ratio/seg_dim_{number}/{sample}.tsv',sample=all_samples_list(),number=SEG_DIM)
+
+rule data_heatmap_cp:
+    input:dir='depth_ratio/seg_dim_{number}'
+    output:data_e='depth_ratio/heatmap_data/seg_dim_{number}_early.csv',data_l='depth_ratio/heatmap_data/seg_dim_{number}_late.csv'
+    run:
+        import pandas as pd
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+        import numpy as np
+        data_early=pd.DataFrame()
+        data_late=pd.DataFrame()
+        for sample in SAMPLES:
+            print(sample)
+            path_early=input['dir']+'/'+SAMPLES_dic[sample][0]+'.tsv'
+            print(path_early)
+            path_late=input['dir']+'/'+SAMPLES_dic[sample][1]+'.tsv'
+            print(path_late)
+            data_e=pd.read_csv(path_early,index_col='segment_id',header=0,sep='\t')
+            data_e=data_e['depth.ratio']
+            data_e=data_e.rename(sample+'_early') 
+            data_l=pd.read_csv(path_late,index_col='segment_id',header=0,sep='\t')
+            data_l=data_l['depth.ratio']
+            data_l=data_l.rename(sample+'_late')
+            data_early=pd.concat([data_early,data_e],axis=1)
+            data_late=pd.concat([data_late,data_l],axis=1)
+        
+        data_early.to_csv(output['data_e'])
+        data_late.to_csv(output['data_l'])
+        
+
+rule get_corr:
+    input: e="depth_ratio/heatmap_data/seg_dim_{number}_early.csv", l="depth_ratio/heatmap_data/seg_dim_{number}_late.csv"
+    output: result="depth_ratio/heatmap_data/seg_dim_{number}.csv"
+    script: SRC_DIR+"/correlation_early_late.R"
+
+rule get_corr_mean_median:
+    input: cor="depth_ratio/heatmap_data/seg_dim_{number}.csv"
+    output: result="depth_ratio/heatmap_data/correlation_mean_median_{number}.tsv"
+    log: log="depth_ratio/heatmap_data/wilcox_diagvsnondiag_{number}.log"
+    script: SRC_DIR+"/mean_median_depth_ratio.R"
+
+rule corr_heatmap:
+    input:corr="depth_ratio/heatmap_data/seg_dim_{number}.csv"
+    output: res="depth_ratio/heatmap_seg_dim_{number}.pdf"
+    run:
+        import seaborn as sns
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        data=pd.read_csv(input['corr'],header=0,index_col=0)
+        data=data.sort_index(axis = 0)
+        data=data.sort_index(axis=1)
+        print(data)
+        sns.set(font_scale=0.5)
+        f, culo = plt.subplots()
+        
+       
+        h=sns.heatmap(data,cmap=sns.color_palette("Spectral",n_colors=100),cbar_kws = dict(use_gridspec=False,location="right"))
+        #h.ax_heatmap.set_xticklabels(h.ax_heatmap.get_xmajorticklabels(), fontsize = 5)
+        plt.gcf().set_size_inches(15, 10)
+        plt.savefig(output[0])#dpi=300
+        plt.clf()
+
+        
+## CNV
+
+def find_early_bed_cnv(wildcards):
+    return SEQUENZA+'/loh/bed_cnv_good/'+SAMPLES_dic[wildcards.sample][0]+'.bed'
+def find_late_bed_cnv(wildcards):
+    return SEQUENZA+'/loh/bed_cnv_good/'+SAMPLES_dic[wildcards.sample][1]+'.bed'
+
+rule early_vs_late_bed_cnv:
+    input: early=find_early_bed_cnv,late=find_late_bed_cnv
+    output: mixed='mixed_bed_cnv/{sample}_cnv.bed'
+    shell:
+        """
+             bedtools intersect -wo -a {input.early} -b {input.late} > {output.mixed}
+        """
+
+rule all_early_vs_late_bed_cnv:
+    input: expand("mixed_bed_cnv/{sample}_cnv.bed", sample=SAMPLES)
+
+
+rule early_vs_late_cnv:
+    input: tsv='mixed_bed_cnv/{sample}_cnv.bed'
+    output: cnv='cnv/{sample}_cnv.tsv'
+    script: SRC_DIR+"/obtain_gained_cnv.R"
+
+rule all_early_vs_late_cnv:
+    input: expand("cnv/{sample}_cnv.tsv", sample=SAMPLES)
+
+rule CNV_for_plot:
+    input: cnv='cnv/{sample}_cnv.tsv',len_chr='../../../local/share/data/chr_len.tsv'
+    output: tsv="cnv_plot/seg_dim_{number}/{sample}_cnv_seg_dim_{number}.tsv"  #10000000
+    run: 
+        import pandas as pd
+        seg_dim=int(wildcards.number)
+        data=pd.read_csv(input['cnv'],sep='\t',header=0,index_col=None)
+        chr_len=pd.read_csv(input['len_chr'],sep='\t',header=0,index_col=None)
+        chr_len['bp']=chr_len['bp'].astype('int')
+        data=data.rename(columns={"cnv":"event"})
+        data=data[['chr','start','end','event']]
+        chr_len['bp']=chr_len['bp'].astype('int')
+        chr_dic={}
+        for row in chr_len.iterrows():
+            chr_dic[row[1]['Chromosome']]=row[1]['bp']
+            
+        def intersezione(start_seg,start,end_seg,end):
+            intersezione=(min(end_seg,end)-max(start_seg,start))
+            return intersezione
+
+        data_seg=pd.DataFrame(columns=['chr','start','end','event','segment_id'])
+        a=0
+        for chr in chr_dic.keys():
+            tmp=data[data['chr']==chr]
+            for i in range(0,chr_dic[chr],seg_dim):
+                a=a+1
+                start=i+1
+                end=i+seg_dim
+                #cerco se esiste un segmento nel tmp che ha GAINED
+                tmp2=tmp[(tmp['start']<end ) & (tmp['end']>start)]
+                if len(tmp2)==0:
+                    riga={'chr':chr,'start':start,'end':end,'event':'NO','segment_id':a}
+                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
+                else:
+                    tmp2['intersezione']=tmp2.apply(lambda x: intersezione(start,x['start'],end,x['end']), axis=1)
+                    evento=tmp2.loc[tmp2['intersezione'].idxmax()]
+                    riga={'chr':chr,'start':start,'end':end,'event':evento['event'],'segment_id':a}
+                    data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
+
+        data_seg.to_csv(output['tsv'],sep='\t',index=False)
+
+rule  all_CNV_for_plot:
+    input: expand('cnv_plot/seg_dim_{number}/{sample}_cnv_seg_dim_{number}.tsv', sample=SAMPLES,number=SEG_DIM)
+
+rule generate_final_heatmap_cnv:
+    input:d='cnv_plot/seg_dim_{number}'
+    output:data_out='cnv_heatmap_data/heatmap_{number}.csv', ann_out='cnv_heatmap_data/annotation_{number}.csv'
+    script:SRC_DIR+'/heatmap_CNV.R'    #100000
+
+rule heatmap_cnv:
+    #input: "{kind}_segm_l2fc.tsv.gz"
+    #input: "{kind}.1500000.tsv.gz"
+    input:d='cnv_heatmap_data/heatmap_{number}.csv',annotation='cnv_heatmap_data/annotation_{number}.csv'
+    output: out='cnv_heatmap_data/prova_heatmap_finale_{number}.pdf'
+    run:
+        import numpy as np
+        import pandas as pd
+        import seaborn as sns
+        import matplotlib.colors as colors
+        import matplotlib 
+        import matplotlib.cm as cm
+        import matplotlib.ticker as ticker
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.transforms as transforms
+        from matplotlib.colors import ListedColormap
+        import matplotlib.patches as mpatches
+
+
+        cnvs = pd.read_csv(input[0], header=0,index_col=0) 
+        print(cnvs.head())
+
+        
+       # if wildcards.bin == 'orig':
+        #    split1 = [x.split(':') for x in cnvs.index.values]
+         #   split2 = [x[1].split('-') for x in split1]
+          #  boundaries = pd.DataFrame(data={'chr':[x[0] for x in split1], 'b': [x[0] for x in split2], 'e': [x[1] for x in split2]})
+           # cnvs = cnvs.transpose()
+        #else:
+            #boundaries = cnvs[['chr','b','e']].copy()
+            #cnvs = cnvs.drop(columns=['chr','b','e']).transpose()
+        boundaries=pd.read_csv(input[1],header=0,index_col=None)
+        boundaries=boundaries.rename(columns={'':'bin'})
+        
+        boundaries['bin']=boundaries.index
+        boundaries=boundaries.rename(columns={'Chr':'chr'})
+
+        chr_limits = boundaries.index[boundaries['bin'].isin(boundaries.groupby('chr', sort=False)['bin'].max().values)].tolist()
+        i = 0
+        chr_limits = []
+        last = ""
+        for index, row in boundaries.iterrows():
+            if last != "" and last != row['chr']:
+                chr_limits.append(i-1)
+            last = row['chr']
+            i = i + 1        
+        chr_limits.append(i-1)
+
+        chr_boundaries = np.append(0, chr_limits)
+        chr_list = boundaries['chr'].unique().tolist()
+        chrN_list = []
+        print(chr_boundaries)
+        for x in chr_list:
+            x = x[3:] #remove 'chr' for readability
+            chrN_list.append(x)
+        #compute the position where chromosome labels will be placed on the plots
+        start = 0
+        pos_list = []
+        for end in chr_limits:
+            pos_list.append((start+end)/2)
+            start = end+1
+
+        yticklabels = False
+
+        #cbar_kws={"ticks": np.arange(0,13,1)}
+        maxv = cnvs.max().max()
+        minv = cnvs.min().min()
+        cmap_dict ={0:'white',1:'red', 2:"blue"}
+        cmap = ListedColormap([cmap_dict[i] for i in range(3)])
+        
+        f, culo = plt.subplots()
+        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = True, cmap=cmap,robust=True, rasterized=True,cbar=False,vmin=minv,vmax=maxv)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='RdBu_r', robust=True, center=0)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='bwr', vmax=maxv, vmin=minv, center=0)# cbar_kws=cbar_kws)
+        #h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, yticklabels = False, cmap='coolwarm', robust=True, center=0)# cbar_kws=cbar_kws)
+        #Z = h.dendrogram_row.linkage
+        ax = h.ax_heatmap
+        h.cax.set_visible(False)
+		#ax.set_rasterization_zordeset_rasterization_zorderr(1)
+        #place vertical lines to identify chromosomes
+        for pos in chr_limits:
+            ax.axvline(x=pos, color='black', linewidth=0.3)
+
+        #place chromosome ticks at the right position
+        ax.xaxis.set_major_locator(ticker.FixedLocator((pos_list)))
+       
+        ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        h.ax_heatmap.set_yticklabels(h.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
+        ax.tick_params(axis='x', rotation=0, labelsize=5)
+        ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
+        ax.tick_params(axis='x', length=8, which='minor')
+        
+        
+       
+        # add legend
+        box = culo.get_position()
+        #culo.set_position([box.x0, box.y0, box.width * 0.3, box.height])
+        legend_ax = h.fig.add_axes([0, 0, 0.1, 0.6])
+        legend_ax.axis('off')
+        # reconstruct color map
+        colors = [cmap_dict[i] for i in range(3)]
+        # add color map to legend
+        patches = [mpatches.Patch(facecolor=c, edgecolor=c) for c in colors]
+        value_to_int={'NO':0,'GAINED':1, 'LOSS':2}
+        legend = legend_ax.legend(patches,
+            value_to_int.keys(),
+            handlelength=0.8, loc='upper left')
+        for t in legend.get_texts():
+            t.set_ha("left")
+
+        #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
+        #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
+        # A4 is 8-1/4 x 11-3/4 in
+        plt.gcf().set_size_inches(7, 3.8) # w, h
+        # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
+        # scale by hand
+        #plt.gcf().set_size_inches(37, 21)
+        plt.savefig(output[0], dpi=300)
+        plt.clf()

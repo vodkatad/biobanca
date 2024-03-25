@@ -2,6 +2,7 @@ include: './conf.sk'
 
 # Rerun the 19/01/23 to satisfy Livio hunger for statistics, this will trigger all the other rules if they will be relaunched.
 # rerun the 29/08/23 to add a check on expected/preGOOD number of pairs
+# rerun the 13/02/24 to add a file with longgens of selected PDOs
 # checked diff of pdo_tiers.tsv with the previous one, it's the same.
 # Initial AF plots/N muts both for all muts and filtered via PCGR tiers, producing filtered AF tables and log of n samples.
 rule initial_plots_filter_good:
@@ -54,7 +55,7 @@ rule oncoprint_subset:
     script: SRC_DIR+"/oncoprint_diff_subset.R"
     
 
-# here AF thr not considered
+# here AF thr not considered: the thr it's reimplemented in the R script at single muts level
 rule jaccard_mut_sim:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"

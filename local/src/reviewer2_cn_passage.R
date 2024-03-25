@@ -45,13 +45,13 @@ long$group <- factor(long$group, levels=c('early', 'mid', 'late'))
 table(long$group)
 
 diag <- diag(as.matrix(jac))
-dfc <- data.frame(cor=diag, smodel=names(diag))
+dfc <- data.frame(jac=diag, smodel=names(diag))
 m <- merge(dfc, long, by="smodel")
-ggplot(data=m, aes(y=cor, x=group, fill=group))+geom_boxplot(outlier.shape=NA)+geom_jitter(height=0)+theme_bw()+ylab('Pearson')
+ggplot(data=m, aes(y=jac, x=group, fill=group))+geom_boxplot(outlier.shape=NA)+geom_jitter(height=0)+theme_bw()+ylab('Jaccard')
 
-summary(aov(formula=as.formula("cor~group"), data=m))
+summary(aov(formula=as.formula("jac~group"), data=m))
 
-kruskal.test(formula=as.formula("cor~group"), data=m)
+kruskal.test(formula=as.formula("jac~group"), data=m)
 ### jaccards
 all <- read.table('/scratch/trcanmed/biobanca/dataset/V1/WES_early_ox_all/jac_matrix_0.05.tsv' , sep="\t", stringsAsFactors = F, header=T)
 w <- read.table('/scratch/trcanmed/biobanca/dataset/V1/WES_early_ox/jac_matrix_0.05.tsv' , sep="\t", stringsAsFactors = F, header=T)
@@ -72,4 +72,6 @@ pd <- position_dodge(width=0.2)
 ggplot(data=mlo, aes(x=variable, y=value))+geom_boxplot(outlier.shape=NA)+geom_jitter(aes(group=`Row.names`), position=pd)+
   geom_line(aes(group=`Row.names`), position=pd)+
   theme_bw(base_size=20)
+
+
   

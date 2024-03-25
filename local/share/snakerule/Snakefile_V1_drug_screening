@@ -118,3 +118,8 @@ rule prova_kras_media:
     input: excel = "/scratch/trcanmed/inibitore_kras/local/share/data/template_for_synergy_Simo_average_EXP1.xlsx"
     output: out_dir=directory('plot_synergy_media')
     script: "/home/mferri/script_wip/synergyfinder_media.R"
+
+rule table_expr_drug_screening:
+    input: tar="../../../local/share/data/targets_drug_screening.xlsx", expr="/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_S/tmm.tsv.gz", treat="/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_S/samples_data"
+    output: tsv="table_expr_drug_screening_full.tsv"
+    script: SRC_DIR+"/table_expr_drug_screening.R"
