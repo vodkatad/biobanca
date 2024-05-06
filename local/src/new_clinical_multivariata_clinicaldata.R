@@ -6,6 +6,7 @@ library(sjPlot)
 cl_f <- snakemake@input[["clinical_data"]]
 buoni_f <- snakemake@input[["pdo"]]
 fra_f <- snakemake@input[["mut"]]
+lmh_f <- snakemake@input[["umani"]]
 res_circos <- snakemake@output[["df_circos"]]
 plot_fit <- snakemake@output[["fit_plot"]]
 res_fit <- snakemake@output[["results_fit"]]
@@ -20,11 +21,11 @@ controllare che il tab sia corretto per mantere le colonne corrette")
 ## controllare che il tab sia corretto per mantere le colonne corrette
 
 ## carico i dati clinici, filtro per i pdo buoni e per le mutazioni annotate di fra
-#cl_f <- "/scratch/trcanmed/biobanca/local/share/data/clinical_data_done.tsv"
+#cl_f <- "/scratch/trcanmed/biobanca/local/share/data/clinical_data_done_revision020424.tsv"
 cl <- read.table(cl_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 
 #buoni_f <- "/scratch/trcanmed/biobanca/local/share/data/biobanca_pdo_buoni.tsv"
-#buoni_f <- "/scratch/trcanmed/biobanca/local/share/data/whoiswho_validation_xen.tsv" 
+#buoni_f <- "/scratch/trcanmed/biobanca/local/share/data/whoiswho_validation_xen_revision_derivation.tsv"
 buoni <- read.table(buoni_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 #names(buoni)[names(buoni) == "smodel"] <- "CASE"
 names(buoni)[names(buoni) == "type"] <- "buoni"
@@ -46,17 +47,21 @@ res <- merge(merged, tfra, by = "CASE", all.x = TRUE)
 #res <- res[!(row.names(res) %in% row_names_df_to_remove),]
 
 ## creo un df con solo i dati necessari per la multivariata
-res <- res[c("CASE", "AGE.AT.COLLECTION", "SEX", "SITE.OF.PRIMARY", "STAGE", "THERAPY.BEFORE..Y.N.",
-             "KRAS", "BRAF", "NRAS", "MSI_MSS", "buoni")]
+res <- res[c("CASE", "AGE.AT.COLLECTION..years.", "SEX", "SITE.OF.PRIMARY", "STGE", "THERAPY.BEFORE.COLLECTION..Y.N.",
+             "KRAS", "BRAF", "NRAS", "MSI_MSS", "buoni", "derivation_type")]
 #names(res)[names(res) == "T"] <- "Classification_T"
 #names(res)[names(res) == "N"] <- "Classification_N"
 
 ## sistemo il df per poter accorpare i siti del primario
 rownames(res) <- res$CASE
 
-#res["CRC1241", "SITE.OF.PRIMARY"] <- "NONE"
+res["CRC1241", "SITE.OF.PRIMARY"] <- "NONE"
 res["CRC1575", "SITE.OF.PRIMARY"] <- "NONE"
 res["CRC0578", "SITE.OF.PRIMARY"] <- "NONE"
+res["CRC0277", "SITE.OF.PRIMARY"] <- "NONE"
+res["CRC1376", "SITE.OF.PRIMARY"] <- "NONE"
+res["CRC1474", "SITE.OF.PRIMARY"] <- "NONE"
+
 for (i in seq(res$CASE)) {
   if (res[i, "SITE.OF.PRIMARY"] == "SIGMOID COLON" | res[i, "SITE.OF.PRIMARY"] == "ANO" | 
       res[i, "SITE.OF.PRIMARY"] == "LEFT COLON" | res[i, "SITE.OF.PRIMARY"] == "RECTUM" |
@@ -107,12 +112,17 @@ for (i in seq(res$CASE)) {
 # }
 
 ## sistemo stage per non perdere i casi con la lettera
+names(res)[names(res)== "STGE"] <- "STAGE"
 
-#res["CRC1241", "STAGE"] <- "N"
+res["CRC1241", "STAGE"] <- "N"
 res["CRC1575", "STAGE"] <- "N"
 res["CRC0578", "STAGE"] <- "N"
 res["CRC1390", "STAGE"] <- "N"
-
+res["CRC0277", "STAGE"] <- "N"
+res["CRC1376", "STAGE"] <- "N"
+res["CRC1474", "STAGE"] <- "N"
+res["CRC1336", "STAGE"] <- "N"
+res["CRC1501", "STAGE"] <- "N"
 
 for (i in seq(res$CASE)) {
   if (res[i, "STAGE"] == "2A") {
@@ -151,39 +161,62 @@ res$SITE.OF.PRIMARY <- as.factor(res$SITE.OF.PRIMARY)
 res$STAGE <-  gsub('N', NA, res$STAGE)
 res$STAGE <- as.numeric(res$STAGE)
 
-res$THERAPY.BEFORE..Y.N. <- as.factor(res$THERAPY.BEFORE..Y.N.)
+res$THERAPY.BEFORE.COLLECTION..Y.N. <- as.factor(res$THERAPY.BEFORE.COLLECTION..Y.N.)
 
 is.na(res$MSI_MSS) <- NA
 res$MSI_MSS <-  gsub('NT', NA, res$MSI_MSS)
 res$MSI_MSS <- as.factor(res$MSI_MSS)
 
+res$derivation_type <- as.factor(res$derivation_type)
+
 ## scrivo la tabella per i circos che comprenda anche i casi
 write.table(res, file = res_circos, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
+
+## rimuovere i 14 lmh
+#lmh_f <- "/scratch/trcanmed/biobanca/local/share/data/lmh_detele_multivariate.tsv"
+lmh <- read.table(lmh_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+lmh <- lmh$CASE
+
+res <- res %>% filter(!CASE %in% lmh)
 
 res <- res %>% filter(!buoni == "Validation not performed")
 res$buoni <-  gsub('Validation successful', "True", res$buoni)
 res$buoni <- gsub("Validation failed","False", res$buoni)
 res$buoni <- gsub("Not established","False", res$buoni)
 res$buoni <- as.factor(res$buoni)
-## scrivo la tabella per i circos che comprenda anche i casi
-#write.table(res, file = res_circos, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
+
 
 res$CASE <- NULL
 #res_prova <- res 
 #res_prova <- res_prova %>% filter(!KRAS == "True")
 
-## faccio il fit
+# faccio il fit
 
+sink(snakemake@log[['log']])
+print(table(res$buoni))
+sink()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION, data=res, family=binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + STAGE + THERAPY.BEFORE..Y.N. , data=res, family=binomial())
-fit.full <- glm(buoni ~ SITE.OF.PRIMARY + STAGE + THERAPY.BEFORE..Y.N. + KRAS + BRAF + NRAS + SEX + AGE.AT.COLLECTION, data = res, family = binomial())
+fit.full <- glm(buoni ~ SITE.OF.PRIMARY + STAGE + THERAPY.BEFORE.COLLECTION..Y.N. + KRAS + BRAF + NRAS + SEX + AGE.AT.COLLECTION, data = res, family = binomial())
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + STAGE + KRAS + NRAS + BRAF, data=res, family=binomial())
 pdf(plot_fit, useDingbats=FALSE)
 #plot_model(fit.full)
 #name <- c("Sex", "Age", "Therapy", "Site of primary", "Stage", "KRAS", "NRAS", "BRAF")
-name <- c("Site of primary", "Stage", "Therapy", "KRAS", "BRAF", "NRAS", "Sex", "Age")
-plot_model(fit.full, axis.lim = c(0.1, 10), axis.labels = rev(name), title = "Validation")
+#name <- c("Site of primary", "Stage", "Therapy", "KRAS", "BRAF", "NRAS", "Sex", "Age")
+plot_model(fit.full, axis.lim = c(0.1, 10), title = "Validation")
 dev.off()
 #fit.full <- glm(buoni ~ SEX + AGE.AT.COLLECTION + THERAPY.BEFORE..Y.N. + SITE.OF.PRIMARY + BRAF + NRAS, data=res_prova, family=binomial())
 fit <- as.data.frame(summary.glm(fit.full)$coefficients)
-write.table(fit, file = res_fit, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
+## intervallo di confidenza
+conf_intervals <- confint(fit.full)
+fit2 <- cbind(fit, conf_intervals)
+## odds ratio
+# Obtain coefficients
+coefficients <- coef(fit.full)
+odds_ratios <- as.data.frame(exp(coefficients))
+colnames(odds_ratios) <- "odds ratio"
+fit3 <- cbind(fit2, odds_ratios)
+rownames(fit3) <- c("Intercept", "Site of primary (right colon)", "Stage", "Therapy Before (yes)", 
+                    "KRAS (mutant)", "BRAF (mutant)", "NRAS (mutant)", "Sex (male)", "Age at collection")
+
+write.table(fit3, file = res_fit, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)

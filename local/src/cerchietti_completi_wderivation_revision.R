@@ -5,6 +5,11 @@ library(gridBase)
 library(RColorBrewer)
 library(colorspace)
 
+data_f <- snakemake@input[["cli"]]
+cols_f <- snakemake@input[["colori"]]
+cerchi <- snakemake@output[["circos"]]
+leg <- snakemake@output[["legenda"]]
+
 #dir <- '~/Dropbox/work/biobanca'
 dir <- '/scratch/trcanmed/biobanca/local/share/data'
 #egrassi@godot:/scratch/trcanmed/biobanca/local/share/data$ cat clinical_data_circos.tsv  | sed 's/TRUE/True/' | sed 's/FALSE/False/' > clinical_data_circos2.tsv
@@ -12,7 +17,8 @@ dir <- '/scratch/trcanmed/biobanca/local/share/data'
 ## for not removed cases use /scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv instead use
 # /scratch/trcanmed/biobanca/local/share/data/complete_data_for_circos.tsv
 #data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
-data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos_wderivation_revision.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
+#data <- read.table("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos_revision.tsv", sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
+data <- read.table(data_f, sep="\t", header=TRUE, stringsAsFactors = FALSE, row.names = 1)
 for (i in rownames(data)) { 
   if (data[i, "buoni"] == "Validation failed") {
     data[i, "buoni"] <- "Failed"
@@ -24,9 +30,14 @@ for (i in rownames(data)) {
     data[i, "buoni"] <- "BNot performed"
   }
 }
+
+names(data)[names(data)=="AGE.AT.COLLECTION..years."] <- "AGE.AT.COLLECTION"
+names(data)[names(data)=="THERAPY.BEFORE.COLLECTION..Y.N."] <- "THERAPY.BEFORE..Y.N."
+
 #data$Classification_N <- as.character(data$Classification_N)
 #data$Classification_T <- as.character(data$Classification_T)
-cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete_difforder3_wderivation_revision.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
+#cols <- read.table(file.path(dir, 'clinical_data_circos_cols_emendati_complete_difforder3_wderivation_revision.tsv'), sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
+cols <- read.table(cols_f, sep="\t", header=TRUE, stringsAsFactors = FALSE, comment.char = "")
 cols[is.na(cols)] <- "NA"
 
 
@@ -96,7 +107,7 @@ data <- eval(parse(text=order_command))
 th <- (1/length(order_cols)) / 1.5
 legends <- list()
 
-pdf("/home/mferri/circles_prediletti_complete_wderivation_revision.pdf")
+pdf(cerchi)
 for (i in seq(1, length(order_cols))) {
   name <- names(order_cols)[i]
   print(name)
@@ -145,9 +156,9 @@ for (i in seq(1, length(order_cols))) {
 graphics.off()
 
 all_legends <- packLegend(list=legends, direction="horizontal", gap=unit(0.5, "cm"))
-#pdf("circos_prediletti_legends.pdf")
+pdf(leg, width = 15, height = 10)
 draw(all_legends)
-#graphics.off()
+graphics.off()
 
 #circos.heatmap(ms, bg.border="black", bg.lwd=0.7, col=col_microsat_status, track.height=0.02, rownames.side="outside", rownames.cex=0.45, split=rownames(ms), gap.degree=0.01)
 #https://stackoverflow.com/questions/30555108/r-circlize-report-gap-degree-is-too-large

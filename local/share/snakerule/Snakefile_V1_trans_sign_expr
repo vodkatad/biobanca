@@ -454,12 +454,14 @@ rule obtain_density_plot_wilcox_buoni:
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
 # rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
-# rerun the 29/01/24 to obtain CI and odds ratio
-rule multivariata_clinical_data:
-    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
-    output: df_circos = "clinical_data_for_circos.tsv", fit_plot = "plot_fit_validated.pdf", results_fit = "result_fit.tsv"
+# rerun the 29/01/24 to obtain CI and odds ratio 
+
+# rerun on 02/04/24 for revision of clinical data by Eugy
+rule multivariata_clinical_data_020424:
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen_revision_derivation.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
+    output: df_circos = "clinical_data_for_circos_revision.tsv", fit_plot = "plot_fit_validated_revision.pdf", results_fit = "result_fit_revision.tsv"
     log: log="clinical_data_for_circos.tsv.log"
-    script: SRC_DIR+'/new_multivariata_clinicaldata.R'
+    script: SRC_DIR+'/new_clinical_multivariata_clinicaldata.R'
 
 ### alla luce del dramma dei numeri non corrispondenti è stato creato un pdo buoni ad hoc con lo script in /local/share/definition_case_validation.R
 ### multivariata_KRAS_passage_site con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
@@ -592,7 +594,7 @@ rule multivariata_clinical_data_parallelo:
     input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
     output: df_circos = "clinical_data_for_circos_parallelo.tsv", fit_plot = "plot_fit_validated_parallelo.pdf", results_fit = "result_fit_parallelo.tsv"
     log: log="clinical_data_for_circos_parallelo.tsv.log"
-    script: SRC_DIR+'/new_multivariata_clinicaldata_parallelo.R'
+    script: SRC_DIR+'/new_multivariata_clinicaldata.R'
 
 ## revisioneeeee
 
@@ -605,3 +607,13 @@ rule kras_multivariata_passaggio:
     input: pas="/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt", mut = FRA_MUT, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", side="/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv"
     output: res="fit_kras_passage.tsv", fit_plot="multivariata_KRAS_passage_site.pdf"
     script: SRC_DIR+"/kras_passage_multivariata_nonotperformed.R"
+
+rule sistemazione_clinical_data: ##per multivariata clinical data
+    input: data="/scratch/trcanmed/biobanca/local/share/data/Extended_Data_Table_1_NEW_DEF.xlsx", m="/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/eugy_msi_long.tsv"
+    output: res="../../../../local/share/data/clinical_data_done_revision020424.tsv"
+    script: SRC_DIR+"/preprocess_clinical_data.R"
+
+rule circos_revision:
+    input: cli="clinical_data_for_circos_revision.tsv", colori="../../../../local/share/data/clinical_data_circos_cols_emendati_complete_difforder3_wderivation_revision.tsv"
+    output: circos="circles_prediletti_complete_wderivation_revision.pdf", legenda="legenda_circles_prediletti_complete_wderivation_revision.pdf"
+    script: SRC_DIR+"/cerchietti_completi_wderivation_revision.R"

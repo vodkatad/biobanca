@@ -30,7 +30,7 @@ RIGHT=SNAKE_ROOT+"/prj/DE_RNASeq/local/share/data/xo_basali"
 CRIS_RES = "../cris/vsd_model_cris-right_validated.tsv"
 BUONI = "../../../../local/share/data/biobanca_pdo_buoni.tsv"
 FRA_MUT = "../../enrichment/fra_mutational_annotation.tsv"
-CLI = "../../../../local/share/data/clinical_data_done.tsv"
+CLI = "../../../../local/share/data/clinical_data_done_revision020424.tsv"
 
 ### ADD 322 sbi third experiment
 DRUG="/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/Drug_Screening_Tables.xlsx"
