@@ -109,8 +109,9 @@ lmplot <- function(data, title, xlim=NULL, out) {
                 linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.35, xmax=0.65, ymin=-0.05, ymax=0.3)+
                 theme(legend.position ="none")
   } else {
-    ggplot(data=data, aes(x=x, y=y, color=class))+ geom_point()+ geom_smooth(method=lm, se=FALSE)+
-    unmute_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)+
+    ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class))+ geom_smooth(method=lm, se=FALSE)+
+    unmute_theme+labs(caption=cap)+ggtitle(title)+xlim(xlim)+ylim(xlim)+
+    theme(axis.ticks = element_blank(), axis.text.y=element_blank(), axis.title=element_blank(), axis.text.x=element_blank())+
     scale_color_manual(values=c('seagreen', 'plum3'))
 
   }
