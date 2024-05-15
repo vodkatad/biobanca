@@ -17,7 +17,7 @@ BIN_DIR=PRJ_ROOT+'/local/bin'
 SRC_DIR=PRJ_ROOT+'/local/src'
 
 # The expected number of matching pairs x-o
-PAIRS=142
+PAIRS
 PAIRS_H=4
 
 MUTECT_DIR='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_'
@@ -26,7 +26,6 @@ TIERSFIX='/mutect_paired_st/merged.table_nomultiallele_wtiers'
 GENESFIX='/mutect_paired_st/merged.table_nomultiallele_wtiers_annot'
 
 TREAT='/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/treats/august2020/Treatments_Eugy_Ele_fix0cetuxi_201005_cetuxi3w_CRC0078_PR.tsv'
-
 TCGA='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/tcga_panel_freqs.tsv'
 MSK='/mnt/trcanmed/snaketree/prj/biobanca/local/share/data/msk_panel_freqs.tsv'
 
@@ -36,3 +35,5 @@ DATA=PRJ_ROOT+'/local/share/data'
 VS="latexeno" # latexeno or earlylate
 # here PDO will be PDO late
 # and XENO will be XENO
+# Needed to switch: xeno will be PDO late and PDO will be xeno - decision to always keep 'early'  on the rows/y for consistency 14/05/24
+# this has beeen changed but not rerun cause it's  not in the manuscript

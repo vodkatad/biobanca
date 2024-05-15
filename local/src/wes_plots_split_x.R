@@ -19,15 +19,16 @@ sink(snakemake@log[[1]])
 print(paste0('Starting with x= ', ncol(xeno_df), ' o= ', ncol(pdo_df)))
 sink()
 
-samples <- colnames(pdo_df)
-if (sum(grepl('LMO', samples)) != ncol(pdo_df)) {
+samples <- colnames(xeno_df) 
+# xeno are pdo to always have early pdo on rows/y (see conf.sk)
+if (sum(grepl('LMO', samples)) != ncol(xeno_df)) {
     stop('I was expecting only LMOs!')
 }
 passage <- as.numeric(substr(samples, 15, 17))
 if (vs == "earlyxeno") {
-    pdo_df <- pdo_df[, passage <= 3]
+    xeno_df <- xeno_df[, passage <= 3]
 } else if (vs == "latexeno") {
-    pdo_df <- pdo_df[, passage > 3]
+    xeno_df <- xeno_df[, passage > 3]
 } else {
     stop('Still to be implemented!')
 }
@@ -80,15 +81,15 @@ af_all <- filter_plot(pdo_df, xeno_df, snakemake@output[['freqAll']])
 xeno_df_w <- read.table(xeno_waf, header=TRUE, sep="\t", row.names=1)
 pdo_df_w <- read.table(pdo_waf, header=TRUE, sep="\t", row.names=1)
 
-samples <- colnames(pdo_df_w)
-if (sum(grepl('LMO', samples)) != ncol(pdo_df_w)) {
+samples <- colnames(xeno_df_w)
+if (sum(grepl('LMO', samples)) != ncol(xeno_df_w)) {
     stop('I was expecting only LMOs!')
 }
 passage <- as.numeric(substr(samples, 15, 17))
 if (vs == "earlyxeno") {    
-    pdo_df_w <- pdo_df_w[, passage <= 3]
+    xeno_df_w <- xeno_df_w[, passage <= 3]
 } else if (vs == "latexeno") {
-    pdo_df_w <- pdo_df_w[, passage > 3]
+    xeno_df_w <- xeno_df_w[, passage > 3]
 } else {
     stop('Still to be implemented!')
 }
@@ -119,5 +120,3 @@ plot_n(af_tiers[['o']], af_tiers[['x']], snakemake@output[['histTiers']])
 
 write.table(af_tiers[['o']], file=snakemake@output[['pdoTiers']], sep="\t", quote=FALSE)
 write.table(af_tiers[['x']], file=snakemake@output[['xenoTiers']], sep="\t", quote=FALSE)
-
-save.image('pippo.Rdata')

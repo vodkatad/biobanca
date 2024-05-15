@@ -36,3 +36,4 @@ DATA=PRJ_ROOT+'/local/share/data'
 VS="earlyxeno" # latexeno or earlylate
 # here PDO will be PDO early
 # and XENO will be XENO
+# Needed to switch: xeno will be PDO early and PDO will be xeno - decision to always keep 'early'  on the rows/y for consistency 14/05/24
