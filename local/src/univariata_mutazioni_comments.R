@@ -8,6 +8,7 @@ buoni_f <- snakemake@input[["pdo"]]
 fit_gene <- snakemake@output[["fit_plot_gene"]]
 res_genes <- snakemake@output[["res"]]
 mut_tab <- snakemake@output[["mut"]]
+res_fit <- snakemake@output[["results_fit"]]
 
 log <- snakemake@log[['log']]
 load(rf)
@@ -148,3 +149,15 @@ dev.off()
  # [16] 2.481781e+06 2.481781e+06 2.481781e+06 2.481781e+06 2.481781e+06
  # [21] 7.039492e+06 2.461270e+06 6.860522e+06 6.860522e+06 6.860522e+06
  # [26] 6.860522e+06
+fit <- as.data.frame(summary.glm(ctnnb1)$coefficients)
+## intervallo di confidenza
+conf_intervals <- confint(ctnnb1)
+fit2 <- cbind(fit, conf_intervals)
+## odds ratio
+# Obtain coefficients
+coefficients <- coef(ctnnb1)
+odds_ratios <- as.data.frame(exp(coefficients))
+colnames(odds_ratios) <- "odds ratio"
+fit3 <- cbind(fit2, odds_ratios)
+
+write.table(fit3, file = res_fit, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)

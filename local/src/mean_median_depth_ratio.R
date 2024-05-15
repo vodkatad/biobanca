@@ -31,6 +31,10 @@ diag["non_diag","median"] <- median_non_diagonal
 sink(log_f, append=TRUE)
 w <- wilcox.test(diagonal_values, non_diagonal_values)
 w
+print("diag")
+summary(diagonal_values)
+print("non_diag")
+summary(non_diagonal_values)
 sink()
 
 write.table(diag, res, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)

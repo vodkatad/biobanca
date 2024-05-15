@@ -457,8 +457,8 @@ rule obtain_density_plot_wilcox_buoni:
 # rerun the 29/01/24 to obtain CI and odds ratio 
 
 # rerun on 02/04/24 for revision of clinical data by Eugy
-rule multivariata_clinical_data_020424:
-    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen_revision_derivation.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
+rule multivariata_clinical_data:
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen_revision_derivation.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv", msi="../../../../local/share/data/MSIstatus.xlsx"
     output: df_circos = "clinical_data_for_circos_revision.tsv", fit_plot = "plot_fit_validated_revision.pdf", results_fit = "result_fit_revision.tsv"
     log: log="clinical_data_for_circos.tsv.log"
     script: SRC_DIR+'/new_clinical_multivariata_clinicaldata.R'
@@ -469,7 +469,7 @@ rule multivariata_clinical_data_020424:
 # rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
 rule univariata_mutation:
     input: pdo= "../../../../local/share/data/whoiswho_validation_xen_nolmh.tsv", rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
-    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv", mut = "table_mut_genes.tsv"
+    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv", mut = "table_mut_genes.tsv", results_fit = "result_fit_ctnnb1.tsv"
     log: log="fit_genes_univariata.tsv.log"
     script: SRC_DIR+'/univariata_mutazioni_comments.R'
 
