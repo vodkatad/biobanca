@@ -226,7 +226,7 @@ dev.off()
 fit <- as.data.frame(summary.glm(fit.full)$coefficients)
 ## intervallo di confidenza
 conf_intervals <- confint(fit.full)
-fit2 <- cbind(fit, conf_intervals)
+fit2 <- cbind(fit, exp(conf_intervals))
 ## odds ratio
 # Obtain coefficients
 coefficients <- coef(fit.full)

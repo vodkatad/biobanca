@@ -152,7 +152,7 @@ dev.off()
 fit <- as.data.frame(summary.glm(ctnnb1)$coefficients)
 ## intervallo di confidenza
 conf_intervals <- confint(ctnnb1)
-fit2 <- cbind(fit, conf_intervals)
+fit2 <- cbind(fit, exp(conf_intervals))
 ## odds ratio
 # Obtain coefficients
 coefficients <- coef(ctnnb1)

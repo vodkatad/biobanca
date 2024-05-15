@@ -91,7 +91,7 @@ dev.off()
 fit <- as.data.frame(summary.glm(fit.kras)$coefficients)
 
 conf_intervals <- confint(fit.kras)
-fit2 <- cbind(fit, conf_intervals)
+fit2 <- cbind(fit, exp(conf_intervals))
 ## odds ratio
 # Obtain coefficients
 coefficients <- coef(fit.kras)
