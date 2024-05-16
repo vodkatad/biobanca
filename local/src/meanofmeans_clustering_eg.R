@@ -15,15 +15,19 @@ means <- c()
 for (i in unique(substr(rownames(dist_pearson), 1, 7))) {
  d <- dist_pearson[,grepl(i, colnames(dist_pearson)), drop=FALSE]
  d <- d[grepl(i, rownames(d)),]
+ d <- d[grepl('LMX', rownames(d)),grepl('LMO', colnames(d))]
  m <- mean(as.matrix(d)) 
  means <- c(means, m)
  #print(i)
 }
+
+# ma così teniamo x-x!
 ### cercare nelle colonne lo stesso caso 
 # crea un vettore con la media tra replicati
 # questa media si aggiunge un altro vettore che poi subità la media (media della media)
 
 meansofmeanscouple <- mean(means)
+summary(means)
 
 # per ogni modello prendiamo delle sue righe tutte le colonne in cui non appare
 # e poi segue uguale
@@ -32,10 +36,21 @@ means_lmxlmo_notcouple <- c()
 for (i in unique(substr(rownames(dist_pearson), 1, 7))) {
   d <- dist_pearson[,!grepl(i, colnames(dist_pearson)), drop=FALSE]
   d <- d[grepl(i, rownames(d)),]
+  d <- d[grepl('LMX', rownames(d)),grepl('LMO', colnames(d))]
+  
   m <- mean(as.matrix(d)) 
   means_lmxlmo_notcouple <- c(means_lmxlmo_notcouple, m)
   #print(i)
 }
+
+
+summary(means_lmxlmo_notcouple)
+
+wi <- wilcox.test(means,means_lmxlmo_notcouple)
+wi$p.value
+# We had to add filtering on lmx on rows/lmo on cols to avoid getting someone cor with himself and the same pairs in a different
+# order. Apparently I already did so but lost the diary with this details :()
+############################# STOP HERE #########################
 
 tdist_pearson <- as.data.frame(t(dist_pearson))
 means_lmolmx_notcouple <- c()
@@ -71,3 +86,7 @@ for (i in unique(substr(rownames(dist_pearson), 1, 7))) {
 
 meansnotcouple2 <- mean(c(means_lmxlmo_notcouple2))
 meansnotcouple3 <- mean(c(m1, m2))
+
+summary(meansnotcouple)
+summary(meansnotcouple3)
+summary(meansnotcouple2)
