@@ -294,9 +294,11 @@ has_smt <- function(smodel, data, smt) {
 }
 
 all_pdo <- unique(as.character(clustered_data$shortgen))
+sink(log_f, append=TRUE)
 table(sapply(all_pdo, has_smt, clustered_data, 'LMO'))
 table(sapply(all_pdo, has_smt, clustered_data, 'LMH'))
 table(sapply(all_pdo, has_smt, clustered_data, 'LMX'))
+sink()
 
 clustered_data$shortgen <- as.character(clustered_data$shortgen)
 #clustered_data <- clustered_data[clustered_data$shortgen!="CRC1451",]
@@ -308,12 +310,14 @@ only_one <- function(smodel, data) {
 }
 
 ncl <- sapply(all_pdo, only_one, clustered_data)
+sink(log_f, append=TRUE)
+print('Right models:')
 sum(ncl==1)
 length(ncl)
 sum(ncl==1)/length(ncl)
 sum(ncl>1)/length(ncl)
 sum(ncl>1)
-
+sink()
 ## majority vote for cluster
 majority <- function(smodel, data) {
   subset <- data[data$shortgen == smodel,]
@@ -325,13 +329,14 @@ majority <- function(smodel, data) {
 
 singlemax <- sapply(all_pdo, majority, clustered_data)
 ss <- singlemax[ncl!=1]
+sink(log_f, append=TRUE)
 print('models appearing in two different clusters but with a clear majority vote')
 length(ss[ss==1])
 head(ss[ss==1])
 print('models appearing in two different clusters without a clear majority vote')
 length(ss[ss!=1])
 head(ss[ss!=1])
-
+sink()
 
 majority_vote <- function(smodel, data) {
   subset <- data[data$shortgen == smodel,]
@@ -343,14 +348,17 @@ majority_vote <- function(smodel, data) {
 right_one <- lapply(all_pdo, majority_vote, clustered_data)
 names(right_one) <- all_pdo
 right_s <- 0
+rightmodels <- c()
 for (i in seq(1, nrow(clustered_data))) {
   if (clustered_data[i, 'cl_id'] == right_one[[clustered_data[i, 'shortgen']]]) {
     right_s <- right_s + 1
+    rightmodels <- c(rightmodels, clustered_data[i, 'shortgen'])
   }
 }
 
 sink(log_f, append=TRUE)
 print(paste0("N sample in correct cluster: ", right_s))
+print(paste0("N models in correct cluster with majority vote: ", length(unique(rightmodels))))
 print(paste0("N sample: ", nrow(clustered_data)))
 sink()
 
