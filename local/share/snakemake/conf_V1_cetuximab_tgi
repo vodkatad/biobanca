@@ -78,3 +78,40 @@ rule order_tgi:
             m <- m[match(o$smodel, m$smodel),];
             write.table(m, file="{output}", sep="\\t", row.names=F, quote=F);'
         """
+
+
+# sclass -> 'volvar_NT'
+
+rule preprocess_volvarNT:
+    input: xlsx=DATA+'/aggregati_TGI_fixed0.xlsx', cet="../cetuximab/cetuxi_perc_w3_buoni.tsv"
+    output: volvar_ave="volvarNT_chosen.tsv"
+    log: log="volvarNT.log"
+    script: SRC_DIR+'/preprocess_volvar_v2.R'
+
+# Adding header
+rule header:
+    input: 'volvarNT_chosen.tsv'
+    output: 'hvolvarNT_chosen.tsv'
+    shell:
+        """
+            echo -e "case\\tperc" > {output}
+            cat {input} >> {output}
+        """
+
+rule filter_volvar_nt:
+    input: pdo_cet = "hvolvarNT_chosen.tsv", buoni = BUONI
+    output: res = "volvarNT_buoni.tsv"
+    script: SRC_DIR+"/filter_pdocetuxi.R"
+
+rule order_volvar:
+    input: volvar="volvarNT_buoni.tsv", order=DATA+'/order_suppl_6.tsv'
+    output: "addition_suppl_6_bis.tsv"
+    shell: 
+        """
+            Rscript -e 'd <- read.table("{input.volvar}", sep="\\t", header=T); 
+            o <- read.table("{input.order}", sep="\\t", header=T);
+            m <- merge(o, d, by.x="smodel", by.y="case", all.x=T);
+            m <- m[match(o$smodel, m$smodel),];
+            write.table(m, file="{output}", sep="\\t", row.names=F, quote=F);'
+        """
+
