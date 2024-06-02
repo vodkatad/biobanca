@@ -2,11 +2,11 @@ load("/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/table_expression_clu
 
 dist_pearson <- as.data.frame(cor(expr_selected, method="pearson"))
 dist_pearson$type <- substr(rownames(dist_pearson), 8, 10)
-dist_pearson <- dist_pearson %>% filter(!type == "LMX")
+#dist_pearson <- dist_pearson %>% filter(!type == "LMX")
 dist_pearson$type <- NULL
 dist_pearson <- as.data.frame(t(dist_pearson))
 dist_pearson$type <- substr(rownames(dist_pearson), 8, 10)
-dist_pearson <- dist_pearson %>% filter(type == "LMX")
+#dist_pearson <- dist_pearson %>% filter(type == "LMX")
 dist_pearson$type <- NULL
 
 #prova <- dist_pearson

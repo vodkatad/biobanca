@@ -11,6 +11,7 @@ set.seed(42)
    'simo', 's', 1, 'character',
    'vsd', 'v', 1, 'character',
    'meda', 'm', 1, 'character',
+   'genes', 'g', 1, 'character',
    'right', 'r', 1, 'character',
    'output', 'o', 1, 'character'), ncol=4, byrow=TRUE)
 opt <- getopt(opts)
@@ -55,6 +56,10 @@ n <- length(sds)
 keep <- head(sds, round(0.10*n)) #prova con e senza
 keep_genes <- names(keep)
 desd <- de[rownames(de) %in% keep_genes,]
+
+print(n)
+print(length(keep))
+write.table(as.data.frame(keep_genes), file=opt$genes, sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
 # desd1 <- desd
 # names(desd1) <- substr(names(desd1), 1, 12)

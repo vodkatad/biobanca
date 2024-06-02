@@ -513,16 +513,16 @@ rule DNAseq_samples_EGAids_whoiswho:
 
 
 ### parallelo dell'espressione per le coppie simo con il merge giusto e non al lineage
-
 rule correlation_LMX_LMO_simo_parallelo:
     input: simo=SIMOUNIQ_parallelo, expr=VSD, metadata=MEDA, right=RIGHT
     params: tool=BIN_DIR+"/Correlation_LMX-LMO_SimoCoupled_parallelo"
-    output: outfile = "LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    output: outfile = "LMX-LMO_correlation_simo_parallelo.tsv.gz", kept_genes="kept_genes_correlation_simo_parallello.tsv"
     shell:
         """
-            {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile}
+            {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile} -g {output.kept_genes}
         """
 
+# rerun the 2/6 to investigate vs early-late
 rule cor_pdo_buoni_filter_parallelo:
     input: simo_cor = "LMX-LMO_correlation_simo_parallelo.tsv.gz", pdo = BUONI
     output: res = "LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"

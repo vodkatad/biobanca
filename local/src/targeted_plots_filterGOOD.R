@@ -87,6 +87,7 @@ filter_plot <- function(pdo, xeno, keep, out) {
     scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme+
     scale_fill_manual(values=c('darkblue', 'firebrick1'))
     ggsave(out)
+    print(table(pd$class))
     #ggplot(data=pd, aes(x=af, color=class)) + geom_density()+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
     return(list(x=xeno, o=pdo))
 }
@@ -115,6 +116,7 @@ plot_n <- function(pdo, pdx, out) {
     ggplot(data=pd, aes(x=af, fill=class)) + geom_histogram(alpha=0.5, position='dodge')+xlab('nmuts')+unmute_theme+
     scale_fill_manual(values=c('darkblue', 'firebrick1'))
     ggsave(out)
+    print(table(pd$class))
 }
 plot_n(af_all[['o']], af_all[['x']], snakemake@output[['histAll']])
 plot_n(af_tiers[['o']], af_tiers[['x']], snakemake@output[['histTiers']])
