@@ -429,4 +429,173 @@ rule obtain_density_plot_wilcox_buoni:
     output: density_plot = "density_f_buoni.pdf", wilcox_result ="wilcox_buoni"
     script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
 
+# rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
+# rerun the 29/01/24 to obtain CI and odds ratio 
 
+# rerun on 02/04/24 for revision of clinical data by Eugy
+# rerun on 15/05/24 to get CI in terms of odds ratio (added exp)
+rule multivariata_clinical_data:
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen_revision_derivation.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv", msi="../../../../local/share/data/MSIstatus.xlsx"
+    output: df_circos = "clinical_data_for_circos_revision.tsv", fit_plot = "plot_fit_validated_revision.pdf", results_fit = "result_fit_revision.tsv"
+    log: log="clinical_data_for_circos.tsv.log"
+    script: SRC_DIR+'/new_clinical_multivariata_clinicaldata.R'
+
+### alla luce del dramma dei numeri non corrispondenti è stato creato un pdo buoni ad hoc con lo script in /local/share/definition_case_validation.R
+### multivariata_KRAS_passage_site con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
+
+# rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
+rule univariata_mutation:
+    input: pdo= "../../../../local/share/data/whoiswho_validation_xen_nolmh.tsv", rdata_targeted_all = "../../targeted_all/preprocGeneAF_0.05.Rdata"
+    output: fit_plot_gene = "plot_fit_ctnnb1.pdf", res = "fit_genes_univariata.tsv", mut = "table_mut_genes.tsv", results_fit = "result_fit_ctnnb1.tsv"
+    log: log="fit_genes_univariata.tsv.log"
+    script: SRC_DIR+'/univariata_mutazioni_comments.R'
+
+rule DNAseq_samples_EGAids_whoiswho:
+    input: dataset = "/scratch/trcanmed/biobanca/local/share/data/DNAseq_samples_EGAids.xlsx", pdo= "../../../../local/share/data/whoiswho_validation_xen.tsv"
+    output: res = "DNAseq_samples_EGAids_whoiswho.xlsx"
+    script: SRC_DIR+'/DNAseq_samples_EGAids_whoiswho.R'
+
+## deg_filtersteps_tractability_group.tsv made with /local/src/biobanca_imbuti_no1241_53.R
+
+# Numeri paper:
+#> d <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
+#> summary(diag(as.matrix(d)))
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.7042  0.8037  0.8271  0.8231  0.8482  0.8999 
+#> length(diag(as.matrix(d)))
+#[1] 67
+
+#> res_df <- read.table(gzfile('LMX-LMO_correlation_simo_buoni.tsv.gz'), sep="\t", header=T)
+#> unmatched <- c(res_df[upper.tri(res_df)], res_df[lower.tri(res_df)])
+#> matched <- diag(as.matrix((res_df))) ### diag vuole la matrice perchè non converte da solo il data frame
+#> summary(unmatched)
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.5669  0.6194  0.6078  0.6648  0.8658 
+#> res_df[rownames(res_df)=="CRC1241", colnames(res_df)=="CRC1241"]
+#[1] 0.899925
+#> summary(unlist(res_df[rownames(res_df)=="CRC1241",]) )
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2571  0.2991  0.3118  0.3353  0.8999 
+#> summary(c(unlist(res_df[rownames(res_df)=="CRC1241",]),  res_df[, colnames(res_df)=="CRC1241"]))
+#   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2761  0.3100  0.3222  0.3463  0.8999 
+# summary(c(unlist(res_df[rownames(res_df)=="CRC1241", colnames(res_df)!="CRC1241"]),  res_df[rownames(res_df)!="CRC1241", colnames(res_df)=="CRC1241"]))
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.1700  0.2755  0.3097  0.3134  0.3449  0.5105 
+
+
+### parallelo dell'espressione per le coppie simo con il merge giusto e non al lineage
+rule correlation_LMX_LMO_simo_parallelo:
+    input: simo=SIMOUNIQ_parallelo, expr=VSD, metadata=MEDA, right=RIGHT
+    params: tool=BIN_DIR+"/Correlation_LMX-LMO_SimoCoupled_parallelo"
+    output: outfile = "LMX-LMO_correlation_simo_parallelo.tsv.gz", kept_genes="kept_genes_correlation_simo_parallello.tsv"
+    shell:
+        """
+            {params.tool} -s {input.simo} -v {input.expr} -m {input.metadata} -r {input.right} -o {output.outfile} -g {output.kept_genes}
+        """
+
+# rerun the 2/6 to investigate vs early-late
+rule cor_pdo_buoni_filter_parallelo:
+    input: simo_cor = "LMX-LMO_correlation_simo_parallelo.tsv.gz", pdo = BUONI
+    output: res = "LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    script: SRC_DIR+"/correlation_pdo_filter.R"
+
+rule pheatmap_parallelo:
+    input: correlation_matrix="LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    output: pheatmap="pheatmap_correlation_parallelo.pdf"
+    script: SRC_DIR+'/pheatmap.R'
+
+rule pheatmap_buoni_parallelo:
+    input: correlation_matrix="LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    output: pheatmap="pheatmap_correlation_buoni_parallelo.pdf"
+    script: SRC_DIR+'/pheatmap.R'
+
+rule obtain_density_plot_wilcox_simo_parallelo:
+    input: res="LMX-LMO_correlation_simo_parallelo.tsv.gz"
+    output: density_plot = "density_f_simo_parallelo.pdf", wilcox_result ="wilcox_simo_parallelo"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+
+rule obtain_density_plot_wilcox_simo_buoni_parallelo:
+    input: res="LMX-LMO_correlation_simo_buoni_parallelo.tsv.gz"
+    output: density_plot = "density_f_simo_buoni_parallelo.pdf", wilcox_result ="wilcox_simo_buoni_parallelo"
+    script: SRC_DIR+'/matched_unmatched_plot_wilcox.R'
+    
+rule get_model_cms_parallelo:
+    input: simo=SIMOUNIQ_parallelo, pdo="LMO_BASALE_CMScaller.tsv", pdx="LMX_BASALE_CMScaller.tsv"
+    output: results="model_cms_parallelo.tsv"
+    script: SRC_DIR+ '/CMS_simo_parallelo.R'
+
+rule true_parallelo:
+    input: cms="model_cms_parallelo.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "model_cms_validated_parallelo.tsv"
+    shell:
+        """
+            cat {input.cms} | bawk 'NR == 1' > {output}
+            cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}' > {output}.tmp
+            cat {input.cms} | filter_1col 1 {output}.tmp >> {output}
+        """
+## questa volta non è reorder (rispetto all'originale) perchè è stato modificato lo script 
+## produce direttamente prima i PDX e poi i PDO
+
+rule sankey_parallelo:
+    input: "model_cms_validated_parallelo.tsv"
+    output: html="sankey_model_cms_validated_coppie_simo_parallelo.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+rule true_simo_cris_parallelo:
+    input: cris="../cris/vsd_model_cris-right_parallelo.tsv", true="../../../../local/share/data/biobanca_pdo_buoni.tsv"
+    output: "vsd_model_cris-right_validated_parallelo.tsv"
+    shell:
+        """
+            cat {input.cris} | bawk 'NR==1' > {output}
+            cat {input.cris} | filter_1col 1 <(cat {input.true} | sed 1d | bawk '$2=="TRUE" {{print $1}}') >> {output}
+        """
+rule cris_polishing_parallelo:
+    input: cris="vsd_model_cris-right_validated_parallelo.tsv"
+    output: results="vsd_model_cris-right_validated_clean_parallelo.tsv"
+    script: SRC_DIR+"/cris_df_cleaning.R"
+
+rule sankey_simo_cris_parallelo:
+    input: "vsd_model_cris-right_validated_clean_parallelo.tsv"
+    output: html="vsd_sankey_model_simo_cris_validated_clean_parallelo.html"
+    script: SRC_DIR+"/sankey_classification.R"
+
+rule get_jaccards_parallelo:
+    input: cms = "model_cms_validated_parallelo.tsv", cris = "vsd_model_cris-right_validated_clean_parallelo.tsv"
+    output: cms_t = "jaccard_cms_parallelo.tsv", cris_t = "jaccard_cris_parallelo.tsv"
+    script: SRC_DIR+"/jaccardscore_cmscris.R"
+
+## multivariata parallela senza i not established
+
+rule multivariata_clinical_data_parallelo:
+    input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv"
+    output: df_circos = "clinical_data_for_circos_parallelo.tsv", fit_plot = "plot_fit_validated_parallelo.pdf", results_fit = "result_fit_parallelo.tsv"
+    log: log="clinical_data_for_circos_parallelo.tsv.log"
+    script: SRC_DIR+'/new_multivariata_clinicaldata.R'
+
+## revisioneeeee
+
+rule mutational_diff_boosted:
+    input: rdata="../../targeted/oncoprint_0.05.RData"
+    output: chisq="chisq_differenze_mutazionali.tsv", pdf="number_mutation_diff_o_x.pdf"
+    script: SRC_DIR+"/analysis_oncoprint_biobanca_only_pdo_pdx.R"
+
+
+# rerun on 15/05/24 to get CI in terms of odds ratio (added exp)
+# added _revision to clinical_data_for_circos
+# niente e cambia tutto, quindi tengo i dati vecchi e devo fare check e chiedere a Marti
+rule kras_multivariata_passaggio:
+    input: pas="../../../../local/share/data/passaggi_query_las_Simo_march2022.txt", mut = FRA_MUT, pdo="../../../../local/share/data/whoiswho_validation_xen_nolmh.tsv", side="clinical_data_for_circos_revision.tsv"
+    output: res="fit_kras_passage.tsv", fit_plot="multivariata_KRAS_passage_site.pdf"
+    log: log="fit_kras_passage.log"
+    script: SRC_DIR+"/kras_passage_multivariata_nonotperformed.R"
+
+rule sistemazione_clinical_data: ##per multivariata clinical data
+    input: data="../../../../local/share/data/Extended_Data_Table_1_NEW_DEF.xlsx", m="/mnt/trcanmed/snaketree/prj/pdxopedia/local/share/data/eugy_msi_long.tsv"
+    output: res="../../../../local/share/data/clinical_data_done_revision020424.tsv"
+    script: SRC_DIR+"/preprocess_clinical_data.R"
+
+rule circos_revision:
+    input: cli="clinical_data_for_circos_revision.tsv", colori="../../../../local/share/data/clinical_data_circos_cols_emendati_complete_difforder3_wderivation_revision.tsv"
+    output: circos="circles_prediletti_complete_wderivation_revision.pdf", legenda="legenda_circles_prediletti_complete_wderivation_revision.pdf"
+    script: SRC_DIR+"/cerchietti_completi_wderivation_revision.R"
