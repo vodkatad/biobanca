@@ -11,6 +11,7 @@ buoni_f <- snakemake@input[["pdo"]]
 loc_f <- snakemake@input[["side"]]
 result <- snakemake@output[["res"]]
 plot_fit <- snakemake@output[["fit_plot"]]
+log_f <- snakemake@log[['log']]
 
 #passage <- "/scratch/trcanmed/biobanca/local/share/data/passaggi_query_las_Simo_march2022.txt"
 txt <- read.table(passage, quote= "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
@@ -64,7 +65,7 @@ for (i in seq(length(res$model))){
 res$KRAS <- as.factor(res$KRAS)
 res$validated <- as.factor(res$validated)
 
-#loc_f <- "/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos.tsv"
+#loc_f <- "/scratch/trcanmed/biobanca/dataset/V1/trans_sign/expr/clinical_data_for_circos_revision.tsv"
 loc <- read.table(loc_f, quote = "", sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 names(loc)[names(loc) == "CASE"] <- "model"
 
@@ -80,7 +81,9 @@ rownames(res2) <- res2$model
 #     res2[i, "name_Passage"] <- "Late Passage"
 #   }
 # }
-
+sink(log_f)
+print(table(res2$Validation))
+sink()
 #fit.full <- glm(KRAS ~ validated + passage, data=res,family=binomial())
 #fit.alt <- glm(KRAS ~ passage + validated, data = res, family = binomial())
 fit.kras <- glm(Validation ~ Passage + Site.of.Primary + KRAS, data=res2,family=binomial())
