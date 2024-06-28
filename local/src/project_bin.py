@@ -136,17 +136,21 @@ if __name__ == "__main__":
                 overlap.append(entry)
                 overlaplen.append(min(entry[2], bin[2]) - max(entry[1], bin[1]))
 
-            # manage the overlapping entries. We get a weighted average of their cn,
-            # where the weight is the overlap length
-            # then we print the result or 0 for bins without any overlap.
+            # manage the overlapping entries - we keep the CN of the longest segment for multiple overlaps.
+            # then we print the result or -1 for bins without any overlap.
             if len(overlap) != 0:
                 cn = 0
                 ovlen = 0
-                for i in range(0, len(overlap)):
-                    cn += overlap[i][3] * overlaplen[i]
-                    ovlen += overlaplen[i]
-                cn =  cn / ovlen
+                maxlen_i = 0
+                maxlen = overlaplen[0]
+                for i in range(1, len(overlap)):
+                    if args.verbose:
+                        print('two segments in one bin {}'.format(bin), file=sys.stderr)
+                    if overlaplen[i] > maxlen:
+                        maxlen = overlaplen[i]
+                        maxlen_i = i
+                cn =  overlap[maxlen_i][3]
                 print('{}\t{}\t{}\t{}'.format(bin[0],bin[1],bin[2], cn))
             else:
-                print('{}\t{}\t{}\t{}'.format(bin[0],bin[1],bin[2], 0))
+                print('{}\t{}\t{}\t{}'.format(bin[0],bin[1],bin[2], -1))
             
