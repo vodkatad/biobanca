@@ -93,3 +93,18 @@ sink(mw_f, append=TRUE)
 print('wilcox')
 wilcox.test(formula=as.formula("pearson~type"), data=pdata)$p.value
 sink()
+
+dev.off()
+pdf(paste0("legend_", pheat_f), family="sans")#, height=1.9, width=1.9)
+pheatmap(jac, cluster_rows=F , cluster_cols=F, labels_col="PDXTs", labels_row="PDXs", fontsize.number=1.5, color=colorRampPalette(c("white", "red"))(50), legend=TRUE, border_color = "gray90" )
+#ph
+#graphics.off()
+#pdf('urffa.pdf')
+# found were to tweak it setting the color as darkgoldenrod and
+# looking inside the objects
+dev.off()
+
+pdf(paste0("rownames_", pheat_f))#, family="sans")#, height=1.9, width=1.9)
+pheatmap(jac, cluster_rows=F , cluster_cols=F, color=colorRampPalette(c("white", "red"))(50), border_color = "gray90" , show_rownames=TRUE, legend=FALSE, show_colnames=TRUE)
+dev.off()
+save.image('paperoga2.pdf')
