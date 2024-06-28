@@ -639,6 +639,10 @@ rule allbedtobin:
     input: expand('totalbins_singlesample/{sample}.'+str(SEG_DIM[0])+'.tsv.gz', sample=SAMPLES_EXT)
 
 
+# todo:
+# model names
+# remove colors?
+# fix sns colors?
 rule alltobin_merged:
     input: expand('totalbins_singlesample/{sample}.'+str(SEG_DIM[0])+'.tsv.gz', sample=SAMPLES_EXT)
     output: m="merged.tsv.gz"
@@ -678,12 +682,18 @@ rule vitro_heatmap:
         names = list(cnvs.index.values)
         models = np.unique([ x[0:7] for x in names ])
         sorted_names= []
+        tick_names = []
+        tick_names_2 = []
         for i in range(0, len(models)):
             early = SAMPLES_dic[models[i]][0]
             late = SAMPLES_dic[models[i]][1]
             sorted_names.append(early)
             sorted_names.append(late)
-        
+            tick_names.append(models[i] + " early")
+            tick_names.append(models[i] + " late")
+            tick_names_2.append(models[i])
+            tick_names_2.append("")
+
         cnvs = cnvs.reindex(sorted_names)
         samples = [ x[0:7] for x in cnvs.index.values ]
         # Create a categorical palette to identify the samples
@@ -734,7 +744,7 @@ rule vitro_heatmap:
 
         cmap = ListedColormap([cmap_dict[i] for i in range(-1,7)])
 
-        h = sns.clustermap(cnvs, row_colors=sample_colors, col_cluster=False, row_cluster=False, yticklabels = True, cmap=cmap, vmin=-2, vmax=7, center=3, rasterized=True)
+        h = sns.clustermap(cnvs, row_colors=sample_colors, col_cluster=False, row_cluster=False, cmap=cmap, vmin=-2, vmax=7, center=3, rasterized=True, yticklabels=tick_names_2)
         
         ax = h.ax_heatmap
         for pos in chr_limits:
