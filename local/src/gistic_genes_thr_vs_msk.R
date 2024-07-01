@@ -5,6 +5,7 @@ library(ggrastr)
 gistic_us_f <- snakemake@input[['us']]
 gistic_msk_f <- snakemake@input[['msk']]
 corrplot_f <- snakemake@output[['corrplot']]
+sourcedata_f <- snakemake@output[['sourcedata']]
 corrs_f <- snakemake@output[['corrs']]
 kind <- snakemake@wildcards[['kind']]
 log <- snakemake@log[['log']]
@@ -57,6 +58,8 @@ freqs <- rbind(freqs_amp, freqs_del)
 
 plot <- ggplot(data=freqs, aes_string(x='MSK', y=kind, color='event'))+rasterise(geom_point(alpha=0.5, size=0.1), dpi=300)+geom_smooth(method='lm', size=0.2)+
         scale_color_manual(values=c('#c84440','#185492'))
+
+write.table(freqs, file=sourcedata_f, sep="\t", quote=FALSE)
 
 plotbis <- function(plot, theme_unmute, theme_mute, name, h=2.5, w=2.5, units='in', dpi=300) {
   unmute <- plot + theme_unmute  + theme(legend.position="none")

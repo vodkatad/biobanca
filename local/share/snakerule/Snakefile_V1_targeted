@@ -38,7 +38,9 @@ rule freqs_tcga_msk:
             TCGAMSK_pdo="TCGAMSK_pdo_{AF}.pdf",
             TCGAMSK_xeno_zoom="TCGAMSK_xenozoom_{AF}.pdf",
             TCGAMSK_pdo_zoom="TCGAMSK_pdozoom_{AF}.pdf",
-            preprocGeneAF="preprocGeneAF_{AF}.Rdata"
+            preprocGeneAF="preprocGeneAF_{AF}.Rdata",
+            sourcedatax="TCGAMSK_xeno_{AF}.tsv",
+            sourcedatao="TCGAMSK_pdo_{AF}.tsv"
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
     #output: freqAll="freq_all.svg", freqTiers="freq_tiers.svg", histTiers #="hist_tiers.svg", histAll="hist_all.svg", pdoTiers="pdo_tiers.tsv", xenoTiers="xeno_tiers.tsv"
@@ -62,6 +64,22 @@ rule jaccard_mut_sim:
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
     script: SRC_DIR+"/jaccard_mut_sim.R"
 
+rule souce_data_2:
+    input: jac_2b="jac_matrix_0.05.tsv", freq_2c="TCGAMSK_pdo_0.05.tsv"
+    output: "SOURCE_DATA_Figure_2_B_C.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input.jac_2b},{input.freq_2c} -o {output} -s 'Fig. 2B, Fig. 2C'
+        """
+
+rule souce_data_suppl5:
+    input: freq_2c="TCGAMSK_xeno_0.05.tsv"
+    output: "SOURCE_DATA_Suppl_Fig_5.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input.freq_2c} -o {output} -s 'Suppl. Fig. 5'
+        """
+        
 rule AF_imbalance:
     input: Rimage='preprocGeneAF_{AF}.Rdata'
     output: ttest="AF_imbalance_test_{AF}.tsv", plots=directory("AF_imbalance_{AF}_plots")

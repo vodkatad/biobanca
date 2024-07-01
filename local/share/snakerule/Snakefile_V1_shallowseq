@@ -243,6 +243,21 @@ rule diagonal:
             Rscript -e 'd <- read.table("{input[0]}", sep="\\t", header=TRUE); res <- data.frame(smodel=substr(rownames(d), 0,7), pearson=diag(as.matrix(d))); write.table(res, file="{output[0]}", sep="\\t", row.names=F, quote=F);'
         """
 
+rule souce_data_3:
+    input: pearson_3a="validated_pearson_xo.tsv", freq_3c_tcga="freqs_pdo_tcga.tsv", freq_3c_msk="freqs_pdo_msk.tsv"
+    output: "SOURCE_DATA_Figure_3_A_C.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input.pearson_3a},{input.freq_3c_tcga},{input.freq_3c_msk} -o {output} -s 'Fig. 3A, Fig. 3C TCGA, Fig. 3C MSK'
+        """
+
+rule souce_data_suppl_7:
+    input: freq_3c_tcga="freqs_xeno_tcga.tsv", freq_3c_msk="freqs_xeno_msk.tsv"
+    output: "SOURCE_DATA_Suppl_Fig_7.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input.freq_3c_tcga},{input.freq_3c_msk} -o {output} -s 'Suppl Fig. 7 TCGA, Suppl Fig. 7 MSK'
+        """
 ## Gistic genes scores
 
 rule delta_gistic:
@@ -277,7 +292,7 @@ rule delta_gistic_overall:
 rule gistic_vs_tcga_thresholded_genes:
     input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', tcga=PRJ_ROOT+'/local/share/data/shallowseq/gistic/crc_gistic.txt',  
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: corrplot='{kind}_vs_tcga.pdf', corrs='{kind}_vs_tcga.tsv'
+    output: corrplot='{kind}_vs_tcga.pdf', corrs='{kind}_vs_tcga.tsv', sourcedata="freqs_{kind}_tcga.tsv"
     log: log='{kind}_vs_tcga.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_tcga.R'
 
@@ -290,7 +305,7 @@ rule gistic_vs_tcga_thresholded_genes:
 rule gistic_vs_msk_thresholded_genes:
     input: us=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_{kind}/all_thresholded.by_genes.txt', msk=PRJ_ROOT+'/local/share/data/shallowseq/gistic/gistic_msk/all_thresholded.by_genes.txt',
            Rimage=PRJ_ROOT+'/dataset/V1/theme_5.Rdata'
-    output: corrplot='{kind}_vs_msk.pdf', corrs='{kind}_vs_msk.tsv'
+    output: corrplot='{kind}_vs_msk.pdf', corrs='{kind}_vs_msk.tsv', sourcedata="freqs_{kind}_msk.tsv"
     log: log='{kind}_vs_msk.log'
     script: SRC_DIR+'/gistic_genes_thr_vs_msk.R'
 

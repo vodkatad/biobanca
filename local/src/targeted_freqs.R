@@ -15,6 +15,9 @@ tcgamsk_xeno_zoom_f <- snakemake@output[['TCGAMSK_xeno_zoom']]
 tcgamsk_pdo_zoom_f <- snakemake@output[['TCGAMSK_pdo_zoom']]
 savedata <- snakemake@output[['preprocGeneAF']]
 
+source_data_xeno_f <- snakemake@output[['sourcedatax']]
+source_data_pdo_f <- snakemake@output[['sourcedatao']]
+
 thr <- as.numeric(snakemake@wildcards[['AF']])
 
 osnakemake <- snakemake
@@ -74,9 +77,9 @@ cl <- c(rep('tcga',nrow(m2)), rep('msk',nrow(m2)))
 
 m3 <- data.frame(y=c(m2$pdo_freq, m2$pdo_freq), 
                  x=c(m2$tcga_freq, m2$msk_freq), 
-                 class=cl)
+                 class=cl, gene=c(as.character(m2$gene), as.character(m2$gene)))
 
-lmplot <- function(data, title, xlim=NULL, out, ocoefs=NULL) {
+lmplot <- function(data, title, xlim=NULL, out, ocoefs=NULL, sourcedata=NULL) {
   fit1 <- data[data$class=='tcga',]
   fit2 <- data[data$class=='msk',]
   pi1 <- cor.test(fit1$x, fit1$y)
@@ -114,6 +117,7 @@ lmplot <- function(data, title, xlim=NULL, out, ocoefs=NULL) {
       geom_line(data = linedata, color="darkgrey", size=0.3, aes(x, y, group = id),
                 linetype = "dashed")+annotation_custom(grob=ggplotGrob(gg), xmin=0.35, xmax=0.65, ymin=-0.05, ymax=0.3)+
                 theme(legend.position ="none")
+    write.table(data, file=sourcedata, sep="\t", quote=FALSE, row.names=FALSE)
   } else {
     ggplot(data=data, aes(x=x, y=y))+ geom_point(aes(color=class)) + # geom_smooth(method=lm, se=FALSE)+
     geom_abline(color='blue', slope=ocoefs["x"], intercept=ocoefs["(Intercept)"])+
@@ -126,13 +130,13 @@ lmplot <- function(data, title, xlim=NULL, out, ocoefs=NULL) {
   return(res)
 }
 
-coefs <- lmplot(m3, title='PDO', out=tcgamsk_pdo_f)
+coefs <- lmplot(m3, title='PDO', out=tcgamsk_pdo_f, sourcedata=source_data_pdo_f)
 lmplot(m3, title='PDO', xlim=c(0, 0.2), out=tcgamsk_pdo_zoom_f, ocoefs=coefs)
 
 m3 <- data.frame(y=c(m2$pdx_freq, m2$pdx_freq), 
                  x=c(m2$tcga_freq, m2$msk_freq), 
-                 class=cl)
-coefs <- lmplot(m3, title='PDX', out=tcgamsk_xeno_f)
+                 class=cl, gene=c(as.character(m2$gene), as.character(m2$gene)))
+coefs <- lmplot(m3, title='PDX', out=tcgamsk_xeno_f, sourcedata=source_data_xeno_f)
 lmplot(m3, title='PDX', xlim=c(0, 0.2), out=tcgamsk_xeno_zoom_f, ocoefs=coefs)
 
 

@@ -5,6 +5,7 @@ library(ggrastr)
 gistic_us_f <- snakemake@input[['us']]
 gistic_tcga_f <- snakemake@input[['tcga']]
 corrplot_f <- snakemake@output[['corrplot']]
+sourcedata_f <- snakemake@output[['sourcedata']]
 corrs_f <- snakemake@output[['corrs']]
 kind <- snakemake@wildcards[['kind']]
 log <- snakemake@log[['log']]
@@ -58,6 +59,7 @@ plot <- ggplot(data=freqs, aes_string(x='TCGA', y=kind, color='event'))+rasteris
         xlim(c(0,0.8)) + scale_color_manual(values=c('#c84440','#185492'))
 #plot <- ggplot(data=freqs, aes_string(x='TCGA', y=kind, color='event'))+geom_point(alpha=0.5, size=0.2)+geom_smooth(method='lm', size=0.2)+
 #        scale_color_manual(values=c('#c84440','#185492'))
+write.table(freqs, file=sourcedata_f, sep="\t", quote=FALSE)
 
 # with 1.8 inches rasterize gets very bad - we get the font outsize with this size and the raster with the big old one
 plotbis <- function(plot, theme_unmute, theme_mute, name, h=2.5, w=2.5, units='in') {

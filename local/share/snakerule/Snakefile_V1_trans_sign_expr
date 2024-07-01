@@ -470,6 +470,15 @@ rule multivariata_clinical_data:
 
 ### alla luce del dramma dei numeri non corrispondenti è stato creato un pdo buoni ad hoc con lo script in /local/share/definition_case_validation.R
 ### multivariata_KRAS_passage_site con il passaggio e il site viene prodotta da /local/src/kras_passage_multivariata.R
+rule source_data_1F:
+    input: "result_fit_revision.tsv"
+    output: "source_data_1f.xlsx"
+    shell: 
+        """
+            bawk '{{print $1,$6,$8,$7}}' {input} | grep -v Intercept > {output}.tmp
+            tsv_to_xls -i {output}.tmp -o {output} -s 'Fig. 1F'
+            rm {output}.tmp
+        """
 
 # rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
 rule univariata_mutation:
