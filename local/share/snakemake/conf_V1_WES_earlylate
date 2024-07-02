@@ -36,3 +36,11 @@ DATA=PRJ_ROOT+'/local/share/data'
 VS="earlylate" # or earlyxeno or latexeno
 # here PDO will be PDO late
 # and XENO will be PDO early
+
+rule pyclone_table:
+    input: "/scratch/trcanmed/git_biobanca/local/data/LMO-early-late_clones.50-10.table"
+    output: "clones.tsv"
+    shell: """
+            echo -e "model\\tgenealogy PDXT early\\tgenealogy PDXT late\\tN_clones_PDXT_early\\tN_clones_PDXT_late" > {output}
+            cat {input} >> {output}
+          """

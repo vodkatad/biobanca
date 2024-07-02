@@ -6,6 +6,7 @@ library(reshape)
 ttest_f <- snakemake@output[['ttest']]
 plots_d <- snakemake@output[['plots']]
 my_log_f <- snakemake@log[['log']]
+sourcedata_f <- snakemake@output[['sdata']]
 n_thr <- as.numeric(snakemake@params[['muts_thr']])
 
 load(snakemake@input[['Rimage']])
@@ -46,7 +47,6 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     # we now have a table with only the models with muts in the selected muts (those mutated in both x and o in at least 5 cumulative
     # models). We need to switch to the long format for ggplot and we still need to remove the samples that are mutated only in
     # x or o.
-    
     data$id <- rownames(data)
     long <- melt(data, id.vars="id")
     # we can remove not mutated samples now # FIXME if we want to consider missing muts this needs to be changed
@@ -57,7 +57,7 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     long$smodel <- substr(long$variable, 0, 7)
     # group is a variable with mut id / model useful for pairing things (e.g. draw lines pairing dots in ggplot)
     long$group <- paste0(long$id, long$smodel)
-
+    
     # logging purposes of the number of muts that are mutated in a single x or o and that right now we are removing
     print(gene)
     print(dim(long))
@@ -69,6 +69,13 @@ compare_o_x <- function(gene, mut_table, gene_muts, n_thr, log) {
     long <- long[long$group %in% withpairs,]
     print(dim(long))
     
+    ########## source data
+    ssd <- long
+    ssd <- ssd[,c('id', 'class', 'value', 'smodel')]
+    ssd$gene <- rep(gene, nrow(ssd))
+    wssd = cast(data=ssd, 'gene+smodel+id~class', val=value)
+    write.table(wssd, paste0('../', sourcedata_f), sep="\t", col.names=FALSE, append=TRUE, quote=FALSE, row.names=FALSE)
+    ########## source data
     # todo fix y axis interval if we want to use in supplementary
     ggplot(data=long, aes(x=class, y=value))+geom_point()+geom_line(aes(group=group))+theme_bw()+ggtitle(gene)
     ggsave(paste0(gene, ".png"))

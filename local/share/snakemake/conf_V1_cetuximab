@@ -38,3 +38,11 @@ rule filter_pdo_cetuxi:
     input: pdo_cet = "pdo_cetuxi.tsv", buoni = BUONI
     output: res = "pdo_cetuxi_buoni.tsv"
     script: SRC_DIR+"/filter_pdocetuxi.R"
+
+rule souce_data_suppl11:
+    input: "models.tsv"
+    output: "SOURCE_DATA_Suppl_Fig_11_A.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input} -o {output} -s 'Suppl. Fig. 11A'
+        """

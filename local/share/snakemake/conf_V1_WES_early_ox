@@ -37,3 +37,12 @@ VS="earlyxeno" # latexeno or earlylate
 # here PDO will be PDO early
 # and XENO will be XENO
 # Needed to switch: xeno will be PDO early and PDO will be xeno - decision to always keep 'early'  on the rows/y for consistency 14/05/24
+
+
+rule pyclone_table:
+    input: "/scratch/trcanmed/git_biobanca/local/data/LMO-early-LMX_clones.50-10.table"
+    output: "clones.tsv"
+    shell: """
+            echo -e "model\\tgenealogy PDXT early\\tgenealogy PDXT late\\tN_clones_PDXT_early\\tN_clones_PDXT_late" > {output}
+            cat {input} >> {output}
+          """

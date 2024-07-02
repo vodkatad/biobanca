@@ -6,6 +6,8 @@ xeno_waf <- snakemake@input[['xenoWAF']]
 pdo_waf <- snakemake@input[['pdoWAF']]
 good_f <- snakemake@input[['good']]
 log <- snakemake@log[['log']]
+sourcedataA_f <- snakemake@output[['sourcedataA']]
+sourcedataB_f <- snakemake@output[['sourcedataB']]
 
 osnakemake <- snakemake
 load(snakemake@input[['Rimage']])
@@ -24,7 +26,7 @@ sink()
 good_df <- read.table(good_f, sep="\t", stringsAsFactors=FALSE, header=TRUE)
 keep <- good_df[good_df$buoni, , drop=FALSE]
 
-filter_plot <- function(pdo, xeno, keep, out) {
+filter_plot <- function(pdo, xeno, keep, out, sdata=NULL) {
     pdo <- pdo[, colnames(pdo) != "CRC0177LMO0D04017001D02000"] # remove the mutated pdo -> keep the wt one (exception)
     xeno <- xeno[,colnames(xeno) != "CRC0177LMX0B05001TUMD07000"] # remove the wt xeno -> keep the mutated (normal line)
 #     egrassi@godot:/scratch/trcanmed/biobanca/dataset/V1/targeted$ cat  /mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_targeted_pdx/mutect/merged_longformat_wtiers.tsv | grep CRC0177 | grep EGFR | grep chr7:55160233:G:A
@@ -89,6 +91,9 @@ filter_plot <- function(pdo, xeno, keep, out) {
     ggsave(out)
     print(table(pd$class))
     #ggplot(data=pd, aes(x=af, color=class)) + geom_density()+scale_x_continuous(breaks=(seq(0, 1, by=0.05)))+unmute_theme
+    if (!is.null(sdata)) {
+        write.table(pd, file=sdata, sep="\t", quote=FALSE, row.names=FALSE)
+    }
     return(list(x=xeno, o=pdo))
 }
 
@@ -97,9 +102,9 @@ af_all <- filter_plot(pdo_df, xeno_df, keep, snakemake@output[['freqAll']])
 xeno_df_w <- read.table(xeno_waf, header=TRUE, sep="\t", row.names=1)
 pdo_df_w <- read.table(pdo_waf, header=TRUE, sep="\t", row.names=1)
 
-af_tiers <- filter_plot(pdo_df_w, xeno_df_w, keep, snakemake@output[['freqTiers']])
+af_tiers <- filter_plot(pdo_df_w, xeno_df_w, keep, snakemake@output[['freqTiers']], sdata=sourcedataA_f)
 
-plot_n <- function(pdo, pdx, out) {
+plot_n <- function(pdo, pdx, out, sdata=NULL) {
     pdxbin <- ifelse(pdx==0,0, 1)
     n_muts_x <- colSums(pdxbin)
     pdobin <- ifelse(pdo==0,0, 1)
@@ -117,9 +122,12 @@ plot_n <- function(pdo, pdx, out) {
     scale_fill_manual(values=c('darkblue', 'firebrick1'))
     ggsave(out)
     print(table(pd$class))
+    if (!is.null(sdata)) {
+        write.table(pd, file=sdata, sep="\t", quote=FALSE, row.names=FALSE)
+    }
 }
 plot_n(af_all[['o']], af_all[['x']], snakemake@output[['histAll']])
-plot_n(af_tiers[['o']], af_tiers[['x']], snakemake@output[['histTiers']])
+plot_n(af_tiers[['o']], af_tiers[['x']], snakemake@output[['histTiers']], sdata=sourcedataB_f)
 
 write.table(af_tiers[['o']], file=snakemake@output[['pdoTiers']], sep="\t", quote=FALSE)
 write.table(af_tiers[['x']], file=snakemake@output[['xenoTiers']], sep="\t", quote=FALSE)

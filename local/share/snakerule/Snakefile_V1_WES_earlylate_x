@@ -60,6 +60,14 @@ rule jaccard_mut_sim:
     output: pheat="jaccard_heat_{AF}.pdf", density="jaccard_density_{AF}.pdf", violin="jaccard_violin_{AF}.pdf", violin2="jaccard_violin2_{AF}.pdf", jac_f="jac_matrix_{AF}.tsv", mw="jac_MW_{AF}.txt"
     script: SRC_DIR+"/jaccard_mut_sim.R"
 
+rule source_data_4_or_8:
+    input: jac_2b="jac_matrix_0.05.tsv", clones="clones.tsv"
+    output: 'SOURCE_DATA_Figure_4_or_8_' + VS + '.xlsx'
+    shell:
+        """
+            tsv_to_xls -i {input.jac_2b},{input.clones} -o {output} -s 'Fig. 4A, Fig. 4D'
+        """
+
 # here AF thr not considered
 rule jaccard_mut_sim_subset:
     input: Rimage='preprocGeneAF_{AF}.Rdata', subset=DATA+"/targeted/panel_pdo_pdx_genesymbol.tsv"
