@@ -25,7 +25,7 @@ filtro <- c("GAINED", "LOSS")
 gained <- mixed %>% filter(cnv %in% filtro)
 
 gained$start <- pmax(gained$start_e, gained$start_l)
-gained$end <- pmax(gained$end_e, gained$end_l)
+gained$end <- pmin(gained$end_e, gained$end_l)
 #loh$start <- pmax(loh$start_e, loh$start_l)
 #loh$end <- pmin(loh$end_e, loh$end_l)
 

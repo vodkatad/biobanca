@@ -602,3 +602,171 @@ rule heatmap_cnv:
         #plt.gcf().set_size_inches(37, 21)
         plt.savefig(output[0], dpi=300)
         plt.clf()
+
+
+### project bin (bed_cnv) for global segmentation of all CN
+rule bedtobin_x:
+    input: bed=SEQUENZA_TO_BED_X+"/{sample}.bed"
+    output: "totalbins_singlesample/{sample}.{bin}.tsv.gz"
+    params: tool=BIN_DIR+"/project_bin"
+    shell: 
+        """    
+            {params.tool} -c <(cat {input.bed} | grep -v chrX | grep -v chrY| sed 's/chr//1' |  sort -k1,1n -k2,2n | bawk '$4 != "" {{print "chr"$1,$2,$3,$4}}') -b {wildcards.bin} | gzip > {output}
+        """
+
+rule bedtobin_o:
+    input: bed=SEQUENZA_TO_BED_O+"/{sample}.bed"
+    output: "totalbins_singlesample/{sample}.{bin}.tsv.gz"
+    params: tool=BIN_DIR+"/project_bin"
+    shell: 
+        """    
+            {params.tool} -c <(cat {input.bed} | grep -v chrX | grep -v chrY| sed 's/chr//1' |  sort -k1,1n -k2,2n | bawk '$4 != "" {{print "chr"$1,$2,$3,$4}}') -b {wildcards.bin} | gzip > {output}
+        """
+
+rule allbedtobin_x:
+    input: expand('totalbins_singlesample/{sample}.'+str(SEG_DIM[0])+'.tsv.gz', sample=SAMPLES_EXT_X)
+
+rule allbedtobin_o:
+    input: expand('totalbins_singlesample/{sample}.'+str(SEG_DIM[0])+'.tsv.gz', sample=SAMPLES_EXT_O)
+
+rule alltobin_merged:
+    input: expand('totalbins_singlesample/{sample}.'+str(SEG_DIM[0])+'.tsv.gz', sample=SAMPLES_EXT)
+    output: m="merged.tsv.gz"
+    run:
+        import pandas as pd
+        res = pd.read_csv(input[0], sep="\t", header=None) 
+        samples = SAMPLES_EXT
+        res.columns = ['chr','b','e', samples[0]]
+        for i in range(1, len(input)):
+            print('adding ' + samples[i])
+            current = pd.read_csv(input[i], sep="\t", header=None) 
+            current.columns = ['chr','b','e',samples[i]]
+            current = current.drop(columns=['chr','b','e'])
+            res = pd.concat([res, current], axis=1, sort=False)            
+        res.to_csv(output.m, sep="\t", compression='gzip', index=False)
+
+rule vitro_heatmap:
+    input: cn="merged.tsv.gz"
+    output: "merged_heatmap.pdf"
+    run:
+        import numpy as np
+        import pandas as pd
+        import seaborn as sns
+        import matplotlib.colors as colors
+        import matplotlib 
+        import matplotlib.cm as cm
+        import matplotlib.ticker as ticker
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as colors
+        import matplotlib.transforms as transforms
+        from matplotlib.patches import Rectangle
+        from matplotlib.colors import ListedColormap
+
+        cnvs = pd.read_csv(input[0], sep="\t") 
+        boundaries = cnvs[['chr','b','e']].copy()
+        cnvs = cnvs.drop(columns=['chr','b','e']).transpose()
+        names = list(cnvs.index.values)
+        models = np.unique([ x[0:7] for x in names ])
+        sorted_names= []
+        tick_names = []
+        tick_names_2 = []
+        sep = []
+        for i in range(0, len(models)):
+            if i % 2 == 0 and i != 0:
+                sep.append(i)
+            xeno = SAMPLES_dic[models[i]][0]
+            pdo = SAMPLES_dic[models[i]][1]
+            sorted_names.append(xeno)
+            sorted_names.append(pdo)
+            tick_names.append(models[i] + " axeno")
+            tick_names.append(models[i] + " bpdo")
+            tick_names_2.append(models[i])
+            tick_names_2.append("")
+
+        maxi = max(sep)
+        for i in range(0, len(models)):
+            if i % 2 == 0 and i != 0:
+                sep.append(maxi+i)
+
+        cnvs = cnvs.reindex(sorted_names)
+        #cnvs = cnvs.reindex(tick_names)
+        samples = [ x[0:7] for x in cnvs.index.values ]
+        # Create a categorical palette to identify the samples
+        sample_pal = sns.color_palette("bright", len(np.unique(samples)))
+        #sample_pal = sns.husl_palette(len(samples), h=.5)
+        sample_lut = dict(zip(map(str, np.unique(samples)), sample_pal))
+        # Convert the palette to vectors that will be drawn on the side of the matrix
+        allsamples = cnvs.index.get_level_values(None)
+        sample_colors = pd.Series(samples, index=allsamples).map(sample_lut)
+
+        #chr_limits = boundaries.index[boundaries['e'].isin(boundaries.groupby('chr', sort=False)['e'].max().values)].tolist()
+        # with this binning we have some chr ends == to bin ends of other chr :(
+        i = 0
+        chr_limits = []
+        last = ""
+        for index, row in boundaries.iterrows():
+            if last != "" and last != row['chr']:
+                chr_limits.append(i-1)
+            last = row['chr']
+            i = i + 1
+        chr_limits.append(i-1)
+
+        chr_boundaries = np.append(0, chr_limits)
+        chr_list = boundaries['chr'].unique().tolist()
+        chrN_list = []
+
+        for x in chr_list:
+            x = x[3:] #remove 'chr' for readability
+            chrN_list.append(x)
+        #compute the position where chromosome labels will be placed on the plots
+        start = 0
+        pos_list = []
+        for end in chr_limits:
+            pos_list.append((start+end)/2)
+            start = end+1
+    
+        
+        paldiscr = sns.color_palette("RdBu_r",8)
+        cmap_dict = {}
+        print(len(paldiscr))
+        for i in range(-1, 7):
+            cmap_dict[i] = paldiscr[i+1]
+        print(cmap_dict)
+
+        cnvs[cnvs > 6] = 6
+        for i in cnvs.columns:
+            cnvs[[i]] = cnvs[[i]].astype(int)
+        #cnvs.loc[cnvs[[i]] > 6,] = 6
+        #{-1: (0.142483660130719, 0.4173010380622838, 0.6833525567089581), 0: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 1: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
+
+        #cmap_dict = {-1: 'grey',  0: (0.142483660130719, 0.4173010380622838, 0.6833525567089581), 1: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 2: 'white', 3: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
+        cmap_dict = {-1: 'grey', 0: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 1: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
+        cmap = ListedColormap([cmap_dict[i] for i in range(-1,7)])
+
+        #h = sns.clustermap(cnvs, row_colors=sample_colors, col_cluster=False, row_cluster=False, cmap=cmap, vmin=-1, vmax=6, center=3, rasterized=True, yticklabels=tick_names_2)
+        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, cmap=cmap, rasterized=True, yticklabels=tick_names)
+        
+        ax = h.ax_heatmap
+        for pos in sep:
+            ax.axhline(y=pos, color='white', linewidth=0.8)        
+        for pos in chr_limits:
+            ax.axvline(x=pos, color='black', linewidth=0.3)
+        #place chromosome ticks at the right position
+        ax.xaxis.set_major_formatter(ticker.FixedFormatter((chrN_list)))
+        h.ax_heatmap.set_yticklabels(h.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
+        ax.tick_params(axis='x', rotation=0, labelsize=5)
+        ax.xaxis.set_major_locator(ticker.FixedLocator(pos_list))
+        ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
+        ax.tick_params(axis='x', length=8, which='minor')
+        ax.yaxis.tick_left()
+
+        ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=7)
+        ax.set_ylabel("PDXTs", fontsize=7, fontweight='bold')
+
+        # A4 is 8-1/4 x 11-3/4 in
+        #plt.gcf().set_size_inches(7, 3.8) # w, h
+        plt.gcf().set_size_inches(7, 2.8)
+        # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
+        # scale by hand
+        plt.savefig(output[0], dpi=300)
+        plt.clf()
