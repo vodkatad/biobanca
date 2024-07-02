@@ -16,7 +16,8 @@ BIN_DIR=PRJ_ROOT+'/local/bin'
 SRC_DIR=PRJ_ROOT+'/local/src'
 DATA=PRJ_ROOT+'/local/share/data/cetuxi'
 SEQUENZA='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo'
-SEQUENZA_TO_BED='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo/loh/bed_cnv'
+SEQUENZA_TO_BED='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo/loh/bed_cnv_good'
+#SEQUENZA_TO_BED='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo/loh/bed_cnv'
 
 SAMPLES_dic={"CRC0095":["CRC0095LMO0A01003001VT0600_7D","CRC0095LMO0A04010001VT0700_8D"],
 "CRC0099":["CRC0099LMO0A01003001VT0600D","CRC0099LMO0A04010001VT0300D"],

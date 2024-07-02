@@ -574,6 +574,7 @@ rule heatmap_cnv:
         ax.tick_params(axis='x', rotation=0, labelsize=5)
         ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
         ax.tick_params(axis='x', length=8, which='minor')
+        ax.yaxis.tick_left()
         
         
        
@@ -744,7 +745,7 @@ rule vitro_heatmap:
         cmap = ListedColormap([cmap_dict[i] for i in range(-1,7)])
 
         #h = sns.clustermap(cnvs, row_colors=sample_colors, col_cluster=False, row_cluster=False, cmap=cmap, vmin=-1, vmax=6, center=3, rasterized=True, yticklabels=tick_names_2)
-        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, cmap=cmap, rasterized=True, yticklabels=tick_names)
+        h = sns.clustermap(cnvs, col_cluster=False, row_cluster=False, cmap=cmap, rasterized=True, yticklabels=tick_names_2)
         
         ax = h.ax_heatmap
         for pos in sep:
