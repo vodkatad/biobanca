@@ -12,6 +12,7 @@ msi_f <- snakemake@input[["msi"]]
 res_circos <- snakemake@output[["df_circos"]]
 plot_fit <- snakemake@output[["fit_plot"]]
 res_fit <- snakemake@output[["results_fit"]]
+sd_f <- snakemake@output[["sd"]]
 
 ## why new? modificati i buoni dopo essere ripartiti dalla table 2 di simo 
 
@@ -165,7 +166,7 @@ res$STAGE <- as.numeric(res$STAGE)
 
 res$THERAPY.BEFORE.COLLECTION..Y.N. <- as.factor(res$THERAPY.BEFORE.COLLECTION..Y.N.)
 
-#msi_fra <- "/scratch/trcanmed/biobanca/local/share/data/MSIstatus.xlsx"
+#msi <- read.xlsx("/scratch/trcanmed/biobanca/local/share/data/MSIstatus.xlsx")
 msi <- read.xlsx(msi_f)
 msi$N <- NULL
 msi$model <- substr(msi$Genealogy.ID, 1, 7)
@@ -207,6 +208,8 @@ res$CASE <- NULL
 #res_prova <- res 
 #res_prova <- res_prova %>% filter(!KRAS == "True")
 
+# print final model input for source data
+write.table(res, file = sd_f, quote = FALSE, sep = "\t", col.names = TRUE, row.names = FALSE)
 # faccio il fit
 
 sink(snakemake@log[['log']])
