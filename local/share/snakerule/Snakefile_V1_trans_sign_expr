@@ -464,7 +464,7 @@ rule obtain_density_plot_wilcox_buoni:
 # rerun on 15/05/24 to get CI in terms of odds ratio (added exp)
 rule multivariata_clinical_data:
     input: clinical_data = CLI, pdo="../../../../local/share/data/whoiswho_validation_xen_revision_derivation.tsv", mut = FRA_MUT, umani = "../../../../local/share/data/lmh_detele_multivariate.tsv", msi="../../../../local/share/data/MSIstatus.xlsx"
-    output: df_circos = "clinical_data_for_circos_revision.tsv", fit_plot = "plot_fit_validated_revision.pdf", results_fit = "result_fit_revision.tsv"
+    output: df_circos = "clinical_data_for_circos_revision.tsv", fit_plot = "plot_fit_validated_revision.pdf", results_fit = "result_fit_revision.tsv", sd="result_fit_source_data.tsv"
     log: log="clinical_data_for_circos.tsv.log"
     script: SRC_DIR+'/new_clinical_multivariata_clinicaldata.R'
 
@@ -478,6 +478,14 @@ rule source_data_1F:
             bawk '{{print $1,$6,$8,$7}}' {input} | grep -v Intercept > {output}.tmp
             tsv_to_xls -i {output}.tmp -o {output} -s 'Fig. 1F'
             rm {output}.tmp
+        """
+
+rule source_data_bis_1f:
+    input: "result_fit_source_data.tsv"
+    output: "source_data_bis_1f.xlsx"
+    shell: 
+        """
+            tsv_to_xls -i {input} -o {output} -s 'Fig. 1F bis'
         """
 
 # rerun the 24/02/23 to obtain a definitive log for final checks (final!!)
@@ -636,3 +644,16 @@ rule circos_revision:
     input: cli="clinical_data_for_circos_revision.tsv", colori="../../../../local/share/data/clinical_data_circos_cols_emendati_complete_difforder3_wderivation_revision.tsv"
     output: circos="circles_prediletti_complete_wderivation_revision.pdf", legenda="legenda_circles_prediletti_complete_wderivation_revision.pdf"
     script: SRC_DIR+"/cerchietti_completi_wderivation_revision.R"
+
+rule coerenza_deg_ox:
+    input: pdo="/scratch/trcanmed/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDO_72h_S/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv", pdx="/mnt/trcanmed/snaketree/prj/DE_RNASeq/dataset/Biodiversa_up5starOK_cetuxi_treat_PDX_S/treat_cutoff0.05-cetuxi.vs.NT.deseq2.tsv", Rimage='../../theme_5.Rdata'
+    output: pdf="biobanca_cor_ctx_raster.pdf", sourcedata="SOURCE_DATA_Figure_7A.tsv"
+    script: SRC_DIR+"/coerenza_dex_x_o.R"
+
+rule souce_data_7a:
+    input: "SOURCE_DATA_Figure_7A.tsv"
+    output: "SOURCE_DATA_Fig_7_A.xlsx"
+    shell:
+        """
+            tsv_to_xls -i {input} -o {output} -s 'Fig. 7 A'
+        """

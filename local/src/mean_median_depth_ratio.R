@@ -9,9 +9,11 @@ log_f <- snakemake@log[['log']]
 csv <- read.csv(csv_f)
 rownames(csv) <- csv$X
 csv$X <- NULL
+print(csv)
 cor <- as.matrix(csv)
 
 diagonal_values <- diag(cor)
+print(diagonal_values)
 mean_diagonal <- mean(diagonal_values)
 median_diagonal <- median(diagonal_values)
 

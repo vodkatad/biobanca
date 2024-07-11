@@ -50,3 +50,16 @@ SAMPLES=["CRC0095","CRC0099","CRC0152","CRC0464","CRC1446","CRC1449","CRC1588","
 
 
 SEG_DIM=[100000]
+
+earlys=[int(x[0][14:17]) for x in SAMPLES_dic.values()]
+lates=[int(x[1][14:17]) for x in SAMPLES_dic.values()]
+
+rule check:
+    run:
+        print(earlys)
+        print([x <= 3 for x in earlys])
+        print(lates)
+        print([x > 3 for x in lates])
+        print(set([x <= 3 for x in earlys]))
+        print(set([x > 3 for x in lates]))
+

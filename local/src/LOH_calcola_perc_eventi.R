@@ -4,8 +4,8 @@ library(dplyr)
 library(ggplot2)
 
 
-path_common<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_pdx_pdoearly/check_good"
-path_loh<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_pdx_pdoearly/final_good"
+path_common<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_earlylate/check_good"
+path_loh<-"/scratch/trcanmed/biobanca/dataset/V1/LOH_earlylate/final_good"
 chr_len<-"/scratch/trcanmed/biobanca/local/share/data/chr_len.tsv"
 
 files <- list.files(path=path_loh, pattern="*.tsv", full.names=TRUE, recursive=FALSE)
@@ -37,4 +37,10 @@ for (i in seq(1,length(files))){
     percentuali<-rbind(percentuali,riga,stringsAsFactors = FALSE)
   }
 }
-percentuali
+print(percentuali)
+
+percentuali2 <- percentuali
+percentuali2$error <- as.numeric(percentuali2$error)
+percentuali2$gained <- as.numeric(percentuali2$gained)
+percentuali2$common <- as.numeric(percentuali2$common)
+colMeans(percentuali2[2:4])

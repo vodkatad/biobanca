@@ -1,6 +1,7 @@
 library(reshape)
 library(pheatmap)
 library(readxl)
+library(openxlsx)
 
 max_inh_f <- snakemake@input[['max_inh']]
 targets_drug_screening <- snakemake@input[['drug_targets']]
@@ -25,5 +26,7 @@ dm <- merge(dm, targets_drug_screening, by = "drug")
 dm$name <- paste0(dm$drug2, "\n", dm$targets)
 rownames(dm) <- dm$name
 dm <- dm[order(-dm$mean),]
+
+write.xlsx(dm, "source_7B.xlsx")
 
 pheatmap(dm[2:6], cluster_cols=F, cluster_rows=F, file = heatmap_f)

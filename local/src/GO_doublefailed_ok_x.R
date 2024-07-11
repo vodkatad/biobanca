@@ -19,3 +19,6 @@ p1 <- ggplot(d=dp, aes(y=count_cor, x=reorder(Description, count_cor), fill=log1
 load('/scratch/trcanmed/git_biobanca/local/data/theme_5.Rdata')
 
 ggsave('/scratch/trcanmed/biobanca/local/share/data/go_doublefailed.pdf', p1 + unmute_theme,  height=2.5, width=5, units='in')
+
+sourcedata <- dp[,c('ID', 'Description', 'count_cor', 'p.adjust')]
+write.table(sourcedata, '/scratch/trcanmed/biobanca/local/share/data/go_doublefailed.tsv', sep="\t", quote=F, row.names=F)

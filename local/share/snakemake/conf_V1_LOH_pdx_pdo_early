@@ -21,7 +21,7 @@ SEQUENZA_TO_BED_X='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlyl
 SEQUENZA_TO_BED_O='/mnt/trcanmed/snaketree/prj/snakegatk/dataset/biobanca_earlylate_pdo/loh/bed_cnv_good'
 
 
-SAMPLES_dic={"CRC0095":["CRC0095LMX0B03211TUMD02000","CRC0095LMO0A04010001VT0700_8D"],
+SAMPLES_dic={"CRC0095":["CRC0095LMX0B03211TUMD02000","CRC0095LMO0A01003001VT0600_7D"],
 "CRC0099":["CRC0099LMX0A04215TUMD02000_3","CRC0099LMO0A01003001VT0600D"],
 "CRC0152":["CRC0152LMX0B03003TUMD02000","CRC0152LMO0C01003001VT0800D"],
 "CRC0464":["CRC0464LMX0A03005TUMD02000","CRC0464LMO0A01003001VT0700D"],
@@ -56,3 +56,16 @@ SAMPLES=["CRC0095","CRC0099","CRC0152","CRC0464","CRC1446","CRC1449","CRC1588","
 
 
 SEG_DIM=[100000]
+
+xs=[x[0][9:10] for x in SAMPLES_dic.values()]
+earlys=[int(x[1][14:17]) for x in SAMPLES_dic.values()]
+
+rule check:
+    run:
+        print(earlys)
+        print([x <= 3 for x in earlys])
+        print(xs)
+        print([x == 'X' for x in xs])
+        print(set([x <= 3 for x in earlys]))
+        print(set([x == 'X' for x in xs]))
+

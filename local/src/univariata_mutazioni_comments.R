@@ -141,6 +141,11 @@ pdf(fit_gene, useDingbats=FALSE)
 plot_model(ctnnb1, axis.lim = c(0.01, 1), title = "Validation", axis.labels = "CTNNB1 [True]")
 dev.off()
 
+# print <- merged
+# print <- print[,c("CTNNB1", "buoni")]
+# colnames(print) <- c("CTNNB1", "Success status of early derivation and validation")
+# 
+# write.xlsx(print, "/home/mferri/sup6.xlsx")
 # to put odds ratio in the main text, run 19/01/23 loading ctnnb1.Rdata
 #> exp(res[,2])
  #[1] 6.722689e-02 1.939655e-01 1.475410e-01 3.669725e-01 3.559322e-01

@@ -34,7 +34,7 @@ rule good_regions:
 rule all_good_regions:
     input:expand('final_good/{sample}_loh.tsv', sample=SAMPLES)
 
-rule LOH_for_plot:
+""" rule LOH_for_plot:
     input: loh='final/{sample}_loh.tsv',len_chr='../../../local/share/data/chr_len.tsv',loh_e=find_early_bed
     output: tsv="loh_plot/seg_dim_{number}/{sample}_loh_seg_dim_{number}.tsv"  #10000000
     run: 
@@ -81,7 +81,7 @@ rule LOH_for_plot:
                     riga={'chr':chr,'start':start,'end':end,'event':evento['event'],'segment_id':a}
                     data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
 
-        data_seg.to_csv(output['tsv'],sep='\t',index=False)
+        data_seg.to_csv(output['tsv'],sep='\t',index=False) """
 
 rule  all_LOH_for_plot:
     input: expand('loh_plot/seg_dim_{number}/{sample}_loh_seg_dim_{number}.tsv', sample=SAMPLES,number=SEG_DIM)
@@ -231,7 +231,7 @@ rule heatmap:
         #cbar_kws={"ticks": np.arange(0,13,1)}
         maxv = cnvs.max().max()
         minv = cnvs.min().min()
-        cmap_dict ={0:'white',1:'darkgrey',2:'magenta',3:'lime'}
+        cmap_dict ={0:'white',1:'darkgrey',2:'#881266ff',3:'#548135ff'}
         cmap = ListedColormap([cmap_dict[i] for i in range(4)])
         
         f, culo = plt.subplots()
@@ -259,13 +259,13 @@ rule heatmap:
         ax.tick_params(axis='x', rotation=0, labelsize=5)
         ax.xaxis.set_minor_locator(ticker.FixedLocator(chr_boundaries))
         ax.tick_params(axis='x', length=8, which='minor')
-        #ax.yaxis.set_label_position('left')
-        
+        ax.yaxis.set_label_position('left')
+        ax.yaxis.tick_left()
        
         # add legend
         box = culo.get_position()
         #culo.set_position([box.x0, box.y0, box.width * 0.3, box.height])
-        legend_ax = h.fig.add_axes([0, 0, 0.1, 0.6])
+        legend_ax = h.fig.add_axes([0, 0, 0.1, 1])
         
         legend_ax.axis('off')
         
@@ -283,7 +283,7 @@ rule heatmap:
         #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
         #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
         # A4 is 8-1/4 x 11-3/4 in
-        plt.gcf().set_size_inches(7, 3.8) # w, h
+        plt.gcf().set_size_inches(7, 2.8) # w, h
         # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
         # scale by hand
         #plt.gcf().set_size_inches(37, 21)
@@ -292,11 +292,12 @@ rule heatmap:
         plt.clf()
 rule segment_depth_rato:
     input: bed= SEQUENZA_PDO+'/loh/bed_depth/{sample}.bed',len_chr='../../../local/share/data/chr_len.tsv'
-    output: out='depth_ratio/seg_dim_{number}/{sample}.tsv'
+    output: out='depth_ratio_perfavore/seg_dim_{number}/{sample}.tsv'
     run:
         import pandas as pd
         import numpy as np
         seg_dim=int(wildcards.number)
+
         data=pd.read_csv(input['bed'],sep='\t',header=None,index_col=None)
         data.columns=['chr','start','end','depth.ratio']
         chr_len=pd.read_csv(input['len_chr'],sep='\t',header=0,index_col=None)
@@ -311,6 +312,7 @@ rule segment_depth_rato:
 
         data_seg=pd.DataFrame(columns=['chr','start','end','depth.ratio','segment_id'])
         a=0
+         
         for chr in chr_dic.keys():
             tmp=data[data['chr']==chr]
             for i in range(0,chr_dic[chr],seg_dim):
@@ -319,6 +321,7 @@ rule segment_depth_rato:
                 end=i+seg_dim
                 #cerco se esiste un segmento nel tmp che ha depth_ratio
                 tmp2=tmp[(tmp['start']<end ) & (tmp['end']>start)]
+                
                 #tmp2_bad=tmp_bad[(tmp_bad['start']<end ) & (tmp_bad['end']>start)]
                 if len(tmp2)==0:
                     riga={'chr':chr,'start':start,'end':end,'depth.ratio':0,'segment_id':a}
@@ -335,7 +338,7 @@ rule segment_depth_rato:
                     #else:
                         #riga={'chr':chr,'start':start,'end':end,'event':evento['event'],'segment_id':a}
                         #data_seg=pd.concat([data_seg,pd.DataFrame([riga])],ignore_index=True)
-                    
+                  
         data_seg.to_csv(output['out'],sep='\t',index=False)
 def flatten_extend(matrix):
     flat_list = []
@@ -346,12 +349,12 @@ def all_samples_list():
     return flatten_extend(SAMPLES_dic.values())
 
 rule all_segment_depth_ratio:
-    input:expand('depth_ratio/seg_dim_{number}/{sample}.tsv',sample=all_samples_list(),number=SEG_DIM)
+    input:expand('depth_ratio_perfavore/seg_dim_{number}/{sample}.tsv',sample=all_samples_list(),number=SEG_DIM)
 
 
 rule data_heatmap_cp:
-    input:dir='depth_ratio/seg_dim_{number}'
-    output:data_e='depth_ratio/heatmap_data/seg_dim_{number}_early.csv',data_l='depth_ratio/heatmap_data/seg_dim_{number}_late.csv'
+    input:dir='depth_ratio_perfavore/seg_dim_{number}'
+    output:data_e='depth_ratio_perfavore/heatmap_data/seg_dim_{number}_early.csv',data_l='depth_ratio_perfavore/heatmap_data/seg_dim_{number}_late.csv'
     run:
         import pandas as pd
         import seaborn as sns
@@ -379,12 +382,12 @@ rule data_heatmap_cp:
         
 
 rule get_corr:
-    input: e="depth_ratio/heatmap_data/seg_dim_{number}_early.csv", l="depth_ratio/heatmap_data/seg_dim_{number}_late.csv"
-    output: result="depth_ratio/heatmap_data/seg_dim_{number}.csv"
+    input: e="depth_ratio_perfavore/heatmap_data/seg_dim_{number}_early.csv", l="depth_ratio_perfavore/heatmap_data/seg_dim_{number}_late.csv"
+    output: result="depth_ratio_perfavore/heatmap_data/seg_dim_{number}.csv"
     script: SRC_DIR+"/correlation_early_late.R"
 rule corr_heatmap:
-    input:corr="depth_ratio/heatmap_data/seg_dim_{number}.csv"
-    output: res="depth_ratio/heatmap_seg_dim_{number}.png"
+    input:corr="depth_ratio_perfavore/heatmap_data/seg_dim_{number}.csv"
+    output: res="depth_ratio_perfavore/heatmap_seg_dim_{number}.png"
     run:
         import seaborn as sns
         import pandas as pd
@@ -401,9 +404,9 @@ rule corr_heatmap:
 
 
 rule get_corr_mean_median:
-    input: cor="depth_ratio/heatmap_data/seg_dim_{number}.csv"
-    output: result="depth_ratio/heatmap_data/correlation_mean_median_{number}.tsv"
-    log: log="depth_ratio/heatmap_data/wilcox_diagvsnondiag_{number}.log"
+    input: cor="depth_ratio_perfavore/heatmap_data/seg_dim_{number}.csv"
+    output: result="depth_ratio_perfavore/heatmap_data/correlation_mean_median_{number}.tsv"
+    log: log="depth_ratio_perfavore/heatmap_data/wilcox_diagvsnondiag_{number}.log"
     script: SRC_DIR+"/mean_median_depth_ratio.R"
 
 ## CNV
@@ -597,7 +600,7 @@ rule heatmap_cnv:
         #ax.set_xlabel("Chromosomes", fontweight='bold', fontsize=25)
         #ax.set_ylabel("Clones", fontsize=25, fontweight='bold')
         # A4 is 8-1/4 x 11-3/4 in
-        plt.gcf().set_size_inches(7, 3.8) # w, h
+        plt.gcf().set_size_inches(7, 2.8) # w, h
         # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
         # scale by hand
         #plt.gcf().set_size_inches(37, 21)
@@ -741,7 +744,7 @@ rule vitro_heatmap:
         #{-1: (0.142483660130719, 0.4173010380622838, 0.6833525567089581), 0: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 1: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
 
         #cmap_dict = {-1: 'grey',  0: (0.142483660130719, 0.4173010380622838, 0.6833525567089581), 1: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 2: 'white', 3: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
-        cmap_dict = {-1: 'grey', 0: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 1: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
+        cmap_dict = {-1: 'whitesmoke', 0: (0.32349096501345653, 0.6149173394848136, 0.7854671280276817), 1: (0.6549019607843138, 0.8143790849673204, 0.8941176470588236), 2: (0.8838908112264514, 0.9284890426758939, 0.9530180699730872), 3: (0.982006920415225, 0.9061899269511726, 0.8615916955017301), 4: (0.9686274509803922, 0.7176470588235294, 0.6), 5: (0.8622837370242215, 0.42952710495963087, 0.34271434063821604), 6: (0.7118800461361015, 0.12179930795847749, 0.18169934640522878)}
         cmap = ListedColormap([cmap_dict[i] for i in range(-1,7)])
 
         #h = sns.clustermap(cnvs, row_colors=sample_colors, col_cluster=False, row_cluster=False, cmap=cmap, vmin=-1, vmax=6, center=3, rasterized=True, yticklabels=tick_names_2)
@@ -765,8 +768,8 @@ rule vitro_heatmap:
         ax.set_ylabel("PDXTs", fontsize=7, fontweight='bold')
 
         # A4 is 8-1/4 x 11-3/4 in
-        #plt.gcf().set_size_inches(7, 3.8) # w, h
-        plt.gcf().set_size_inches(7, 2.8)
+        plt.gcf().set_size_inches(7, 2.8) # w, h
+        #plt.gcf().set_size_inches(7, 5)
         # cannot find a way to get tolerable linewidth cause linewidth parameter seem to be ignored, will
         # scale by hand
         plt.savefig(output[0], dpi=300)

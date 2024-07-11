@@ -91,6 +91,13 @@ fit.kras <- glm(Validation ~ Passage + Site.of.Primary + KRAS, data=res2,family=
 pdf(plot_fit, useDingbats=FALSE)
 plot_model(fit.kras, axis.lim = c(0.1, 2), title = "Validated") 
 dev.off()
+
+# print <- res2
+# print$model <- NULL
+# colnames(print) <- c("KRAS", "Passage", "Success status of early derivation and validation", "Site of primary")
+# 
+# write.xlsx(print, file="/home/mferri/sup1.xlsx")
+
 fit <- as.data.frame(summary.glm(fit.kras)$coefficients)
 
 conf_intervals <- confint(fit.kras)
@@ -104,6 +111,8 @@ fit3 <- cbind(fit2, odds_ratios)
 
 rownames(fit3) <- c("Intercept", "Passage", "Site of primary (right colon)", "KRAS (mutant)")
 write.table(fit3, file = result, quote = FALSE, sep = "\t", col.names = TRUE, row.names = TRUE)
+
+# write.xlsx(fit3, file="/home/mferri/sup1_2.xlsx", row.names=TRUE)
 
 ## part for revision
 for (i in rownames(res2)) {
